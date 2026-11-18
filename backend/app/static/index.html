@@ -68,7 +68,18 @@
           <span class="text-slate-300" id="calibLabel">Not calibrated</span>
         </div>
 
-        <!-- Master Kill Switch -->
+        <!-- External Memory Toggle (Independent from Steering) -->
+        <div class="flex items-center space-x-2 bg-slate-850 border border-slate-700/80 px-3 py-1.5 rounded-xl">
+          <span class="text-xs font-medium text-slate-300">Memory</span>
+          <button id="memoryToggleBtn" onclick="toggleMemoryGlobal()"
+            class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none bg-emerald-600">
+            <span id="memoryToggleKnob"
+              class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-6"></span>
+          </button>
+          <span id="memoryToggleLabel" class="text-xs font-mono text-emerald-400">ON</span>
+        </div>
+
+        <!-- Master Steering Kill Switch -->
         <div class="flex items-center space-x-2 bg-slate-850 border border-slate-700/80 px-3 py-1.5 rounded-xl">
           <span class="text-xs font-medium text-slate-300">Steering</span>
           <button id="masterToggleBtn" onclick="toggleMasterSteering()"
@@ -90,6 +101,9 @@
       </button>
       <button onclick="switchTab('playground')" id="tabBtn-playground" class="py-3 px-1 tab-inactive font-medium text-sm flex items-center space-x-2">
         <i class="fa-solid fa-flask-vial"></i><span>Live Playground</span>
+      </button>
+      <button onclick="switchTab('memory')" id="tabBtn-memory" class="py-3 px-1 tab-inactive font-medium text-sm flex items-center space-x-2">
+        <i class="fa-solid fa-brain text-emerald-400"></i><span>External Memory</span>
       </button>
       <button onclick="switchTab('wizard')" id="tabBtn-wizard" class="py-3 px-1 tab-inactive font-medium text-sm flex items-center space-x-2">
         <i class="fa-solid fa-screwdriver-wrench"></i><span>Calibration Wizard</span>
@@ -264,7 +278,7 @@
             </button>
           </div>
 
-          <div class="flex items-center gap-4">
+          <div class="flex flex-wrap items-center gap-4">
             <div class="flex flex-col gap-1">
               <label class="text-xs text-slate-500">Max tokens</label>
               <input type="number" id="maxTokensInput" value="80" min="10" max="300"
@@ -277,6 +291,12 @@
                 <option value="stream">Streaming (SSE)</option>
                 <option value="blocking">Blocking (compare)</option>
               </select>
+            </div>
+            <div class="flex items-center gap-2 pt-4">
+              <input type="checkbox" id="injectMemoryCheck" checked class="accent-emerald-500 h-4 w-4">
+              <label for="injectMemoryCheck" class="text-xs text-slate-300 flex items-center gap-1 cursor-pointer">
+                <i class="fa-solid fa-brain text-emerald-400"></i> Inject Relevant Memory
+              </label>
             </div>
           </div>
 
@@ -295,9 +315,19 @@
                 <div class="h-2 w-2 rounded-full bg-indigo-500 animate-pulse"></div>
                 <span class="text-xs font-bold text-indigo-400 uppercase tracking-widest">Steered Output</span>
               </div>
-              <div id="steeringBadge" class="text-[10px] px-2 py-0.5 rounded-full border border-indigo-800 text-indigo-400 bg-indigo-950/60 font-mono">
-                Active
+              <div class="flex items-center gap-2">
+                <div id="memoryRetrievedBadge" class="hidden text-[10px] px-2 py-0.5 rounded-full border border-emerald-800 text-emerald-300 bg-emerald-950/70 font-mono flex items-center gap-1">
+                  <i class="fa-solid fa-brain text-[9px]"></i> <span id="memoryCountBadge">0 memories</span>
+                </div>
+                <div id="steeringBadge" class="text-[10px] px-2 py-0.5 rounded-full border border-indigo-800 text-indigo-400 bg-indigo-950/60 font-mono">
+                  Active
+                </div>
               </div>
+            </div>
+            <!-- Injected memory preview accordion -->
+            <div id="injectedMemoryDetails" class="hidden text-[11px] bg-slate-950 p-2.5 rounded-lg border border-emerald-900/40 text-emerald-300 font-mono space-y-1">
+              <div class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Injected External Context:</div>
+              <div id="injectedMemoryText" class="text-slate-300 whitespace-pre-wrap"></div>
             </div>
             <pre id="steeredOutput" class="token-stream text-sm text-slate-200 min-h-[80px] leading-relaxed">
 <span class="text-slate-600 italic">Output will appear here…</span></pre>
@@ -323,17 +353,225 @@
       </div>
     </div>
 
+    <!-- ════════════ TAB: EXTERNAL MEMORY (Blueprint Section 12) ════════════ -->
+    <div id="tabContent-memory" class="hidden space-y-6">
+      <!-- Memory Overview Card -->
+      <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-xl bg-emerald-600/30 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+              <i class="fa-solid fa-brain text-lg"></i>
+            </div>
+            <div>
+              <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
+                External Memory Subsystem
+              </h2>
+              <p class="text-xs text-slate-400">
+                User-approved facts, preferences & episodic summaries stored externally. Retrieved dynamically at inference time without modifying model weights.
+              </p>
+            </div>
+          </div>
+          <!-- Toggle -->
+          <div class="flex items-center gap-3 bg-slate-950 px-4 py-2 rounded-xl border border-slate-800">
+            <span class="text-xs font-semibold text-slate-300">Memory Retrieval</span>
+            <button id="memorySubsystemToggle" onclick="toggleMemoryGlobal()"
+              class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none bg-emerald-600">
+              <span id="memorySubsystemKnob"
+                class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-6"></span>
+            </button>
+            <span id="memorySubsystemLabel" class="text-xs font-mono text-emerald-400">ACTIVE</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- LEFT: Stored Memories (7 cols) -->
+        <div class="lg:col-span-7 space-y-5">
+          <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest flex items-center gap-2">
+                <i class="fa-solid fa-list-check text-emerald-400"></i> Stored Memory Items
+                <span id="memCountPill" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full font-mono">3 items</span>
+              </h3>
+              <!-- Type Filter -->
+              <div class="flex gap-1 text-[11px]">
+                <button onclick="filterMemories('all')" id="memFilter-all" class="px-2.5 py-1 rounded bg-slate-800 text-slate-200 font-medium">All</button>
+                <button onclick="filterMemories('fact')" id="memFilter-fact" class="px-2.5 py-1 rounded text-slate-500 hover:text-slate-300">Facts</button>
+                <button onclick="filterMemories('preference')" id="memFilter-preference" class="px-2.5 py-1 rounded text-slate-500 hover:text-slate-300">Prefs</button>
+                <button onclick="filterMemories('episodic')" id="memFilter-episodic" class="px-2.5 py-1 rounded text-slate-500 hover:text-slate-300">Episodic</button>
+              </div>
+            </div>
+
+            <!-- Memory List -->
+            <div id="memoryItemsList" class="space-y-3">
+              <div class="text-slate-500 text-center py-4 text-xs">Loading memories…</div>
+            </div>
+          </div>
+
+          <!-- Add Memory Form -->
+          <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5 space-y-3">
+            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest flex items-center gap-1.5">
+              <i class="fa-solid fa-plus text-emerald-400"></i> Add External Memory Item
+            </h3>
+            <textarea id="newMemoryContent" rows="3" placeholder="Enter a user-approved fact, preference, or architectural constraint…"
+              class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500 resize-none"></textarea>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label class="text-[10px] text-slate-500 uppercase font-bold block mb-1">Type</label>
+                <select id="newMemoryType" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
+                  <option value="fact">Fact</option>
+                  <option value="preference">Preference</option>
+                  <option value="episodic">Episodic</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[10px] text-slate-500 uppercase font-bold block mb-1">Provenance</label>
+                <select id="newMemoryProvenance" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
+                  <option value="user">User Provided</option>
+                  <option value="inferred">Inferred Summary</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[10px] text-slate-500 uppercase font-bold block mb-1">Tags (comma-separated)</label>
+                <input id="newMemoryTags" type="text" placeholder="e.g. database, auth"
+                  class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500">
+              </div>
+            </div>
+
+            <button onclick="submitNewMemory()"
+              class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-1.5 transition">
+              <i class="fa-solid fa-floppy-disk"></i> Save to External Memory
+            </button>
+          </div>
+        </div>
+
+        <!-- RIGHT: Interactive Relevance Retrieval Preview (5 cols) -->
+        <div class="lg:col-span-5 space-y-5">
+          <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5 space-y-4">
+            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest flex items-center gap-1.5">
+              <i class="fa-solid fa-magnifying-glass text-emerald-400"></i> Memory Retrieval Tester
+            </h3>
+            <p class="text-slate-400 text-xs">
+              Test queries to preview what memories match relevance thresholds and how they are injected into context:
+            </p>
+
+            <div class="space-y-2">
+              <div class="flex gap-2">
+                <input id="memoryTestQuery" type="text" placeholder="Type prompt to test retrieval..."
+                  class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500">
+                <button onclick="testMemoryQuery()"
+                  class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold transition shrink-0">
+                  Test
+                </button>
+              </div>
+              <!-- Quick prompts -->
+              <div class="flex flex-wrap gap-1.5 pt-1">
+                <button onclick="runSampleMemQuery('What database do we use?')" class="text-[10px] bg-slate-800 hover:bg-slate-750 text-slate-300 px-2 py-0.5 rounded border border-slate-700">"What database?"</button>
+                <button onclick="runSampleMemQuery('Should we adopt microservices?')" class="text-[10px] bg-slate-800 hover:bg-slate-750 text-slate-300 px-2 py-0.5 rounded border border-slate-700">"Microservices?"</button>
+                <button onclick="runSampleMemQuery('What backend framework?')" class="text-[10px] bg-slate-800 hover:bg-slate-750 text-slate-300 px-2 py-0.5 rounded border border-slate-700">"Backend framework?"</button>
+              </div>
+            </div>
+
+            <!-- Preview Results -->
+            <div id="memoryRetrievalResults" class="space-y-3 hidden">
+              <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                <span>Retrieved Context Block</span>
+                <span id="memMatchesCount" class="text-emerald-400 font-mono text-[10px]">0 matches</span>
+              </div>
+              <pre id="retrievedContextBlock" class="p-3 bg-slate-950 rounded-xl border border-emerald-900/40 text-[11px] text-emerald-300 font-mono overflow-x-auto whitespace-pre-wrap leading-relaxed min-h-[60px]"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- ════════════ TAB 3: CALIBRATION WIZARD ════════════ -->
     <div id="tabContent-wizard" class="hidden space-y-6">
+      
+      <!-- Provider Configuration Card (Blueprint Section 7) -->
+      <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-5">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-xl bg-purple-600/30 text-purple-400 flex items-center justify-center border border-purple-500/30">
+              <i class="fa-solid fa-cloud-arrow-up text-lg"></i>
+            </div>
+            <div>
+              <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
+                Calibration Provider Configuration
+              </h2>
+              <p class="text-xs text-slate-400">
+                The calibration provider generates contrastive dataset pairs. Supports local Ollama or any user-supplied API endpoint (OpenAI, DeepSeek, Groq, OpenRouter, LM Studio).
+              </p>
+            </div>
+          </div>
+          <div id="providerStatusPill" class="text-xs px-3 py-1.5 rounded-full border border-slate-700 bg-slate-950 font-mono text-slate-400 flex items-center gap-1.5">
+            <span id="providerDot" class="h-2 w-2 rounded-full bg-slate-500"></span>
+            <span id="providerStatusText">Loading provider...</span>
+          </div>
+        </div>
+
+        <!-- Provider Presets -->
+        <div class="space-y-1.5">
+          <label class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Quick Provider Presets</label>
+          <div class="flex flex-wrap gap-2" id="providerPresetButtons">
+            <button onclick="selectProviderPreset('ollama')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 rounded-lg text-xs font-medium transition">Ollama (Local)</button>
+            <button onclick="selectProviderPreset('openai')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 rounded-lg text-xs font-medium transition">OpenAI Cloud</button>
+            <button onclick="selectProviderPreset('deepseek')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 rounded-lg text-xs font-medium transition">DeepSeek</button>
+            <button onclick="selectProviderPreset('groq')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 rounded-lg text-xs font-medium transition">Groq Cloud</button>
+            <button onclick="selectProviderPreset('openrouter')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 rounded-lg text-xs font-medium transition">OpenRouter</button>
+            <button onclick="selectProviderPreset('lm_studio')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 rounded-lg text-xs font-medium transition">LM Studio / vLLM</button>
+          </div>
+        </div>
+
+        <!-- Custom Provider Form -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+          <div>
+            <label class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block mb-1">API Endpoint / Base URL</label>
+            <input id="provEndpointInput" type="text" placeholder="http://127.0.0.1:11434"
+              class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 font-mono focus:outline-none focus:border-purple-500">
+          </div>
+          <div>
+            <label class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block mb-1">Model Identifier</label>
+            <input id="provModelInput" type="text" placeholder="phi3 or gpt-4o-mini"
+              class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 font-mono focus:outline-none focus:border-purple-500">
+          </div>
+          <div>
+            <label class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block mb-1">API Key (Optional for local)</label>
+            <div class="relative">
+              <input id="provKeyInput" type="password" placeholder="sk-..."
+                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 font-mono focus:outline-none focus:border-purple-500 pr-9">
+              <button onclick="toggleKeyVisibility()" class="absolute right-2 top-2 text-slate-500 hover:text-slate-300">
+                <i id="keyVisibilityIcon" class="fa-solid fa-eye text-xs"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+          <div id="provTestFeedback" class="text-xs font-mono text-slate-500"></div>
+          <div class="flex gap-2">
+            <button onclick="testActiveProvider()" id="testProvBtn"
+              class="px-4 py-2 bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 rounded-lg text-xs font-medium transition flex items-center gap-1.5">
+              <i class="fa-solid fa-plug text-xs"></i> Test Connection
+            </button>
+            <button onclick="saveActiveProvider()" id="saveProvBtn"
+              class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+              <i class="fa-solid fa-floppy-disk text-xs"></i> Save Provider
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         <!-- Calibration controls -->
         <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-5">
           <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
-            <i class="fa-solid fa-screwdriver-wrench text-indigo-400"></i> Run Calibration
+            <i class="fa-solid fa-bolt text-purple-400"></i> Run Calibration Execution
           </h2>
           <p class="text-xs text-slate-400">
-            Generates contrastive pairs via Ollama, runs teacher-forced passes through the selected local model,
+            Generates contrastive pairs via the configured provider, runs teacher-forced passes through the selected local model,
             computes mean activation diff per layer, and stores unit-normalised steering vectors in the MCP.
           </p>
 
@@ -395,15 +633,23 @@
           </div>
         </div>
 
-        <!-- Current MCP report -->
-        <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-3">
+        <!-- Current MCP report & Compatibility Card -->
+        <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-4">
           <div class="flex items-center justify-between">
-            <h3 class="text-sm font-bold text-slate-200">Current MCP Report</h3>
-            <button onclick="loadCalibrationReport()"
-              class="text-xs px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition">
-              <i class="fa-solid fa-refresh"></i> Refresh
-            </button>
+            <h3 class="text-sm font-bold text-slate-200">Current MCP Profile</h3>
+            <div class="flex gap-2">
+              <button onclick="checkCompatibility()"
+                class="text-xs px-2.5 py-1 bg-indigo-900/60 hover:bg-indigo-900 text-indigo-300 border border-indigo-700/60 rounded-lg transition flex items-center gap-1">
+                <i class="fa-solid fa-shield-halved"></i> Verify Compatibility
+              </button>
+              <button onclick="loadCalibrationReport()"
+                class="text-xs px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition">
+                <i class="fa-solid fa-refresh"></i>
+              </button>
+            </div>
           </div>
+          <!-- Compatibility result box -->
+          <div id="compatReportBox" class="hidden p-3 rounded-xl text-xs font-mono"></div>
           <pre id="mcpReportJson"
             class="text-xs font-mono bg-slate-950 p-4 rounded-xl border border-slate-800 overflow-x-auto text-indigo-300 max-h-80">
 Loading…</pre>
@@ -605,6 +851,8 @@ Loading…</pre>
       setPrompt('Should our 3-person startup adopt Kubernetes?');
       await loadStatus();
       await loadPresets();
+      await loadProviderConfig();
+      await loadMemories();
     });
 
     async function loadStatus() {
@@ -616,6 +864,10 @@ Loading…</pre>
         document.getElementById('headerModelName').innerText = d.active_model || '—';
         document.getElementById('serverDot').className = 'h-2 w-2 rounded-full ' + (d.model_loaded ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400');
         document.getElementById('modelPill').classList.remove('hidden');
+
+        // Update memory status in header
+        const memEnabled = d.memory_enabled !== false;
+        applyMemoryToggleVisual(memEnabled);
 
         // Update calibration wizard model label
         const calibModelEl = document.getElementById('calibTargetModelLabel');
@@ -654,6 +906,13 @@ Loading…</pre>
         } else {
           calibIcon.className = 'fa-solid fa-circle-xmark text-rose-400 text-xs';
           calibLabel.innerText = 'Not calibrated';
+        }
+
+        // Provider status pill in wizard
+        if (d.provider) {
+          const p = d.provider;
+          document.getElementById('providerStatusText').innerText = `${p.type.toUpperCase()}: ${p.model_id} (${p.endpoint})`;
+          document.getElementById('providerDot').className = 'h-2 w-2 rounded-full bg-emerald-400';
         }
 
         // Master toggle visual state
@@ -832,15 +1091,20 @@ Loading…</pre>
 
     // ─── Tab switching ────────────────────────────────────────────────────────
     function switchTab(tabId) {
-      ['studio','playground','wizard','datasets','blueprint'].forEach(t => {
-        document.getElementById(`tabContent-${t}`).classList.add('hidden');
-        document.getElementById(`tabBtn-${t}`).className = 'py-3 px-1 tab-inactive font-medium text-sm flex items-center space-x-2';
+      ['studio','playground','memory','wizard','datasets','blueprint'].forEach(t => {
+        const contentEl = document.getElementById(`tabContent-${t}`);
+        if (contentEl) contentEl.classList.add('hidden');
+        const btn = document.getElementById(`tabBtn-${t}`);
+        if (btn) btn.className = 'py-3 px-1 tab-inactive font-medium text-sm flex items-center space-x-2';
       });
-      document.getElementById(`tabContent-${tabId}`).classList.remove('hidden');
-      document.getElementById(`tabBtn-${tabId}`).className = 'py-3 px-1 tab-active font-medium text-sm flex items-center space-x-2';
+      const activeContent = document.getElementById(`tabContent-${tabId}`);
+      if (activeContent) activeContent.classList.remove('hidden');
+      const activeBtn = document.getElementById(`tabBtn-${tabId}`);
+      if (activeBtn) activeBtn.className = 'py-3 px-1 tab-active font-medium text-sm flex items-center space-x-2';
 
       if (tabId === 'wizard') loadCalibrationReport();
       if (tabId === 'datasets') loadDataset('directness');
+      if (tabId === 'memory') loadMemories();
     }
 
     // ─── Sliders ──────────────────────────────────────────────────────────────
@@ -998,14 +1262,17 @@ Loading…</pre>
       const start = Date.now();
       let tokenCount = 0;
       let accumulated = '';
+      const injectMemory = document.getElementById('injectMemoryCheck')?.checked !== false;
 
       document.getElementById('steeredOutput').innerHTML = '';
       document.getElementById('baselineOutput').innerHTML = `<span class="text-slate-600 italic text-xs">(Streaming mode — baseline not generated simultaneously)</span>`;
+      document.getElementById('memoryRetrievedBadge').classList.add('hidden');
+      document.getElementById('injectedMemoryDetails').classList.add('hidden');
 
       const res = await fetch('/api/steering/generate/stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, max_tokens: maxTokens, temperature: 0.0, steered: true })
+        body: JSON.stringify({ prompt, max_tokens: maxTokens, temperature: 0.0, steered: true, inject_memory: injectMemory })
       });
 
       const reader = res.body.getReader();
@@ -1018,7 +1285,7 @@ Loading…</pre>
         buffer += decoder.decode(value, { stream: true });
 
         const lines = buffer.split('\n\n');
-        buffer = lines.pop();  // Keep incomplete chunk
+        buffer = lines.pop();
 
         for (const line of lines) {
           if (!line.startsWith('data: ')) continue;
@@ -1033,7 +1300,18 @@ Loading…</pre>
               const elapsed = ((Date.now() - start) / 1000).toFixed(1);
               const metaEl = document.getElementById('generationMeta');
               metaEl.classList.remove('hidden');
-              metaEl.innerText = `${tokenCount} tokens · ${elapsed}s · steering: ${payload.steering_applied ? 'active' : 'bypassed'}`;
+              metaEl.innerText = `${tokenCount} tokens · ${elapsed}s · steering: ${payload.steering_applied ? 'active' : 'bypassed'} · memory: ${payload.memory_applied ? 'injected' : 'none'}`;
+              
+              if (payload.retrieved_memories && payload.retrieved_memories.length > 0) {
+                const memBadge = document.getElementById('memoryRetrievedBadge');
+                memBadge.classList.remove('hidden');
+                document.getElementById('memoryCountBadge').innerText = `${payload.retrieved_memories.length} mems injected`;
+                
+                const memDetails = document.getElementById('injectedMemoryDetails');
+                memDetails.classList.remove('hidden');
+                document.getElementById('injectedMemoryText').innerText = payload.retrieved_memories.map(m => `• [${m.type.toUpperCase()}] ${m.content}`).join('\n');
+              }
+
               if (payload.active_weights) updateActiveWeightsDisplay(payload.active_weights);
             }
           } catch (_) {}
@@ -1043,10 +1321,15 @@ Loading…</pre>
 
     async function runBlockingGeneration(prompt, maxTokens) {
       const start = Date.now();
+      const injectMemory = document.getElementById('injectMemoryCheck')?.checked !== false;
+
+      document.getElementById('memoryRetrievedBadge').classList.add('hidden');
+      document.getElementById('injectedMemoryDetails').classList.add('hidden');
+
       const res = await fetch('/api/steering/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, max_tokens: maxTokens, temperature: 0.0, compare_baseline: true })
+        body: JSON.stringify({ prompt, max_tokens: maxTokens, temperature: 0.0, compare_baseline: true, inject_memory: injectMemory })
       });
       const data = await res.json();
       const elapsed = ((Date.now() - start) / 1000).toFixed(1);
@@ -1056,7 +1339,17 @@ Loading…</pre>
 
       const metaEl = document.getElementById('generationMeta');
       metaEl.classList.remove('hidden');
-      metaEl.innerText = `${elapsed}s total · steering: ${data.steering_applied ? 'active' : 'bypassed'}`;
+      metaEl.innerText = `${elapsed}s total · steering: ${data.steering_applied ? 'active' : 'bypassed'} · memory: ${data.memory_applied ? 'injected' : 'none'}`;
+
+      if (data.retrieved_memories && data.retrieved_memories.length > 0) {
+        const memBadge = document.getElementById('memoryRetrievedBadge');
+        memBadge.classList.remove('hidden');
+        document.getElementById('memoryCountBadge').innerText = `${data.retrieved_memories.length} mems injected`;
+        
+        const memDetails = document.getElementById('injectedMemoryDetails');
+        memDetails.classList.remove('hidden');
+        document.getElementById('injectedMemoryText').innerText = data.retrieved_memories.map(m => `• [${m.type.toUpperCase()}] ${m.content}`).join('\n');
+      }
 
       if (data.active_weights) updateActiveWeightsDisplay(data.active_weights);
     }
@@ -1196,6 +1489,321 @@ Loading…</pre>
       } catch (e) {
         container.innerHTML = `<div class="text-rose-400 text-sm">Failed to load: ${e.message}</div>`;
       }
+    }
+
+    // ─── Provider Manager (Blueprint Section 7) ──────────────────────────────
+    let providerPresets = {};
+
+    async function loadProviderConfig() {
+      try {
+        const res = await fetch('/api/providers/config');
+        const d = await res.json();
+        providerPresets = d.presets || {};
+        const cfg = d.active_config || {};
+
+        document.getElementById('provEndpointInput').value = cfg.endpoint || '';
+        document.getElementById('provModelInput').value = cfg.model_id || '';
+        document.getElementById('provKeyInput').value = cfg.api_key || '';
+      } catch (e) {
+        console.warn('Failed to load provider config:', e);
+      }
+    }
+
+    function selectProviderPreset(presetKey) {
+      const p = providerPresets[presetKey];
+      if (!p) return;
+      document.getElementById('provEndpointInput').value = p.endpoint;
+      document.getElementById('provModelInput').value = p.model_id;
+      if (!p.requires_key) {
+        document.getElementById('provKeyInput').value = '';
+        document.getElementById('provKeyInput').placeholder = '(No key required for local provider)';
+      } else {
+        document.getElementById('provKeyInput').placeholder = 'Enter API key (e.g. sk-...)';
+      }
+      document.getElementById('provTestFeedback').innerText = `Preset selected: ${p.display_name}. Click 'Test Connection' or 'Save Provider'.`;
+    }
+
+    function toggleKeyVisibility() {
+      const input = document.getElementById('provKeyInput');
+      const icon = document.getElementById('keyVisibilityIcon');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fa-solid fa-eye-slash text-xs text-purple-400';
+      } else {
+        input.type = 'password';
+        icon.className = 'fa-solid fa-eye text-xs text-slate-500';
+      }
+    }
+
+    async function testActiveProvider() {
+      const endpoint = document.getElementById('provEndpointInput').value.trim();
+      const model = document.getElementById('provModelInput').value.trim();
+      const key = document.getElementById('provKeyInput').value.trim();
+      const btn = document.getElementById('testProvBtn');
+      const fb = document.getElementById('provTestFeedback');
+
+      btn.disabled = true;
+      fb.className = 'text-xs font-mono text-purple-400 flex items-center gap-1.5';
+      fb.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Probing endpoint with minimal request...';
+
+      try {
+        const res = await fetch('/api/providers/test', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ endpoint, model_id: model, api_key: key || null })
+        });
+        const d = await res.json();
+        if (d.success) {
+          fb.className = 'text-xs font-mono text-emerald-400 flex items-center gap-1.5';
+          fb.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${d.message} (${d.latency_ms || 0}ms)`;
+        } else {
+          fb.className = 'text-xs font-mono text-rose-400 flex items-center gap-1.5';
+          fb.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> ${d.error || d.message}`;
+        }
+      } catch (e) {
+        fb.className = 'text-xs font-mono text-rose-400';
+        fb.innerText = 'Test request failed: ' + e.message;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function saveActiveProvider() {
+      const endpoint = document.getElementById('provEndpointInput').value.trim();
+      const model = document.getElementById('provModelInput').value.trim();
+      const key = document.getElementById('provKeyInput').value.trim();
+      const fb = document.getElementById('provTestFeedback');
+
+      const isOllama = endpoint.includes('11434') && !key;
+      const providerType = isOllama ? 'ollama' : 'openai';
+
+      try {
+        const res = await fetch('/api/providers/config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            provider_type: providerType,
+            endpoint,
+            model_id: model,
+            api_key: key || null
+          })
+        });
+        const d = await res.json();
+        fb.className = 'text-xs font-mono text-emerald-400';
+        fb.innerHTML = `<i class="fa-solid fa-check mr-1"></i> Provider configuration saved (${providerType.toUpperCase()}: ${model}).`;
+        await loadStatus();
+      } catch (e) {
+        fb.className = 'text-xs font-mono text-rose-400';
+        fb.innerText = 'Save failed: ' + e.message;
+      }
+    }
+
+    // ─── Compatibility Verification ──────────────────────────────────────────
+    async function checkCompatibility() {
+      const box = document.getElementById('compatReportBox');
+      box.classList.remove('hidden');
+      box.className = 'p-3 rounded-xl text-xs font-mono bg-slate-950 border border-slate-700 text-slate-300';
+      box.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Checking MCP compatibility against runtime model...';
+
+      try {
+        const res = await fetch('/api/calibrations/validate-compatibility', { method: 'POST' });
+        const d = await res.json();
+        if (!res.ok) throw new Error(d.detail || res.statusText);
+
+        if (d.is_compatible) {
+          box.className = 'p-3 rounded-xl text-xs font-mono bg-emerald-950/80 border border-emerald-800 text-emerald-300 space-y-1';
+          box.innerHTML = `
+            <div class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-emerald-400"></i> COMPATIBLE — Ready for Residual Steering</div>
+            <div class="text-[11px] text-slate-400">Target Model: ${d.target_model} · MCP: ${d.mcp_id}</div>
+            ${d.warnings.length > 0 ? `<div class="text-amber-400 text-[10px] mt-1">${d.warnings.join('<br>')}</div>` : ''}
+          `;
+        } else {
+          box.className = 'p-3 rounded-xl text-xs font-mono bg-rose-950/80 border border-rose-800 text-rose-300 space-y-1';
+          box.innerHTML = `
+            <div class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-xmark text-rose-400"></i> INCOMPATIBLE MCP DETECTED</div>
+            <div class="text-[11px] text-slate-300 mt-1">${d.violations.join('<br>')}</div>
+          `;
+        }
+      } catch (e) {
+        box.className = 'p-3 rounded-xl text-xs font-mono bg-rose-950/80 border border-rose-800 text-rose-300';
+        box.innerHTML = 'Error running compatibility check: ' + e.message;
+      }
+    }
+
+    // ─── External Memory Subsystem (Blueprint Section 12) ───────────────────
+    let currentMemories = [];
+    let memoryMasterEnabled = true;
+
+    async function loadMemories(typeFilter = null) {
+      const container = document.getElementById('memoryItemsList');
+      try {
+        const url = typeFilter && typeFilter !== 'all' ? `/api/memory?type_filter=${typeFilter}` : '/api/memory';
+        const res = await fetch(url);
+        const d = await res.json();
+        memoryMasterEnabled = d.master_enabled !== false;
+        applyMemoryToggleVisual(memoryMasterEnabled);
+        currentMemories = d.memories || [];
+
+        document.getElementById('memCountPill').innerText = `${currentMemories.length} items`;
+
+        if (currentMemories.length === 0) {
+          container.innerHTML = '<div class="text-slate-500 text-center py-6 text-xs">No memories found in store.</div>';
+          return;
+        }
+
+        let html = '';
+        currentMemories.forEach(m => {
+          const typeColor = m.type === 'fact' ? 'bg-blue-950 text-blue-300 border-blue-800/60' : (m.type === 'preference' ? 'bg-amber-950 text-amber-300 border-amber-800/60' : 'bg-purple-950 text-purple-300 border-purple-800/60');
+          const isEnabled = m.enabled !== false;
+          html += `
+            <div class="bg-slate-950 p-3.5 rounded-xl border ${isEnabled ? 'border-slate-800' : 'border-slate-800/40 opacity-60'} space-y-2 hover:border-slate-700 transition">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] px-2 py-0.5 rounded border ${typeColor} uppercase font-bold">${m.type}</span>
+                  <span class="text-[10px] text-slate-500 font-mono">(${m.provenance})</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button onclick="toggleMemory('${m.memory_id}', ${isEnabled})" class="text-[10px] px-2 py-0.5 rounded ${isEnabled ? 'bg-emerald-950 text-emerald-400 border border-emerald-800/60' : 'bg-slate-800 text-slate-500 border border-slate-700'}">
+                    ${isEnabled ? 'Active' : 'Disabled'}
+                  </button>
+                  <button onclick="deleteMemory('${m.memory_id}')" class="text-slate-500 hover:text-rose-400 p-1 text-xs transition" title="Delete Memory">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+              <p class="text-xs text-slate-200 leading-relaxed">${m.content}</p>
+              ${m.tags && m.tags.length > 0 ? `
+                <div class="flex flex-wrap gap-1 pt-1">
+                  ${m.tags.map(t => `<span class="text-[9px] text-slate-500 bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">#${t}</span>`).join('')}
+                </div>
+              ` : ''}
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+      } catch (e) {
+        container.innerHTML = `<div class="text-rose-400 text-center py-4 text-xs">Failed to load memories: ${e.message}</div>`;
+      }
+    }
+
+    function applyMemoryToggleVisual(enabled) {
+      const btn = document.getElementById('memoryToggleBtn');
+      const knob = document.getElementById('memoryToggleKnob');
+      const label = document.getElementById('memoryToggleLabel');
+
+      const subBtn = document.getElementById('memorySubsystemToggle');
+      const subKnob = document.getElementById('memorySubsystemKnob');
+      const subLabel = document.getElementById('memorySubsystemLabel');
+
+      [btn, subBtn].forEach(b => {
+        if (!b) return;
+        b.className = 'relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ' + (enabled ? 'bg-emerald-600' : 'bg-slate-700');
+      });
+      [knob, subKnob].forEach(k => {
+        if (!k) return;
+        k.className = 'inline-block h-4 w-4 transform rounded-full bg-white transition-transform ' + (enabled ? 'translate-x-6' : 'translate-x-1');
+      });
+      [label, subLabel].forEach(l => {
+        if (!l) return;
+        l.className = 'text-xs font-mono ' + (enabled ? 'text-emerald-400' : 'text-slate-500');
+        l.innerText = enabled ? 'ON' : 'OFF';
+      });
+    }
+
+    async function toggleMemoryGlobal() {
+      memoryMasterEnabled = !memoryMasterEnabled;
+      applyMemoryToggleVisual(memoryMasterEnabled);
+      await fetch('/api/memory/toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled: memoryMasterEnabled })
+      });
+    }
+
+    async function submitNewMemory() {
+      const content = document.getElementById('newMemoryContent').value.trim();
+      if (!content) { alert('Please enter memory content.'); return; }
+      const type = document.getElementById('newMemoryType').value;
+      const provenance = document.getElementById('newMemoryProvenance').value;
+      const rawTags = document.getElementById('newMemoryTags').value.trim();
+      const tags = rawTags ? rawTags.split(',').map(t => t.trim()).filter(Boolean) : [];
+
+      try {
+        const res = await fetch('/api/memory', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content, type, provenance, tags })
+        });
+        if (!res.ok) throw new Error(res.statusText);
+
+        document.getElementById('newMemoryContent').value = '';
+        document.getElementById('newMemoryTags').value = '';
+        await loadMemories();
+      } catch (e) {
+        alert('Failed to save memory: ' + e.message);
+      }
+    }
+
+    async function toggleMemory(memoryId, currentState) {
+      await fetch(`/api/memory/${memoryId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled: !currentState })
+      });
+      await loadMemories();
+    }
+
+    async function deleteMemory(memoryId) {
+      if (!confirm('Delete this memory item permanently?')) return;
+      await fetch(`/api/memory/${memoryId}`, { method: 'DELETE' });
+      await loadMemories();
+    }
+
+    function filterMemories(type) {
+      ['all', 'fact', 'preference', 'episodic'].forEach(t => {
+        const btn = document.getElementById(`memFilter-${t}`);
+        if (!btn) return;
+        if (t === type) {
+          btn.className = 'px-2.5 py-1 rounded bg-slate-800 text-slate-200 font-medium';
+        } else {
+          btn.className = 'px-2.5 py-1 rounded text-slate-500 hover:text-slate-300';
+        }
+      });
+      loadMemories(type === 'all' ? null : type);
+    }
+
+    async function testMemoryQuery() {
+      const query = document.getElementById('memoryTestQuery').value.trim();
+      if (!query) return;
+
+      const resultsDiv = document.getElementById('memoryRetrievalResults');
+      const countEl = document.getElementById('memMatchesCount');
+      const blockEl = document.getElementById('retrievedContextBlock');
+
+      resultsDiv.classList.remove('hidden');
+      blockEl.innerText = 'Searching memories for query relevance...';
+
+      try {
+        const res = await fetch('/api/memory/preview', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query, limit: 3 })
+        });
+        const d = await res.json();
+        countEl.innerText = `${d.retrieved_count} matches`;
+        if (d.retrieved_count > 0) {
+          blockEl.innerText = d.context_block;
+        } else {
+          blockEl.innerText = 'No memories met the relevance threshold for this query. Full profile will not be injected.';
+        }
+      } catch (e) {
+        blockEl.innerText = 'Preview error: ' + e.message;
+      }
+    }
+
+    function runSampleMemQuery(text) {
+      document.getElementById('memoryTestQuery').value = text;
+      testMemoryQuery();
     }
   </script>
 </body>

@@ -16,20 +16,28 @@ from app.core.types import (
     UniversalBehaviourProfile,
     ModelCalibrationProfile,
     CompiledSteeringPlan,
-    QualityPreset
+    QualityPreset,
+    ProviderConfig,
+    ProviderType,
+    MemoryItem,
+    MemoryType,
+    MemoryProvenance
 )
 from app.prompt_registry.registry import list_traits
 from app.models.registry import ModelLoader
-from app.providers.ollama_provider import OllamaProvider
+from app.providers.manager import ProviderManager, PROVIDER_PRESETS
+from app.providers.base import BaseCalibrationProvider
 from app.steering.calibrator import CalibrationService
 from app.profiles.compiler import PersonalityCompiler
 from app.steering.controller import SteeringController
+from app.steering.compatibility import CompatibilityValidator
+from app.memory.store import ExternalMemoryStore
 
 
 app = FastAPI(
     title="MBCT: Model-Independent Activation Steering Engine",
-    description="Inference-time personality layer via contrastive residual-stream activation steering.",
-    version="1.0.0"
+    description="Inference-time personality layer via contrastive residual-stream activation steering with external memory and multi-provider calibration.",
+    version="1.2.0"
 )
 
 app.add_middleware(
@@ -54,9 +62,12 @@ def serve_index():
 
 
 # ---------------------------------------------------------------------------
-# Global State
+# Global Services and State
 # ---------------------------------------------------------------------------
-calibration_service = CalibrationService(artifacts_dir="artifacts")
+provider_manager = ProviderManager(artifacts_dir="artifacts")
+calibration_service = CalibrationService(artifacts_dir="artifacts", provider_manager=provider_manager)
+memory_store = ExternalMemoryStore(artifacts_dir="artifacts")
+
 current_ubp = UniversalBehaviourProfile(
     profile_id="default-assistant",
     traits={
@@ -142,8 +153,16 @@ def get_system_status():
         "calibrated": has_mcp,
         "calibrated_traits": list(calibration_service.current_mcp.traits) if has_mcp else [],
         "master_steering_enabled": master_steering_enabled,
+        "memory_enabled": memory_store.master_enabled,
+        "memory_count": len(memory_store.memories),
         "current_plan_id": current_plan.plan_id if current_plan else None,
-        "chosen_layers": chosen
+        "chosen_layers": chosen,
+        "provider": {
+            "type": provider_manager.active_config.provider_type.value,
+            "endpoint": provider_manager.active_config.endpoint,
+            "model_id": provider_manager.active_config.model_id,
+            "has_key": bool(provider_manager.active_config.api_key)
+        }
     }
 
 
@@ -214,25 +233,68 @@ def get_traits():
 
 
 # ---------------------------------------------------------------------------
-# Provider
+# Calibration Provider Management (Blueprint Section 7)
 # ---------------------------------------------------------------------------
 
-class ProviderTestRequest(BaseModel):
+@app.get("/api/providers/config")
+def get_provider_config():
+    """Get active provider configuration with masked credentials and available presets."""
+    return {
+        "active_config": provider_manager.get_masked_config(),
+        "presets": provider_manager.get_presets()
+    }
+
+
+class SaveProviderConfigRequest(BaseModel):
+    provider_type: ProviderType = ProviderType.OLLAMA
     endpoint: str = "http://127.0.0.1:11434"
     model_id: str = "phi3"
+    api_key: Optional[str] = None
+    timeout_seconds: int = 60
+
+
+@app.post("/api/providers/config")
+def save_provider_config(req: SaveProviderConfigRequest):
+    """Save user-supplied provider configuration."""
+    cfg = ProviderConfig(
+        provider_id=f"provider-{req.provider_type.value}",
+        provider_type=req.provider_type,
+        endpoint=req.endpoint.rstrip("/"),
+        model_id=req.model_id.strip(),
+        api_key=req.api_key.strip() if req.api_key else None,
+        timeout_seconds=req.timeout_seconds
+    )
+    saved = provider_manager.save_config(cfg)
+    return {"status": "saved", "config": provider_manager.get_masked_config()}
+
+
+class ProviderTestRequest(BaseModel):
+    provider_type: Optional[ProviderType] = None
+    endpoint: Optional[str] = None
+    model_id: Optional[str] = None
+    api_key: Optional[str] = None
 
 
 @app.post("/api/providers/test")
 def test_provider(req: ProviderTestRequest):
-    provider = OllamaProvider()
-    provider.config.endpoint = req.endpoint
-    provider.config.model_id = req.model_id
+    """Validate provider connection using minimal token cost probe."""
+    if req.endpoint or req.model_id:
+        cfg = ProviderConfig(
+            provider_type=req.provider_type or provider_manager.active_config.provider_type,
+            endpoint=req.endpoint or provider_manager.active_config.endpoint,
+            model_id=req.model_id or provider_manager.active_config.model_id,
+            api_key=req.api_key if req.api_key is not None else provider_manager.active_config.api_key
+        )
+        provider = provider_manager.get_provider(override_config=cfg)
+    else:
+        provider = provider_manager.get_provider()
+
     result = provider.test_connection()
     return result
 
 
 # ---------------------------------------------------------------------------
-# Calibration — synchronous + async job system
+# Calibration & Compatibility (Blueprint Section 13 & 14)
 # ---------------------------------------------------------------------------
 
 class CalibrationRequest(BaseModel):
@@ -256,25 +318,34 @@ async def run_calibration(req: CalibrationRequest):
     async def _calibrate():
         def _do():
             try:
-                calibration_jobs[job_id]["progress"] = "Generating contrastive datasets via Ollama..."
+                calibration_jobs[job_id]["progress"] = "Generating contrastive datasets via configured provider..."
                 mcp = calibration_service.calibrate_traits(
                     model_key=target_model_key,
                     traits=req.traits,
                     preset=req.preset
                 )
+                calibration_jobs[job_id]["progress"] = "Validating runtime compatibility..."
+                ctrl = get_or_init_controller()
+                
+                # Verify compatibility
+                compat = CompatibilityValidator.validate(mcp, ctrl.model, ctrl.hook_manager, target_model_key)
+                if not compat.is_compatible:
+                    raise RuntimeError(f"Calibration completed but failed compatibility validation: {compat.violations}")
+
                 calibration_jobs[job_id]["progress"] = "Applying new calibration to steering controller..."
                 global active_model_key, current_plan
                 active_model_key = target_model_key
-                ctrl = get_or_init_controller()
                 current_plan = PersonalityCompiler.compile(current_ubp, mcp)
                 ctrl.apply_plan(current_plan, mcp)
+
                 calibration_jobs[job_id]["status"] = "done"
                 calibration_jobs[job_id]["progress"] = "Calibration complete."
                 calibration_jobs[job_id]["result"] = {
                     "mcp_id": mcp.mcp_id,
                     "traits": mcp.traits,
                     "chosen_layers": mcp.chosen_layers,
-                    "report": mcp.evaluation_report
+                    "report": mcp.evaluation_report,
+                    "compatibility": compat.model_dump()
                 }
             except Exception as exc:
                 calibration_jobs[job_id]["status"] = "error"
@@ -310,6 +381,114 @@ def get_current_calibration():
     }
 
 
+@app.post("/api/calibrations/validate-compatibility")
+def validate_compatibility_endpoint():
+    """Check compatibility of the current MCP against the loaded model."""
+    if not calibration_service.current_mcp:
+        raise HTTPException(status_code=400, detail="No MCP is currently loaded to validate.")
+    ctrl = get_or_init_controller()
+    report = CompatibilityValidator.validate(
+        calibration_service.current_mcp,
+        ctrl.model,
+        ctrl.hook_manager,
+        active_model_key
+    )
+    return report.model_dump()
+
+
+# ---------------------------------------------------------------------------
+# External Memory Subsystem (Blueprint Section 12)
+# ---------------------------------------------------------------------------
+
+@app.get("/api/memory")
+def get_memories(type_filter: Optional[str] = None):
+    """List all stored external memories."""
+    return {
+        "master_enabled": memory_store.master_enabled,
+        "count": len(memory_store.memories),
+        "memories": [m.model_dump() for m in memory_store.list_memories(type_filter=type_filter)]
+    }
+
+
+class AddMemoryRequest(BaseModel):
+    content: str
+    type: MemoryType = MemoryType.FACT
+    provenance: MemoryProvenance = MemoryProvenance.USER
+    tags: List[str] = []
+
+
+@app.post("/api/memory")
+def add_memory_endpoint(req: AddMemoryRequest):
+    """Add a new user-approved fact, preference, or episodic summary to external memory."""
+    if not req.content.strip():
+        raise HTTPException(status_code=400, detail="Memory content must not be empty.")
+    item = memory_store.add_memory(
+        content=req.content,
+        type=req.type,
+        provenance=req.provenance,
+        tags=req.tags
+    )
+    return item.model_dump()
+
+
+class UpdateMemoryRequest(BaseModel):
+    content: Optional[str] = None
+    enabled: Optional[bool] = None
+    tags: Optional[List[str]] = None
+
+
+@app.put("/api/memory/{memory_id}")
+def update_memory_endpoint(memory_id: str, req: UpdateMemoryRequest):
+    """Edit or toggle an existing memory item."""
+    item = memory_store.update_memory(
+        memory_id=memory_id,
+        content=req.content,
+        enabled=req.enabled,
+        tags=req.tags
+    )
+    if not item:
+        raise HTTPException(status_code=404, detail="Memory item not found.")
+    return item.model_dump()
+
+
+@app.delete("/api/memory/{memory_id}")
+def delete_memory_endpoint(memory_id: str):
+    """Delete an item from external memory."""
+    success = memory_store.delete_memory(memory_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Memory item not found.")
+    return {"status": "deleted", "memory_id": memory_id}
+
+
+class ToggleMemoryRequest(BaseModel):
+    enabled: bool
+
+
+@app.post("/api/memory/toggle")
+def toggle_memory_endpoint(req: ToggleMemoryRequest):
+    """Master toggle for external memory retrieval during inference."""
+    memory_store.set_enabled(req.enabled)
+    return {"master_enabled": memory_store.master_enabled}
+
+
+class MemoryPreviewRequest(BaseModel):
+    query: str
+    limit: int = 3
+
+
+@app.post("/api/memory/preview")
+def preview_memory_retrieval(req: MemoryPreviewRequest):
+    """Preview which memories will be retrieved for a given query prompt."""
+    retrieved = memory_store.retrieve_relevant(req.query, limit=req.limit)
+    context_block = memory_store.format_context_block(retrieved)
+    return {
+        "query": req.query,
+        "retrieved_count": len(retrieved),
+        "memories": [m.model_dump() for m in retrieved],
+        "context_block": context_block
+    }
+
+
 # ---------------------------------------------------------------------------
 # Behaviour Profile & Presets
 # ---------------------------------------------------------------------------
@@ -341,7 +520,7 @@ def get_presets():
 
 
 # ---------------------------------------------------------------------------
-# Generation — blocking + streaming SSE
+# Generation — blocking + streaming SSE with External Memory Integration
 # ---------------------------------------------------------------------------
 
 class GenerateRequest(BaseModel):
@@ -349,13 +528,25 @@ class GenerateRequest(BaseModel):
     max_tokens: int = 60
     temperature: float = 0.0
     compare_baseline: bool = True
+    inject_memory: bool = True
 
 
 @app.post("/api/steering/generate")
 async def generate_text(req: GenerateRequest):
-    """Blocking generation — returns full response after completion."""
+    """Blocking generation — returns full response after completion, with optional external memory."""
     ctrl = get_or_init_controller()
-    formatted_prompt = f"<|user|>\n{req.prompt}<|end|>\n<|assistant|>\n"
+
+    # External memory retrieval
+    retrieved_memories = []
+    effective_prompt = req.prompt
+    if req.inject_memory and memory_store.master_enabled:
+        retrieved_memories = memory_store.retrieve_relevant(req.prompt, limit=3)
+        mem_block = memory_store.format_context_block(retrieved_memories)
+        if mem_block:
+            effective_prompt = f"{mem_block}\n{req.prompt}"
+
+    # Model-aware prompt formatting across architectures
+    formatted_prompt = ModelLoader.format_prompt(effective_prompt, ctrl.tokenizer, active_model_key)
 
     def _do_inference():
         steered_resp = ctrl.generate(
@@ -378,9 +569,12 @@ async def generate_text(req: GenerateRequest):
 
     return {
         "prompt": req.prompt,
+        "effective_prompt": effective_prompt,
         "steered_response": steered_response,
         "baseline_response": baseline_response,
         "steering_applied": ctrl.hook_manager.steering_enabled and master_steering_enabled,
+        "memory_applied": len(retrieved_memories) > 0,
+        "retrieved_memories": [m.model_dump() for m in retrieved_memories],
         "active_weights": current_plan.resolved_layer_weights if current_plan else {},
         "compatibility_warnings": current_plan.compatibility_warnings if current_plan else []
     }
@@ -391,25 +585,35 @@ class StreamRequest(BaseModel):
     max_tokens: int = 120
     temperature: float = 0.0
     steered: bool = True
+    inject_memory: bool = True
 
 
 @app.post("/api/steering/generate/stream")
 async def generate_stream(req: StreamRequest):
     """
-    Server-Sent Events streaming endpoint.
+    Server-Sent Events streaming endpoint with contextual external memory injection.
     Yields token chunks as: data: {"token": "...", "done": false}
-    Final message:          data: {"token": "", "done": true, "active_weights": {...}}
+    Final message:          data: {"token": "", "done": true, ...}
     """
     ctrl = get_or_init_controller()
-    formatted_prompt = f"<|user|>\n{req.prompt}<|end|>\n<|assistant|>\n"
+
+    # External memory retrieval
+    retrieved_memories = []
+    effective_prompt = req.prompt
+    if req.inject_memory and memory_store.master_enabled:
+        retrieved_memories = memory_store.retrieve_relevant(req.prompt, limit=3)
+        mem_block = memory_store.format_context_block(retrieved_memories)
+        if mem_block:
+            effective_prompt = f"{mem_block}\n{req.prompt}"
+
+    # Model-aware prompt formatting across architectures
+    formatted_prompt = ModelLoader.format_prompt(effective_prompt, ctrl.tokenizer, active_model_key)
 
     async def _event_generator():
-        # Run the streaming generator in a thread pool to avoid blocking asyncio
         loop = asyncio.get_event_loop()
         token_queue: asyncio.Queue = asyncio.Queue()
 
         def _stream_tokens():
-            """Runs in background thread — feeds tokens into asyncio queue."""
             try:
                 for token in ctrl.generate_stream(
                     formatted_prompt,
@@ -417,10 +621,9 @@ async def generate_stream(req: StreamRequest):
                     temperature=req.temperature,
                     steered=req.steered
                 ):
-                    # Put token in queue (thread-safe)
                     loop.call_soon_threadsafe(token_queue.put_nowait, token)
             finally:
-                loop.call_soon_threadsafe(token_queue.put_nowait, None)  # Sentinel
+                loop.call_soon_threadsafe(token_queue.put_nowait, None)
 
         import threading
         t = threading.Thread(target=_stream_tokens, daemon=True)
@@ -438,6 +641,8 @@ async def generate_stream(req: StreamRequest):
             "token": "",
             "done": True,
             "steering_applied": req.steered and master_steering_enabled,
+            "memory_applied": len(retrieved_memories) > 0,
+            "retrieved_memories": [m.model_dump() for m in retrieved_memories],
             "active_weights": weights
         })
         yield f"data: {done_payload}\n\n"
@@ -484,12 +689,11 @@ def get_dataset(trait: str):
         raise HTTPException(status_code=404, detail=f"No dataset found for trait '{trait}'")
     with open(matches[0], "r", encoding="utf-8") as f:
         data = json.load(f)
-    # Dataset is stored as a top-level list of CalibrationExample objects
     if isinstance(data, list):
         pairs = data
     else:
         pairs = data.get("pairs", [])
-    return {"trait": trait, "count": len(pairs), "pairs": pairs[:10]}  # Cap at 10 for UI
+    return {"trait": trait, "count": len(pairs), "pairs": pairs[:10]}
 
 
 if __name__ == "__main__":

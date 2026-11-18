@@ -1,0 +1,57 @@
+{
+  "master_enabled": true,
+  "updated_at": 1795014104.3117666,
+  "items": [
+    {
+      "memory_id": "mem-1795014104-1",
+      "owner_id": "default-user",
+      "content": "Our primary production database is PostgreSQL 16 on AWS RDS with strict junction tables for many-to-many relationships.",
+      "type": "fact",
+      "provenance": "user",
+      "enabled": true,
+      "tags": [
+        "database",
+        "postgres",
+        "infrastructure",
+        "schema"
+      ],
+      "created_at": 1795014104.3117666,
+      "updated_at": 1795014104.3117666,
+      "score": null
+    },
+    {
+      "memory_id": "mem-1795014104-2",
+      "owner_id": "default-user",
+      "content": "User prefers architectural feedback to prioritize modular monoliths over premature microservices for teams under 5 engineers.",
+      "type": "preference",
+      "provenance": "user",
+      "enabled": true,
+      "tags": [
+        "architecture",
+        "microservices",
+        "team-size",
+        "monolith"
+      ],
+      "created_at": 1795014104.3117666,
+      "updated_at": 1795014104.3117666,
+      "score": null
+    },
+    {
+      "memory_id": "mem-1795014104-3",
+      "owner_id": "default-user",
+      "content": "Our backend codebase uses Python 3.12 and FastAPI with strictly typed Pydantic models.",
+      "type": "fact",
+      "provenance": "user",
+      "enabled": true,
+      "tags": [
+        "backend",
+        "python",
+        "fastapi",
+        "pydantic"
+      ],
+      "created_at": 1795014104.3117666,
+      "updated_at": 1795014104.3117666,
+      "score": null
+    }
+  ]
+}

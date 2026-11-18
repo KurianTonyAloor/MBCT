@@ -19,7 +19,26 @@ SUPPORTED_PRESETS = {
         "architecture": "Phi3ForCausalLM",
         "default_layers": [10, 12, 14, 16],
         "hidden_size": 3072,
-        "layer_count": 32
+        "layer_count": 32,
+        "chat_template_type": "phi3"
+    },
+    "tinyllama-1.1b": {
+        "model_id": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+        "display_name": "TinyLlama (1.1B Chat - Llama architecture)",
+        "architecture": "LlamaForCausalLM",
+        "default_layers": [8, 10, 12, 14],
+        "hidden_size": 2048,
+        "layer_count": 22,
+        "chat_template_type": "llama"
+    },
+    "qwen2.5-0.5b": {
+        "model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+        "display_name": "Qwen 2.5 (0.5B Instruct - Alibaba)",
+        "architecture": "Qwen2ForCausalLM",
+        "default_layers": [8, 10, 12, 14],
+        "hidden_size": 896,
+        "layer_count": 24,
+        "chat_template_type": "chatml"
     },
     "gpt2": {
         "model_id": "gpt2",
@@ -27,7 +46,8 @@ SUPPORTED_PRESETS = {
         "architecture": "GPT2LMHeadModel",
         "default_layers": [4, 6, 8, 10],
         "hidden_size": 768,
-        "layer_count": 12
+        "layer_count": 12,
+        "chat_template_type": "raw"
     }
 }
 
@@ -38,6 +58,34 @@ class ModelLoader:
     _active_hook_manager: Optional[ActivationHookManager] = None
     _active_model_key: Optional[str] = None
     _active_metadata: Dict[str, Any] = {}
+
+    @classmethod
+    def format_prompt(cls, prompt: str, tokenizer: Any, model_key: str = "") -> str:
+        """Format user prompt using model's native chat template or architecture fallback."""
+        if hasattr(tokenizer, "apply_chat_template") and tokenizer.chat_template:
+            try:
+                return tokenizer.apply_chat_template(
+                    [{"role": "user", "content": prompt}],
+                    tokenize=False,
+                    add_generation_prompt=True
+                )
+            except Exception:
+                pass
+
+        # Robust fallbacks for diverse architectures
+        k = (model_key or cls._active_model_key or "").lower()
+        if "qwen" in k or "chatml" in k:
+            return f"<|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant\n"
+        elif "tinyllama" in k or "llama" in k or "mistral" in k:
+            return f"<|user|>\n{prompt}</s>\n<|assistant|>\n"
+        elif "phi" in k:
+            return f"<|user|>\n{prompt}<|end|>\n<|assistant|>\n"
+        elif "gemma" in k:
+            return f"<start_of_turn>user\n{prompt}<end_of_turn>\n<start_of_turn>model\n"
+        elif "gpt2" in k:
+            return f"User: {prompt}\nAssistant:"
+
+        return f"{prompt}\n"
 
     @classmethod
     def get_hf_hub_cache_dir(cls) -> str:
@@ -150,7 +198,8 @@ class ModelLoader:
                     "architecture": spec["architecture"],
                     "layer_count": spec["layer_count"],
                     "hidden_size": spec["hidden_size"],
-                    "default_layers": spec["default_layers"]
+                    "default_layers": spec["default_layers"],
+                    "chat_template_type": spec.get("chat_template_type", "auto")
                 }
                 for key, spec in SUPPORTED_PRESETS.items()
             ],

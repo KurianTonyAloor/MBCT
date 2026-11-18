@@ -4,6 +4,7 @@ import uuid
 from typing import List, Dict, Any, Optional
 from app.core.types import CalibrationExample, QualityPreset
 from app.prompt_registry.registry import get_trait
+from app.providers.base import BaseCalibrationProvider
 from app.providers.ollama_provider import OllamaProvider
 from app.dataset.validator import DatasetValidator
 
@@ -94,7 +95,7 @@ CURATED_GOLD_SEEDS: Dict[str, List[Dict[str, Any]]] = {
 
 
 class DatasetGenerator:
-    def __init__(self, provider: Optional[OllamaProvider] = None):
+    def __init__(self, provider: Optional[BaseCalibrationProvider] = None):
         self.provider = provider or OllamaProvider()
 
     def generate_for_trait(

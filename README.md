@@ -1,6 +1,6 @@
 # MBCT — Model-Independent Personality Steering
 
-> **Contrastive Activation Steering** — inject personality trait vectors into a frozen transformer's residual stream at inference time. No fine-tuning. No weight modification.
+> **Personality without fine-tuning** — take any local model you already have on disk, and steer its personality at inference time by injecting small activation vectors into its residual stream. No retraining. No weight changes. Runs on the same hardware the model already runs on.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.12-blue)](https://python.org)
@@ -11,11 +11,20 @@
 
 ## What This Is
 
-MBCT (Model-Based Contrastive Traits) is a **personality steering engine** that:
+MBCT is a way to change how a model speaks and acts — its personality — without doing any fine-tuning.
 
-1. **Calibrates** once — generates contrastive response pairs via Ollama (phi3), runs teacher-forced forward passes through Phi-3 Mini, computes mean activation differences per layer, and stores unit-normalised steering vectors in a **Model Calibration Profile (MCP)**
-2. **Steers at inference time** — compiles a **Universal Behaviour Profile (UBP, slider 0–100%)** into per-layer alpha weights and injects `h'ₗ = hₗ + Σ α[t,l] · v[t,l]` via PyTorch forward hooks on the frozen model
-3. **Never modifies weights** — all intervention is strictly at inference time
+Fine-tuning a model to a specific personality is tedious, resource-heavy, and usually tied to one model snapshot. MBCT takes a different approach: the model stays frozen, and personality is applied at inference time by injecting small steering signals into the model's residual stream. The model's weights are never touched.
+
+That matters for two reasons:
+
+- **Anything can be used on any edge system.** You don't need a training run, a big GPU cluster, or a curated dataset to reshape a model's behaviour. If you already have a local model sitting on disk, MBCT can load it, calibrate personality vectors once for that model, and then let you dial traits up and down at generation time.
+- **Personality becomes a live, adjustable thing instead of a model build.** The same model can be switched between direct and cautious, formal and casual, terse and chatty, without rebuilding it. Those adjustments are applied during generation, not baked into weights.
+
+MBCT is built around that idea:
+
+1. **Calibrate once per model** — generate contrastive response pairs (for example through a local Ollama provider), run teacher-forced forward passes through the model, compute the mean activation difference per layer, and store the unit-normalised steering vectors in a **Model Calibration Profile (MCP)**
+2. **Steer at inference time** — compile a **Universal Behaviour Profile (UBP, slider 0–100%)** into per-layer alpha weights and inject `h'ₗ = hₗ + Σ α[t,l] · v[t,l]` via PyTorch forward hooks on the frozen model
+3. **Never modify weights** — all intervention is strictly at inference time
 
 ```
 UBP sliders (0-100%) ──▶ PersonalityCompiler ──▶ CompiledSteeringPlan
@@ -76,6 +85,21 @@ MBCT is architecture-agnostic. You can select, load, and steer **any local model
 
 ---
 
+## Why This Exists
+
+Right now, if you want a model to behave in a particular personality, the usual route is fine-tuning. That is tedious, resource-heavy, and locked to a specific model and snapshot. MBCT is an attempt to make personality customization usable on any edge system, with whatever local model you already have, without retraining.
+
+The goal is practical, not research-demo scale:
+
+- **No fine-tuning.** Personality is applied at inference time through forward hooks on a frozen model.
+- **Any local model.** MBCT discovers and loads models from the HuggingFace cache, local Ollama installs, or any custom checkpoint folder you point it at.
+- **Edge-relevant.** Calibration only needs to happen once per model. After that, changing personality is a matter of adjusting sliders, not rebuilding anything.
+- **Live behaviour, not a new model build.** The same model can be pushed into different behavioural modes during generation.
+
+In short: MBCT is what it means for a local model to have an adjustable personality without the cost and friction of fine-tuning.
+
+---
+
 ## Setup
 
 ### Prerequisites
@@ -117,14 +141,23 @@ Then open **http://127.0.0.1:8088** — the Personality Studio UI loads.
 | `GET` | `/api/profiles/behaviour` | Current UBP |
 | `PUT` | `/api/profiles/behaviour` | Update UBP (recompiles + applies plan immediately) |
 | `GET` | `/api/profiles/presets` | 4 preset configurations |
-| `POST` | `/api/steering/generate` | Blocking generation (steered + baseline) |
-| `POST` | `/api/steering/generate/stream` | **SSE streaming** — tokens via `TextIteratorStreamer` |
+| `POST` | `/api/steering/generate` | Blocking generation (steered + baseline, memory context) |
+| `POST` | `/api/steering/generate/stream` | **SSE streaming** — tokens via `TextIteratorStreamer` with memory |
 | `POST` | `/api/steering/toggle` | Master kill-switch on/off |
 | `GET` | `/api/calibrations/current` | Current MCP report |
 | `POST` | `/api/calibrations/run` | Launch async calibration job → returns `job_id` |
 | `GET` | `/api/calibrations/status/{job_id}` | Poll calibration progress |
+| `POST` | `/api/calibrations/validate-compatibility` | Verify MCP compatibility against active model architecture |
 | `GET` | `/api/datasets/{trait}` | Stored contrastive dataset pairs |
-| `POST` | `/api/providers/test` | Test Ollama connection |
+| `GET` | `/api/providers/config` | Get active provider configuration (masked key) + presets |
+| `POST` | `/api/providers/config` | Update provider endpoint, API key, and model ID |
+| `POST` | `/api/providers/test` | Test provider connection with minimal token overhead |
+| `GET` | `/api/memory` | List stored memories (filterable by type) |
+| `POST` | `/api/memory` | Store new memory item (fact, preference, episodic) |
+| `PUT` | `/api/memory/{id}` | Update or toggle memory item |
+| `DELETE` | `/api/memory/{id}` | Delete memory item |
+| `POST` | `/api/memory/toggle` | Master external memory toggle on/off |
+| `POST` | `/api/memory/preview` | Preview memory retrieval for a test query |
 
 ---
 
@@ -135,8 +168,10 @@ Then open **http://127.0.0.1:8088** — the Personality Studio UI loads.
 - ✅ **Phase 2** — Multi-trait calibration engine (directness, formality, verbosity) + MCP stored to disk
 - ✅ **Phase 3** — Full product UI + live inference playground + SSE streaming + async calibration
 - ✅ **Phase 4** — Trait composition bounds: pairwise cosine-similarity check + Gram-Schmidt orthogonalization
-- 🔄 **Phase 5** — 2nd model support (Qwen2.5-0.5B)
-- 🔄 **Phase 6** — External memory / context store
+- ✅ **Phase 5** — Architecture-agnostic local model discovery, prompt templates, and multi-model support
+- ✅ **Phase 6** — Model revision fingerprinting & 4-tier calibration compatibility validation
+- ✅ **Phase 7** — Pluggable calibration providers (Ollama, OpenAI, DeepSeek, Groq, OpenRouter, LM Studio)
+- ✅ **Phase 8** — External memory integration with relevance retrieval and structured context injection
 
 ---
 
@@ -149,27 +184,39 @@ MBCT/
 │   │   ├── calibration_directness.json
 │   │   ├── calibration_formality.json
 │   │   └── calibration_verbosity.json
-│   └── profiles/
-│       └── mcp_phi3.json          ← Calibrated steering vectors
+│   ├── memory/
+│   │   └── store.json             ← External memory persistence
+│   ├── profiles/
+│   │   └── mcp_phi3.json          ← Calibrated steering vectors
+│   └── providers/
+│       └── active_config.json     ← Provider settings
 ├── backend/
 │   └── app/
-│       ├── core/types.py           ← Pydantic domain models (UBP, MCP, CompiledSteeringPlan)
+│       ├── core/types.py           ← Pydantic domain models (UBP, MCP, Memory, Providers, Compatibility)
 │       ├── prompt_registry/registry.py  ← Trait definitions + contrastive system prompts
-│       ├── providers/ollama_provider.py ← Ollama HTTP adapter
+│       ├── providers/
+│       │   ├── base.py             ← BaseCalibrationProvider ABC
+│       │   ├── manager.py          ← ProviderManager (presets, config persistence, key masking)
+│       │   ├── ollama_provider.py  ← Ollama HTTP adapter
+│       │   └── openai_provider.py  ← OpenAI-compatible provider (Groq, DeepSeek, LM Studio, etc.)
 │       ├── dataset/
-│       │   ├── generator.py        ← Contrastive pair generation with gold seeds
+│       │   ├── generator.py        ← Contrastive pair generation via configured provider
 │       │   └── validator.py        ← Schema, length-confound, trait-isolation validation
-│       ├── models/registry.py      ← ModelLoader (Phi-3 Mini, local_files_only)
+│       ├── models/registry.py      ← ModelLoader (architecture-aware chat templates, local_files_only)
+│       ├── memory/
+│       │   └── store.py            ← ExternalMemoryStore (Jaccard + tag relevance, context injection)
 │       ├── steering/
-│       │   ├── hooks.py            ← ActivationHookManager (forward hooks, kill-switch)
+│       │   ├── hooks.py            ← ActivationHookManager (forward hooks, multi-layer heuristic scan)
 │       │   ├── deriver.py          ← VectorDeriver (mean diff, unit normalisation)
-│       │   ├── controller.py       ← SteeringController (generate + generate_stream)
-│       │   └── calibrator.py       ← CalibrationService (full pipeline)
-│       ├── profiles/compiler.py    ← PersonalityCompiler (Phase 4 orthogonalization)
-│       ├── static/index.html       ← 5-tab Personality Studio UI
-│       └── main.py                 ← FastAPI application (14 endpoints)
+│       │   ├── controller.py       ← SteeringController (generate + stream + memory injection)
+│       │   ├── calibrator.py       ← CalibrationService (pipeline with provider manager)
+│       │   └── compatibility.py    ← CompatibilityValidator (deterministic SHA256 fingerprinting)
+│       ├── profiles/compiler.py    ← PersonalityCompiler (orthogonalization)
+│       ├── static/index.html       ← 6-tab Personality Studio UI (Playground, UBP, MCP, Calibrate, Memory, Models)
+│       └── main.py                 ← FastAPI application (25 endpoints)
 ├── calibrate_initial_mcp.py        ← Standalone calibration runner
 ├── test_spike.py                   ← Phase 0/1 feasibility spike
+├── LICENSE                         ← MIT License
 ├── .gitignore
 └── README.md
 ```

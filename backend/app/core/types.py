@@ -25,14 +25,82 @@ class JobState(str, Enum):
     CANCELLED = "cancelled"
 
 
+class ProviderType(str, Enum):
+    OLLAMA = "ollama"
+    OPENAI = "openai"
+    ANTHROPIC = "anthropic"
+    CUSTOM = "custom"
+
+
 class ProviderConfig(BaseModel):
-    provider_id: str = "ollama-local"
+    provider_id: str = "default-provider"
+    provider_type: ProviderType = ProviderType.OLLAMA
     endpoint: str = "http://127.0.0.1:11434"
     model_id: str = "phi3"
     api_key: Optional[str] = None
+    custom_headers: Dict[str, str] = Field(default_factory=dict)
+    timeout_seconds: int = 60
     created_at: float = Field(default_factory=time.time)
     last_validated_at: Optional[float] = None
     is_valid: bool = False
+
+    def masked_key(self) -> Optional[str]:
+        """Return masked API key for safe UI display and telemetry."""
+        if not self.api_key:
+            return None
+        if len(self.api_key) <= 8:
+            return "••••••••"
+        return f"{self.api_key[:3]}••••••••{self.api_key[-4:]}"
+
+
+class ModelFingerprint(BaseModel):
+    """Detailed cryptographic and architectural signature of a model."""
+    model_id: str
+    architecture: str
+    hidden_size: int
+    layer_count: int
+    vocab_size: int = 32000
+    precision: str = "bfloat16"
+    device: str = "cpu"
+    revision_hash: Optional[str] = None
+    created_at: float = Field(default_factory=time.time)
+
+
+class CompatibilityReport(BaseModel):
+    """Result of checking an MCP against a model's live runtime."""
+    is_compatible: bool
+    status: str  # "compatible", "needs_validation", "incompatible"
+    target_model: str
+    mcp_id: str
+    violations: List[str] = Field(default_factory=list)
+    warnings: List[str] = Field(default_factory=list)
+    reusable: bool = False
+    checked_at: float = Field(default_factory=time.time)
+
+
+class MemoryType(str, Enum):
+    FACT = "fact"
+    PREFERENCE = "preference"
+    EPISODIC = "episodic"
+
+
+class MemoryProvenance(str, Enum):
+    USER = "user"
+    INFERRED = "inferred"
+
+
+class MemoryItem(BaseModel):
+    """External memory element stored outside transformer weights."""
+    memory_id: str
+    owner_id: str = "default-user"
+    content: str
+    type: MemoryType = MemoryType.FACT
+    provenance: MemoryProvenance = MemoryProvenance.USER
+    enabled: bool = True
+    tags: List[str] = Field(default_factory=list)
+    created_at: float = Field(default_factory=time.time)
+    updated_at: float = Field(default_factory=time.time)
+    score: Optional[float] = None  # Populated during relevance retrieval
 
 
 class ModelDefinition(BaseModel):

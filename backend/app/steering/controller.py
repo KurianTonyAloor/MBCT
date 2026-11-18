@@ -4,8 +4,9 @@ import torch
 from typing import Dict, List, Optional, Iterator
 from transformers import TextIteratorStreamer
 from threading import Thread
-from app.core.types import CompiledSteeringPlan, ModelCalibrationProfile
+from app.core.types import CompiledSteeringPlan, ModelCalibrationProfile, CompatibilityReport
 from app.steering.hooks import ActivationHookManager
+from app.steering.compatibility import CompatibilityValidator
 
 
 class SteeringController:
@@ -24,6 +25,7 @@ class SteeringController:
 
     def apply_plan(self, plan: CompiledSteeringPlan, mcp: ModelCalibrationProfile):
         """Prepare hook manager with compiled layer weights and steering vectors.
+        Validates model runtime and revision compatibility before applying interventions.
         Uses orthogonalized vectors from plan._orthogonalized_vecs if available (Phase 4).
         """
         self.current_plan = plan
@@ -32,6 +34,17 @@ class SteeringController:
         if not plan.enabled or not self.master_enabled:
             self.hook_manager.set_steering_enabled(False)
             return
+
+        # ── Robust Calibration Compatibility Validation (Blueprint Section 13) ──
+        compat_report = CompatibilityValidator.validate(mcp, self.model, self.hook_manager)
+        if not compat_report.is_compatible:
+            plan.compatibility_warnings.extend(compat_report.violations)
+            self.hook_manager.set_steering_enabled(False)
+            print(f"[SteeringController] ❌ REJECTED MCP '{mcp.mcp_id}' due to compatibility violations: {compat_report.violations}", flush=True)
+            return
+
+        if compat_report.warnings:
+            plan.compatibility_warnings.extend(compat_report.warnings)
 
         # Use orthogonalized vectors if compiler produced them
         ortho_vecs = getattr(plan, "_orthogonalized_vecs", None) or \

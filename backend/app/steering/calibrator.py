@@ -11,20 +11,22 @@ from app.core.types import (
     QualityPreset,
     JobState
 )
-from app.providers.ollama_provider import OllamaProvider
+from app.providers.base import BaseCalibrationProvider
+from app.providers.manager import ProviderManager
 from app.dataset.generator import DatasetGenerator
 from app.models.registry import ModelLoader
 from app.steering.deriver import VectorDeriver
 
 
 class CalibrationService:
-    def __init__(self, artifacts_dir: str = "artifacts"):
+    def __init__(self, artifacts_dir: str = "artifacts", provider_manager: Optional[ProviderManager] = None):
         self.artifacts_dir = artifacts_dir
         self.profiles_dir = os.path.join(artifacts_dir, "profiles")
         self.datasets_dir = os.path.join(artifacts_dir, "datasets")
         os.makedirs(self.profiles_dir, exist_ok=True)
         os.makedirs(self.datasets_dir, exist_ok=True)
 
+        self.provider_manager = provider_manager or ProviderManager(artifacts_dir=artifacts_dir)
         self.active_jobs: Dict[str, Dict[str, Any]] = {}
         self.current_mcp: Optional[ModelCalibrationProfile] = None
 
@@ -74,12 +76,16 @@ class CalibrationService:
         model_key: str = "phi-3-mini",
         traits: Optional[List[str]] = None,
         target_layers: Optional[List[int]] = None,
-        preset: QualityPreset = QualityPreset.BALANCED
+        preset: QualityPreset = QualityPreset.BALANCED,
+        provider: Optional[BaseCalibrationProvider] = None
     ) -> ModelCalibrationProfile:
-        """Run full calibration across requested traits for ANY local model and persist MCP."""
+        """Run full calibration across requested traits for ANY local model using the configured provider."""
         traits = traits or ["directness", "formality", "verbosity"]
 
-        print(f"[CalibrationService] Starting calibration for traits: {traits} on model: {model_key}...", flush=True)
+        active_provider = provider or self.provider_manager.get_provider()
+        prov_desc = f"{active_provider.config.provider_type} ({active_provider.config.model_id} @ {active_provider.config.endpoint})"
+        print(f"[CalibrationService] Starting calibration for traits: {traits} on model: {model_key} via provider: {prov_desc}...", flush=True)
+
         model, tokenizer, hook_manager = ModelLoader.load_model(model_key)
 
         # If target layers not explicitly supplied, derive from model metadata
@@ -91,8 +97,7 @@ class CalibrationService:
                 num_l = hook_manager.num_layers
                 target_layers = [max(1, int(num_l * 0.4)), int(num_l * 0.5), min(num_l - 1, int(num_l * 0.6))]
 
-        provider = OllamaProvider()
-        generator = DatasetGenerator(provider=provider)
+        generator = DatasetGenerator(provider=active_provider)
         deriver = VectorDeriver(model, tokenizer, hook_manager)
 
         all_vectors: Dict[str, Dict[int, List[float]]] = {}
