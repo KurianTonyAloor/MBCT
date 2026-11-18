@@ -50,6 +50,21 @@ Frozen Phi-3 Mini ◀─── forward hooks ◀─── SteeringController
 
 ---
 
+## Any Local Model Support
+
+MBCT is architecture-agnostic. You can select, load, and steer **any local model**:
+
+1. **Auto-Discovered Models**: Scans `~/.cache/huggingface/hub/` for any locally cached models (e.g. `microsoft/Phi-3-mini-4k-instruct`, `Qwen/Qwen2.5-0.5B-Instruct`, `TinyLlama/TinyLlama-1.1B-Chat-v1.0`), reports weight files and download status.
+2. **Local Ollama Models**: Auto-discovers installed Ollama models (`phi3`, `qwen2.5-coder:7b`, etc.) to use as contrastive pair calibration providers.
+3. **Custom Local Folders or HF Repo IDs**: Pass any checkpoint directory (e.g. `C:\models\checkpoint`) or repo name in the UI or via `POST /api/models/load`.
+4. **Dynamic Transformer Introspection**:
+   - `ActivationHookManager` automatically resolves transformer decoder layer blocks across architectures (`model.layers`, `transformer.h`, `model.decoder.layers`, `gpt_neox.layers`, `transformer.layers`, or recursive `nn.ModuleList` inspection).
+   - Hidden sizes and layer counts are dynamically extracted from model configurations.
+   - Target layers default to optimal semantic depths (35%–65% depth) if not manually specified.
+5. **Model-Aware Profiles**: Each model persists its own Model Calibration Profile (e.g. `artifacts/profiles/mcp_{clean_model_key}.json`). Switching models auto-swaps and attaches the matching calibration.
+
+---
+
 ## Presets
 
 | Preset | Traits |
@@ -95,8 +110,10 @@ Then open **http://127.0.0.1:8088** — the Personality Studio UI loads.
 | Method | Endpoint | Description |
 |---|---|---|
 | `GET` | `/api/status` | System status, model loaded, calibration state |
+| `GET` | `/api/models` | Supported presets, discovered local HF models, and Ollama models |
+| `POST` | `/api/models/load` | Dynamically load ANY local model (preset, HF ID, or folder path) |
+| `POST` | `/api/models/scan` | Re-scan local HuggingFace cache and Ollama models |
 | `GET` | `/api/traits` | Available traits from prompt registry |
-| `GET` | `/api/models` | Supported model catalogue |
 | `GET` | `/api/profiles/behaviour` | Current UBP |
 | `PUT` | `/api/profiles/behaviour` | Update UBP (recompiles + applies plan immediately) |
 | `GET` | `/api/profiles/presets` | 4 preset configurations |

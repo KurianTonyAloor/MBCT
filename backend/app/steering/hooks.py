@@ -5,9 +5,11 @@ from typing import Dict, List, Optional, Tuple, Callable
 
 
 class ActivationHookManager:
-    """Manages forward hooks for capturing and modifying hidden states in transformer layers."""
+    """Manages forward hooks for capturing and modifying hidden states in transformer layers.
+    Supports dynamic introspection of any HuggingFace or PyTorch transformer architecture.
+    """
 
-    def __init__(self, model: torch.nn.Module, layer_module_path: str = "model.layers"):
+    def __init__(self, model: torch.nn.Module, layer_module_path: Optional[str] = None):
         self.model = model
         self.layer_module_path = layer_module_path
         self.layers = self._resolve_layers()
@@ -24,19 +26,60 @@ class ActivationHookManager:
         self.steering_multipliers: Dict[int, float] = {}    # layer_idx -> alpha
 
     def _resolve_layers(self) -> List[torch.nn.Module]:
-        """Navigate attribute path to find transformer decoder layers."""
-        obj = self.model
-        for part in self.layer_module_path.split("."):
-            if hasattr(obj, part):
-                obj = getattr(obj, part)
-            else:
-                # Fallback heuristics for common architectures
-                if hasattr(self.model, "transformer") and hasattr(self.model.transformer, "h"):
-                    return list(self.model.transformer.h)
-                elif hasattr(self.model, "model") and hasattr(self.model.model, "layers"):
-                    return list(self.model.model.layers)
-                raise AttributeError(f"Could not resolve layer path '{self.layer_module_path}' in model")
-        return list(obj)
+        """Dynamically resolve transformer decoder layers across any architecture."""
+        # 1. Try explicit path if provided
+        if self.layer_module_path:
+            try:
+                obj = self.model
+                for part in self.layer_module_path.split("."):
+                    obj = getattr(obj, part)
+                layers = list(obj)
+                if len(layers) > 0 and isinstance(layers[0], torch.nn.Module):
+                    return layers
+            except Exception:
+                pass
+
+        # 2. Common architectural paths across open-source models:
+        # - model.layers: LLaMA, Mistral, Qwen, Gemma, Phi-3, Starcoder2, InternLM, Baichuan, DeepSeek
+        # - transformer.h: GPT-2, Falcon, Bloom, StarCoder
+        # - model.decoder.layers: OPT, BART, Marian
+        # - gpt_neox.layers: Pythia, GPT-NeoX, StableLM
+        # - transformer.layers: MPT
+        candidate_paths = [
+            "model.layers",
+            "transformer.h",
+            "model.decoder.layers",
+            "gpt_neox.layers",
+            "transformer.layers",
+            "encoder.layer",
+            "decoder.layers"
+        ]
+        for path in candidate_paths:
+            try:
+                obj = self.model
+                for part in path.split("."):
+                    obj = getattr(obj, part)
+                layers = list(obj)
+                if len(layers) > 0 and isinstance(layers[0], torch.nn.Module):
+                    self.layer_module_path = path
+                    return layers
+            except Exception:
+                continue
+
+        # 3. Heuristic search: find any torch.nn.ModuleList whose children look like transformer layers
+        for name, module in self.model.named_modules():
+            if isinstance(module, torch.nn.ModuleList) and len(module) >= 4:
+                # Check if first element has self_attn or attention or mlp or feed_forward
+                first = module[0]
+                child_names = [n.lower() for n, _ in first.named_children()]
+                if any("attn" in n or "attention" in n for n in child_names):
+                    self.layer_module_path = name
+                    return list(module)
+
+        raise AttributeError(
+            f"Could not automatically resolve transformer layer blocks in model of type {type(self.model).__name__}. "
+            f"Please specify layer_module_path explicitly."
+        )
 
     @property
     def num_layers(self) -> int:

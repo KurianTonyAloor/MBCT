@@ -55,12 +55,14 @@
       </div>
 
       <div class="flex items-center space-x-3">
-        <!-- Status pills -->
-        <div id="modelPill" class="hidden md:flex items-center space-x-2 text-xs bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700">
+        <!-- Interactive Model selector pill -->
+        <button id="modelPill" onclick="openModelModal()"
+          class="hidden md:flex items-center space-x-2 text-xs bg-slate-800/80 hover:bg-slate-750 px-3 py-1.5 rounded-full border border-slate-700 hover:border-indigo-500 transition cursor-pointer group">
           <span id="serverDot" class="h-2 w-2 rounded-full bg-slate-500"></span>
           <span class="text-slate-300">Model:</span>
-          <span class="font-mono text-indigo-300 font-semibold" id="headerModelName">—</span>
-        </div>
+          <span class="font-mono text-indigo-300 font-semibold group-hover:text-indigo-200" id="headerModelName">—</span>
+          <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 ml-1"></i>
+        </button>
         <div id="calibPill" class="hidden md:flex items-center space-x-2 text-xs bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700">
           <i id="calibIcon" class="fa-solid fa-circle-xmark text-rose-400 text-xs"></i>
           <span class="text-slate-300" id="calibLabel">Not calibrated</span>
@@ -331,9 +333,23 @@
             <i class="fa-solid fa-screwdriver-wrench text-indigo-400"></i> Run Calibration
           </h2>
           <p class="text-xs text-slate-400">
-            Generates contrastive pairs via Ollama phi3, runs teacher-forced passes through Phi-3 Mini,
-            computes mean activation diff per layer, and stores the unit-normalised steering vectors in the MCP.
+            Generates contrastive pairs via Ollama, runs teacher-forced passes through the selected local model,
+            computes mean activation diff per layer, and stores unit-normalised steering vectors in the MCP.
           </p>
+
+          <!-- Model to calibrate -->
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Target Model</label>
+              <button onclick="openModelModal()" class="text-[11px] text-indigo-400 hover:text-indigo-300 transition">
+                <i class="fa-solid fa-arrows-rotate mr-1"></i> Switch Model
+              </button>
+            </div>
+            <div class="flex items-center justify-between bg-slate-950 px-3 py-2 rounded-lg border border-slate-800 text-xs font-mono">
+              <span id="calibTargetModelLabel" class="text-indigo-300 font-semibold">Phi-3 Mini</span>
+              <span id="calibTargetModelLayers" class="text-slate-500 text-[10px]">Layers: [10, 12, 14, 16]</span>
+            </div>
+          </div>
 
           <div class="space-y-3">
             <label class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Traits to calibrate</label>
@@ -469,6 +485,97 @@ Loading…</pre>
       </div>
     </div>
 
+    <!-- ════════════ MODEL SELECTOR MODAL ════════════ -->
+    <div id="modelModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+        <!-- Modal Header -->
+        <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/90">
+          <div class="flex items-center gap-2.5">
+            <div class="h-8 w-8 rounded-lg bg-indigo-600/30 text-indigo-400 flex items-center justify-center border border-indigo-500/30">
+              <i class="fa-solid fa-microchip"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-slate-100 text-sm">Select Local Transformer Model</h3>
+              <p class="text-[11px] text-slate-400">Run activation steering on any local Hugging Face model or checkpoint</p>
+            </div>
+          </div>
+          <button onclick="closeModelModal()" class="text-slate-400 hover:text-white transition p-1">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="p-6 overflow-y-auto space-y-5 flex-1 text-xs">
+          <!-- Active Model in Memory -->
+          <div class="bg-slate-950 p-4 rounded-xl border border-indigo-900/40 space-y-2">
+            <div class="text-[10px] uppercase font-bold text-indigo-400 tracking-wider flex items-center gap-1.5">
+              <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              Active Model in Memory
+            </div>
+            <div class="flex items-center justify-between">
+              <div>
+                <div id="modalActiveModelName" class="font-bold text-slate-200 text-sm font-mono">Phi-3 Mini</div>
+                <div id="modalActiveModelDetails" class="text-slate-500 text-[11px] mt-0.5">Architecture: Phi3ForCausalLM · 32 layers · Hidden: 3072</div>
+              </div>
+              <span id="modalActiveCalibBadge" class="px-2.5 py-1 rounded-full text-[10px] font-mono bg-emerald-950 text-emerald-400 border border-emerald-800/60">
+                Calibrated
+              </span>
+            </div>
+          </div>
+
+          <!-- Section 1: Discovered HuggingFace Cache Models -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="font-bold text-slate-300 uppercase tracking-widest text-[11px] flex items-center gap-1.5">
+                <i class="fa-solid fa-hard-drive text-indigo-400"></i> Discovered in Local Hugging Face Cache
+              </div>
+              <button onclick="scanModels()" class="text-[11px] text-indigo-400 hover:text-indigo-300 transition flex items-center gap-1">
+                <i class="fa-solid fa-rotate-right"></i> Rescan
+              </button>
+            </div>
+            <div id="hfModelsList" class="space-y-2">
+              <div class="text-slate-500 text-center py-3">Scanning local cache…</div>
+            </div>
+          </div>
+
+          <!-- Section 2: Installed Ollama Models -->
+          <div class="space-y-3">
+            <div class="font-bold text-slate-300 uppercase tracking-widest text-[11px] flex items-center gap-1.5">
+              <i class="fa-solid fa-robot text-purple-400"></i> Local Ollama Models (Calibration Providers)
+            </div>
+            <div id="ollamaModelsList" class="space-y-2">
+              <div class="text-slate-500 text-center py-2">Querying Ollama…</div>
+            </div>
+          </div>
+
+          <!-- Section 3: Custom Local Path or Model Identifier -->
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+            <div class="font-bold text-slate-300 uppercase tracking-widest text-[11px] flex items-center gap-1.5">
+              <i class="fa-solid fa-folder-open text-amber-400"></i> Load Custom Local Folder Path or HF Model ID
+            </div>
+            <p class="text-slate-500 text-[11px] leading-relaxed">
+              Enter any absolute path to a local folder with model weights (e.g. <code class="text-slate-400">C:\models\checkpoint</code>) or a Hugging Face repo ID (e.g. <code class="text-slate-400">gpt2</code>, <code class="text-slate-400">microsoft/Phi-3-mini-4k-instruct</code>).
+            </p>
+            <div class="flex gap-2">
+              <input id="customModelInput" type="text" placeholder="e.g. C:\path\to\model or gpt2..."
+                class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 font-mono">
+              <button onclick="loadCustomModel()" id="loadCustomBtn"
+                class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-semibold rounded-lg transition flex items-center gap-1.5 shrink-0">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i> Load Model
+              </button>
+            </div>
+            <div class="flex items-center gap-2 text-[11px] text-slate-400">
+              <input type="checkbox" id="localFilesOnlyCheck" checked class="accent-indigo-500">
+              <label for="localFilesOnlyCheck">Offline mode (local files only, do not make internet network calls)</label>
+            </div>
+          </div>
+
+          <!-- Load status message -->
+          <div id="modelLoadStatus" class="hidden p-3 rounded-lg text-xs font-mono"></div>
+        </div>
+      </div>
+    </div>
+
   </main>
 
   <!-- ═══════════════════════════════════ SCRIPTS ═══════════════════════════════════ -->
@@ -510,6 +617,33 @@ Loading…</pre>
         document.getElementById('serverDot').className = 'h-2 w-2 rounded-full ' + (d.model_loaded ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400');
         document.getElementById('modelPill').classList.remove('hidden');
 
+        // Update calibration wizard model label
+        const calibModelEl = document.getElementById('calibTargetModelLabel');
+        if (calibModelEl) calibModelEl.innerText = d.active_model || '—';
+        const calibLayersEl = document.getElementById('calibTargetModelLayers');
+        if (calibLayersEl && d.chosen_layers) {
+          calibLayersEl.innerText = `Layers: [${d.chosen_layers.join(', ')}]`;
+        }
+
+        // Modal active model card
+        const modalModelEl = document.getElementById('modalActiveModelName');
+        if (modalModelEl) modalModelEl.innerText = d.active_model || 'None Loaded';
+        const modalDetailsEl = document.getElementById('modalActiveModelDetails');
+        if (modalDetailsEl && d.active_model_info) {
+          const info = d.active_model_info;
+          modalDetailsEl.innerText = `Arch: ${info.architecture || 'Unknown'} · ${info.num_layers || '?'} layers · Hidden: ${info.hidden_size || '?'}`;
+        }
+        const modalBadge = document.getElementById('modalActiveCalibBadge');
+        if (modalBadge) {
+          if (d.calibrated) {
+            modalBadge.className = 'px-2.5 py-1 rounded-full text-[10px] font-mono bg-emerald-950 text-emerald-400 border border-emerald-800/60';
+            modalBadge.innerText = 'Calibrated (' + (d.calibrated_traits || []).join(', ') + ')';
+          } else {
+            modalBadge.className = 'px-2.5 py-1 rounded-full text-[10px] font-mono bg-rose-950 text-rose-400 border border-rose-800/60';
+            modalBadge.innerText = 'Uncalibrated';
+          }
+        }
+
         // Calibration pill
         const calibIcon = document.getElementById('calibIcon');
         const calibLabel = document.getElementById('calibLabel');
@@ -533,6 +667,137 @@ Loading…</pre>
       } catch (e) {
         console.warn('Status load failed:', e);
       }
+    }
+
+    // ─── Model Selector Modal ──────────────────────────────────────────────────
+    function openModelModal() {
+      document.getElementById('modelModal').classList.remove('hidden');
+      fetchModelsList();
+    }
+
+    function closeModelModal() {
+      document.getElementById('modelModal').classList.add('hidden');
+      const statusEl = document.getElementById('modelLoadStatus');
+      statusEl.classList.add('hidden');
+    }
+
+    async function scanModels() {
+      const hfList = document.getElementById('hfModelsList');
+      hfList.innerHTML = '<div class="text-slate-500 text-center py-2"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Rescanning cache...</div>';
+      try {
+        const res = await fetch('/api/models/scan', { method: 'POST' });
+        const d = await res.json();
+        renderModelLists(d);
+      } catch (e) {
+        hfList.innerHTML = `<div class="text-rose-400 text-center py-2">Scan failed: ${e.message}</div>`;
+      }
+    }
+
+    async function fetchModelsList() {
+      try {
+        const res = await fetch('/api/models');
+        const d = await res.json();
+        renderModelLists(d);
+      } catch (e) {
+        console.error('Fetch models failed:', e);
+      }
+    }
+
+    function renderModelLists(d) {
+      // 1. Render HF cached models
+      const hfList = document.getElementById('hfModelsList');
+      const hfModels = d.discovered_local_hf || [];
+      if (hfModels.length === 0) {
+        hfList.innerHTML = '<div class="text-slate-500 text-center py-2">No models found in local Hugging Face cache.</div>';
+      } else {
+        let html = '';
+        hfModels.forEach(m => {
+          const hasWeights = m.has_weights;
+          const isText = m.is_text_model;
+          const badgeClass = hasWeights
+            ? 'bg-emerald-950 text-emerald-400 border-emerald-800/60'
+            : 'bg-amber-950 text-amber-400 border-amber-800/60';
+          const badgeText = hasWeights ? `Weights (${m.total_size_mb} MB)` : 'Tokenizer only (weights not downloaded)';
+
+          html += `
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex items-center justify-between hover:border-slate-700 transition">
+              <div class="space-y-0.5">
+                <div class="font-bold text-slate-200 text-xs font-mono">${m.repo_id}</div>
+                <div class="flex items-center gap-2">
+                  <span class="text-[9px] px-1.5 py-0.5 rounded border ${badgeClass}">${badgeText}</span>
+                  <span class="text-[10px] text-slate-500 font-mono">${m.weight_files ? m.weight_files.join(', ') : ''}</span>
+                </div>
+              </div>
+              <button onclick="loadSelectedModel('${m.repo_id}', true)" ${!hasWeights ? 'disabled' : ''}
+                class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:hover:bg-indigo-600 text-white rounded-lg text-xs font-medium transition flex items-center gap-1">
+                <i class="fa-solid fa-play text-[10px]"></i> Load
+              </button>
+            </div>
+          `;
+        });
+        hfList.innerHTML = html;
+      }
+
+      // 2. Render Ollama models
+      const ollamaList = document.getElementById('ollamaModelsList');
+      const olModels = d.ollama_models || [];
+      if (olModels.length === 0) {
+        ollamaList.innerHTML = '<div class="text-slate-500 text-center py-2">No local Ollama models detected or Ollama not running.</div>';
+      } else {
+        let olHtml = '';
+        olModels.forEach(m => {
+          olHtml += `
+            <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-cube text-purple-400 text-xs"></i>
+                <span class="font-mono text-slate-200 font-semibold text-xs">${m.name}</span>
+                <span class="text-[10px] text-slate-500">${m.size_gb} GB</span>
+              </div>
+              <span class="text-[10px] px-2 py-0.5 bg-purple-950/60 text-purple-300 border border-purple-800/60 rounded">
+                Calibration Ready
+              </span>
+            </div>
+          `;
+        });
+        ollamaList.innerHTML = olHtml;
+      }
+    }
+
+    async function loadSelectedModel(modelKey, isLocalOnly) {
+      const statusEl = document.getElementById('modelLoadStatus');
+      statusEl.classList.remove('hidden');
+      statusEl.className = 'p-3 rounded-lg text-xs font-mono bg-indigo-950 text-indigo-300 border border-indigo-800 flex items-center gap-2';
+      statusEl.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Loading '${modelKey}' into memory (bfloat16)...`;
+
+      try {
+        const res = await fetch('/api/models/load', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model_identifier: modelKey, local_files_only: isLocalOnly !== false })
+        });
+        const d = await res.json();
+        if (!res.ok) throw new Error(d.detail || res.statusText);
+
+        statusEl.className = 'p-3 rounded-lg text-xs font-mono bg-emerald-950 text-emerald-300 border border-emerald-800';
+        statusEl.innerHTML = `<i class="fa-solid fa-check mr-1"></i> Successfully loaded '${d.model_key}' (${d.metadata.architecture}, ${d.metadata.num_layers} layers). ` + (d.calibrated ? 'Calibration profile attached.' : 'Uncalibrated.');
+
+        // Update application state
+        await loadStatus();
+        setTimeout(() => closeModelModal(), 1500);
+      } catch (e) {
+        statusEl.className = 'p-3 rounded-lg text-xs font-mono bg-rose-950 text-rose-300 border border-rose-800';
+        statusEl.innerHTML = `<i class="fa-solid fa-circle-exclamation mr-1"></i> Load failed: ${e.message}`;
+      }
+    }
+
+    async function loadCustomModel() {
+      const input = document.getElementById('customModelInput').value.trim();
+      if (!input) {
+        alert('Please enter a folder path or HuggingFace repo ID.');
+        return;
+      }
+      const localOnly = document.getElementById('localFilesOnlyCheck').checked;
+      await loadSelectedModel(input, localOnly);
     }
 
     async function loadPresets() {

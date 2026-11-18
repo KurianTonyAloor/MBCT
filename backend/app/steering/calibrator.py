@@ -1,6 +1,7 @@
-"""Calibration Runner that orchestrates dataset generation, validation, vector derivation and MCP generation."""
+"""Calibration Runner that orchestrates dataset generation, validation, vector derivation and MCP generation across any local model."""
 
 import os
+import re
 import json
 import time
 from typing import List, Dict, Any, Optional
@@ -27,19 +28,46 @@ class CalibrationService:
         self.active_jobs: Dict[str, Dict[str, Any]] = {}
         self.current_mcp: Optional[ModelCalibrationProfile] = None
 
-        # Load any existing MCP
-        self._load_cached_mcp()
+        # Load default MCP for phi3 if present
+        self.load_mcp_for_model("phi-3-mini")
 
-    def _load_cached_mcp(self):
-        mcp_path = os.path.join(self.profiles_dir, "mcp_phi3.json")
-        if os.path.exists(mcp_path):
-            try:
-                with open(mcp_path, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    self.current_mcp = ModelCalibrationProfile(**data)
-                    print(f"Loaded existing MCP '{self.current_mcp.mcp_id}' from disk.", flush=True)
-            except Exception as e:
-                print(f"Failed to load cached MCP: {e}", flush=True)
+    @staticmethod
+    def clean_model_key(model_key: str) -> str:
+        """Sanitize any model key, HF repo id, or file path into a clean identifier."""
+        # Strip path or url prefixes if any
+        base = os.path.basename(model_key.rstrip("/\\"))
+        clean = re.sub(r"[^a-zA-Z0-9_\-]", "_", model_key)
+        # Avoid ultra-long filenames
+        if len(clean) > 50:
+            clean = clean[-50:]
+        return clean.strip("_").lower()
+
+    def load_mcp_for_model(self, model_key: str) -> Optional[ModelCalibrationProfile]:
+        """Attempt to find and load a persisted MCP matching the given model."""
+        clean = self.clean_model_key(model_key)
+        candidates = [
+            os.path.join(self.profiles_dir, f"mcp_{clean}.json"),
+            os.path.join(self.profiles_dir, f"mcp_{model_key}.json"),
+        ]
+        # Legacy fallback for phi-3
+        if "phi" in clean or "phi3" in clean:
+            candidates.append(os.path.join(self.profiles_dir, "mcp_phi3.json"))
+
+        for path in candidates:
+            if os.path.exists(path):
+                try:
+                    with open(path, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                        mcp = ModelCalibrationProfile(**data)
+                        self.current_mcp = mcp
+                        print(f"[CalibrationService] Loaded MCP '{mcp.mcp_id}' for model '{model_key}' from {path}.", flush=True)
+                        return mcp
+                except Exception as e:
+                    print(f"[CalibrationService] Error reading {path}: {e}", flush=True)
+
+        self.current_mcp = None
+        print(f"[CalibrationService] No cached MCP found for model '{model_key}'. Ready for calibration.", flush=True)
+        return None
 
     def calibrate_traits(
         self,
@@ -48,12 +76,21 @@ class CalibrationService:
         target_layers: Optional[List[int]] = None,
         preset: QualityPreset = QualityPreset.BALANCED
     ) -> ModelCalibrationProfile:
-        """Run full calibration across requested traits and persist MCP."""
+        """Run full calibration across requested traits for ANY local model and persist MCP."""
         traits = traits or ["directness", "formality", "verbosity"]
-        target_layers = target_layers or [10, 12, 14, 16]
 
-        print(f"Starting calibration for traits: {traits} on model: {model_key}...", flush=True)
+        print(f"[CalibrationService] Starting calibration for traits: {traits} on model: {model_key}...", flush=True)
         model, tokenizer, hook_manager = ModelLoader.load_model(model_key)
+
+        # If target layers not explicitly supplied, derive from model metadata
+        if not target_layers:
+            rec = ModelLoader._active_metadata.get("recommended_layers")
+            if rec and len(rec) >= 2:
+                target_layers = rec
+            else:
+                num_l = hook_manager.num_layers
+                target_layers = [max(1, int(num_l * 0.4)), int(num_l * 0.5), min(num_l - 1, int(num_l * 0.6))]
+
         provider = OllamaProvider()
         generator = DatasetGenerator(provider=provider)
         deriver = VectorDeriver(model, tokenizer, hook_manager)
@@ -64,7 +101,7 @@ class CalibrationService:
         report: Dict[str, Any] = {"traits_calibrated": {}, "model": model_key}
 
         for trait_id in traits:
-            print(f"Calibrating trait: '{trait_id}'...", flush=True)
+            print(f"[CalibrationService] Calibrating trait: '{trait_id}' on layers {target_layers}...", flush=True)
             examples = generator.generate_for_trait(trait_id, quality_preset=preset)
             
             # Persist dataset
@@ -83,12 +120,13 @@ class CalibrationService:
                 "layers": list(artifacts.keys()),
                 "layer_norms": {l: art.norm for l, art in artifacts.items()}
             }
-            print(f"Trait '{trait_id}' calibrated across layers {list(artifacts.keys())}.", flush=True)
+            print(f"[CalibrationService] Trait '{trait_id}' calibrated across layers {list(artifacts.keys())}.", flush=True)
 
+        clean = self.clean_model_key(model_key)
         mcp = ModelCalibrationProfile(
-            mcp_id=f"mcp-{model_key}-{int(time.time())}",
-            model_id="microsoft/Phi-3-mini-4k-instruct",
-            model_fingerprint=f"{model_key}-bfloat16-cpu",
+            mcp_id=f"mcp-{clean}-{int(time.time())}",
+            model_id=ModelLoader._active_metadata.get("target_path", model_key),
+            model_fingerprint=f"{clean}-{model.__class__.__name__}",
             traits=traits,
             chosen_layers=chosen_layers,
             vectors=all_vectors,
@@ -97,11 +135,11 @@ class CalibrationService:
             status="ready"
         )
 
-        # Save to disk
-        save_path = os.path.join(self.profiles_dir, "mcp_phi3.json")
+        # Save to disk using clean model identifier
+        save_path = os.path.join(self.profiles_dir, f"mcp_{clean}.json")
         with open(save_path, "w", encoding="utf-8") as f:
             f.write(mcp.model_dump_json(indent=2))
         
         self.current_mcp = mcp
-        print(f"MCP saved successfully to {save_path}.", flush=True)
+        print(f"[CalibrationService] MCP saved successfully to {save_path}.", flush=True)
         return mcp

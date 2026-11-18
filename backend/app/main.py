@@ -125,23 +125,87 @@ def get_or_init_controller() -> SteeringController:
 @app.get("/api/status")
 def get_system_status():
     has_mcp = calibration_service.current_mcp is not None
+    m_info = ModelLoader._active_metadata
+    chosen = []
+    if has_mcp:
+        chosen = sorted(set(
+            l for layers in calibration_service.current_mcp.chosen_layers.values()
+            for l in layers
+        ))
+    elif m_info and "recommended_layers" in m_info:
+        chosen = m_info["recommended_layers"]
+
     return {
         "active_model": active_model_key,
+        "active_model_info": m_info,
         "model_loaded": steering_controller is not None,
         "calibrated": has_mcp,
         "calibrated_traits": list(calibration_service.current_mcp.traits) if has_mcp else [],
         "master_steering_enabled": master_steering_enabled,
         "current_plan_id": current_plan.plan_id if current_plan else None,
-        "chosen_layers": sorted(set(
-            l for layers in calibration_service.current_mcp.chosen_layers.values()
-            for l in layers
-        )) if has_mcp else []
+        "chosen_layers": chosen
     }
 
 
 @app.get("/api/models")
 def get_models():
-    return {"models": ModelLoader.get_supported_catalogue()}
+    """Return catalogue of presets, locally discovered HuggingFace cache models, and Ollama models."""
+    catalogue = ModelLoader.get_supported_catalogue()
+    catalogue["active_model_key"] = active_model_key
+    catalogue["is_calibrated"] = calibration_service.current_mcp is not None
+    return catalogue
+
+
+class ModelLoadRequest(BaseModel):
+    model_identifier: str
+    local_files_only: bool = True
+
+
+@app.post("/api/models/load")
+async def load_model_endpoint(req: ModelLoadRequest):
+    """Dynamically load any local transformer model or checkpoint."""
+    global active_model_key, steering_controller, current_plan
+    target = req.model_identifier.strip()
+    if not target:
+        raise HTTPException(status_code=400, detail="model_identifier must not be empty.")
+
+    def _do_load():
+        model, tokenizer, hook_manager = ModelLoader.load_model(
+            target,
+            local_files_only=req.local_files_only
+        )
+        return model, tokenizer, hook_manager
+
+    try:
+        model, tokenizer, hook_manager = await asyncio.to_thread(_do_load)
+        active_model_key = target
+        steering_controller = SteeringController(model, tokenizer, hook_manager)
+        steering_controller.set_master_enabled(master_steering_enabled)
+
+        # Check if an existing MCP matches this model
+        mcp = calibration_service.load_mcp_for_model(active_model_key)
+        if mcp:
+            current_plan = PersonalityCompiler.compile(current_ubp, mcp)
+            steering_controller.apply_plan(current_plan, mcp)
+        else:
+            current_plan = None
+
+        return {
+            "status": "loaded",
+            "model_key": active_model_key,
+            "metadata": ModelLoader._active_metadata,
+            "calibrated": mcp is not None,
+            "calibrated_traits": mcp.traits if mcp else [],
+            "chosen_layers": list(mcp.chosen_layers.values())[0] if (mcp and mcp.chosen_layers) else ModelLoader._active_metadata.get("recommended_layers", [])
+        }
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Failed to load model '{target}': {str(exc)}")
+
+
+@app.post("/api/models/scan")
+def scan_models_endpoint():
+    """Rescan local HF cache and Ollama models."""
+    return ModelLoader.get_supported_catalogue()
 
 
 @app.get("/api/traits")
@@ -172,7 +236,7 @@ def test_provider(req: ProviderTestRequest):
 # ---------------------------------------------------------------------------
 
 class CalibrationRequest(BaseModel):
-    model_key: str = "phi-3-mini"
+    model_key: Optional[str] = None
     traits: List[str] = ["directness", "formality", "verbosity"]
     preset: QualityPreset = QualityPreset.BALANCED
 
@@ -181,9 +245,10 @@ class CalibrationRequest(BaseModel):
 async def run_calibration(req: CalibrationRequest):
     """Launch calibration as a background job. Returns job_id immediately."""
     job_id = str(uuid.uuid4())[:8]
+    target_model_key = req.model_key or active_model_key
     calibration_jobs[job_id] = {
         "status": "running",
-        "progress": "Starting calibration pipeline...",
+        "progress": f"Starting calibration pipeline for '{target_model_key}'...",
         "result": None,
         "error": None
     }
@@ -193,13 +258,14 @@ async def run_calibration(req: CalibrationRequest):
             try:
                 calibration_jobs[job_id]["progress"] = "Generating contrastive datasets via Ollama..."
                 mcp = calibration_service.calibrate_traits(
-                    model_key=req.model_key,
+                    model_key=target_model_key,
                     traits=req.traits,
                     preset=req.preset
                 )
                 calibration_jobs[job_id]["progress"] = "Applying new calibration to steering controller..."
+                global active_model_key, current_plan
+                active_model_key = target_model_key
                 ctrl = get_or_init_controller()
-                global current_plan
                 current_plan = PersonalityCompiler.compile(current_ubp, mcp)
                 ctrl.apply_plan(current_plan, mcp)
                 calibration_jobs[job_id]["status"] = "done"
