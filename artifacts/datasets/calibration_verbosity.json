@@ -1,0 +1,59 @@
+[
+  {
+    "example_id": "verbosity-gold-001",
+    "trait_id": "verbosity",
+    "intensity": 0.8,
+    "domain": "curated",
+    "scenario": "Explain HTTP 429 status code",
+    "user_prompt": "What does an HTTP 429 status code mean?",
+    "positive_response": "An HTTP 429 'Too Many Requests' response indicates that the client has sent too many requests in a given amount of time, exceeding the rate limits set by the server. Servers frequently include a 'Retry-After' header indicating how long to wait before sending another request.",
+    "contrast_response": "HTTP 429 means 'Too Many Requests'\u2014you hit the server's rate limit. Check the Retry-After header and back off.",
+    "invariant_summary": "Both state that HTTP 429 means Too Many Requests and points to rate limits and Retry-After.",
+    "validation": {
+      "schema_valid": true,
+      "semantic_equivalence": "passed",
+      "trait_isolation": "passed",
+      "factual_consistency": "passed",
+      "length_confound_ratio": 2.5,
+      "notes": []
+    }
+  },
+  {
+    "example_id": "verbosity-gold-002",
+    "trait_id": "verbosity",
+    "intensity": 0.8,
+    "domain": "curated",
+    "scenario": "Explain git rebase conflict resolution",
+    "user_prompt": "How do I fix a merge conflict during a git rebase?",
+    "positive_response": "During a git rebase conflict, git pauses at the conflicting commit. You must inspect the conflicted files, resolve the conflict markers (<<<<<<<, =======, >>>>>>>), stage the resolved files with 'git add <file>', and then execute 'git rebase --continue' to apply subsequent commits.",
+    "contrast_response": "Edit the conflicted files to remove the conflict markers, run `git add <file>`, then run `git --continue`.",
+    "invariant_summary": "Both instruct to manually fix conflict markers, run git add, and git rebase --continue.",
+    "validation": {
+      "schema_valid": true,
+      "semantic_equivalence": "passed",
+      "trait_isolation": "passed",
+      "factual_consistency": "passed",
+      "length_confound_ratio": 2.47,
+      "notes": []
+    }
+  },
+  {
+    "example_id": "verbosity-gen-003",
+    "trait_id": "verbosity",
+    "intensity": 0.8,
+    "domain": "generated",
+    "scenario": "Explain how python generators and the yield keyword work",
+    "user_prompt": "I'm curious about how Python generators function and the role of the yield keyword. Could you provide a detailed explanation?",
+    "positive_response": "In Python, generators are a special kind of iterable, which means you can loop over them, but they are not created all at once as you would with a list or tuple. Instead, they are created dynamically, one element at a time. The yield keyword plays a central role in this process. When a function contains a yield statement, it temporarily suspends execution and yields a value back to the caller, which can then be processed. Upon receiving a 'next' request, the function resumes from where it left off, maintaining its state. This process continues until the yield statement is encountered again or the function has no more items to yield, at which point it raises a StopIteration exception and the loop over the generator ends. This mechanism allows for the creation of potentially infinite sequences without the need to store the entire sequence in memory, making it an efficient way to handle large data sets or streams. The use of generators with the yield keyword also means that you can write code that is more readable, as it can mimic the flow of a sequence, while still being memory efficient.",
+    "contrast_response": "Python generators and the yield keyword create one item at a time. They are used for efficient looping over large data. Generators suspend and resume execution to yield values.",
+    "invariant_summary": "Both the target and contrast responses agree that Python generators and the yield keyword involve the creation of one item at a time and the suspension and resumption of execution to yield values. They are used to efficiently loop over large data sets.",
+    "validation": {
+      "schema_valid": true,
+      "semantic_equivalence": "passed",
+      "trait_isolation": "passed",
+      "factual_consistency": "passed",
+      "length_confound_ratio": 6.59,
+      "notes": []
+    }
+  }
+]

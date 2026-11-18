@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
+*.whl
+.eggs/
+
+# Virtual environments
+venv/
+env/
+.venv/
+.env/
+
+# Environment variables / secrets
+.env
+*.env
+
+# HuggingFace model cache (massive — never commit)
+~/.cache/
+*.safetensors
+*.bin
+*.gguf
+*.pt
+*.pth
+
+# Large binary artifacts (MCP vectors can be large)
+# Keep mcp_phi3.json (it's small + needed) but exclude future large ones
+# artifacts/profiles/*.json  ← intentionally NOT ignored (small, needed)
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+*.iml
+
+# Logs & temp
+*.log
+*.tmp
+tmp/
+scratch/
+
+# Node (if any tooling added later)
+node_modules/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb

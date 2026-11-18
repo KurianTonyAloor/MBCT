@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MBCT — Personality Steering Studio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50: '#eef2ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#1e1b4b' },
+            slate: { 850: '#151f32', 900: '#0f172a', 950: '#070d19' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    input[type=range] { -webkit-appearance: none; appearance: none; height: 6px; border-radius: 999px; outline: none; cursor: pointer; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #6366f1; cursor: pointer; box-shadow: 0 0 10px rgba(99,102,241,0.6); border: 2px solid #818cf8; }
+    input[type=range].track-directness { background: linear-gradient(to right, #6366f1 var(--pct,50%), #1e293b var(--pct,50%)); }
+    input[type=range].track-formality   { background: linear-gradient(to right, #8b5cf6 var(--pct,50%), #1e293b var(--pct,50%)); }
+    input[type=range].track-verbosity   { background: linear-gradient(to right, #06b6d4 var(--pct,50%), #1e293b var(--pct,50%)); }
+    input[type=range].track-empathy     { background: linear-gradient(to right, #10b981 var(--pct,50%), #1e293b var(--pct,50%)); }
+    input[type=range].track-initiative  { background: linear-gradient(to right, #f59e0b var(--pct,50%), #1e293b var(--pct,50%)); }
+    .token-stream { font-family: 'Courier New', monospace; }
+    .layer-cell { transition: background-color 0.3s ease; }
+    @keyframes pulse-once { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .pulse-once { animation: pulse-once 0.6s ease; }
+    .tab-active { border-bottom: 2px solid #6366f1; color: #818cf8; }
+    .tab-inactive { border-bottom: 2px solid transparent; color: #64748b; }
+    .tab-inactive:hover { color: #94a3b8; }
+    pre { white-space: pre-wrap; word-break: break-word; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased">
+
+  <!-- ═══════════════════════════════════ HEADER ═══════════════════════════════════ -->
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50 px-6 py-3">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="h-9 w-9 rounded-lg bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+          <i class="fa-solid fa-sliders text-white text-lg"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-lg tracking-tight bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+            MBCT Personality Steering
+          </h1>
+          <p class="text-xs text-slate-400">Contrastive Activation Steering · Frozen Model Runtime</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <!-- Status pills -->
+        <div id="modelPill" class="hidden md:flex items-center space-x-2 text-xs bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700">
+          <span id="serverDot" class="h-2 w-2 rounded-full bg-slate-500"></span>
+          <span class="text-slate-300">Model:</span>
+          <span class="font-mono text-indigo-300 font-semibold" id="headerModelName">—</span>
+        </div>
+        <div id="calibPill" class="hidden md:flex items-center space-x-2 text-xs bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700">
+          <i id="calibIcon" class="fa-solid fa-circle-xmark text-rose-400 text-xs"></i>
+          <span class="text-slate-300" id="calibLabel">Not calibrated</span>
+        </div>
+
+        <!-- Master Kill Switch -->
+        <div class="flex items-center space-x-2 bg-slate-850 border border-slate-700/80 px-3 py-1.5 rounded-xl">
+          <span class="text-xs font-medium text-slate-300">Steering</span>
+          <button id="masterToggleBtn" onclick="toggleMasterSteering()"
+            class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none bg-indigo-600">
+            <span id="masterToggleKnob"
+              class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-6"></span>
+          </button>
+          <span id="masterToggleLabel" class="text-xs font-mono text-emerald-400">ON</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════ TAB BAR ═══════════════════════════════════ -->
+  <div class="bg-slate-900 border-b border-slate-800 px-6">
+    <div class="max-w-7xl mx-auto flex space-x-6">
+      <button onclick="switchTab('studio')" id="tabBtn-studio" class="py-3 px-1 tab-active font-medium text-sm flex items-center space-x-2">
+        <i class="fa-solid fa-wand-magic-sparkles"></i><span>Personality Studio</span>
+      </button>
+      <button onclick="switchTab('playground')" id="tabBtn-playground" class="py-3 px-1 tab-inactive font-medium text-sm flex items-center space-x-2">
+        <i class="fa-solid fa-flask-vial"></i><span>Live Playground</span>
+      </button>
+      <button onclick="switchTab('wizard')" id="tabBtn-wizard" class="py-3 px-1 tab-inactive font-medium text-sm flex items-center space-x-2">
+        <i class="fa-solid fa-screwdriver-wrench"></i><span>Calibration Wizard</span>
+      </button>
+      <button onclick="switchTab('datasets')" id="tabBtn-datasets" class="py-3 px-1 tab-inactive font-medium text-sm flex items-center space-x-2">
+        <i class="fa-solid fa-database"></i><span>Contrastive Datasets</span>
+      </button>
+      <button onclick="switchTab('blueprint')" id="tabBtn-blueprint" class="py-3 px-1 tab-inactive font-medium text-sm flex items-center space-x-2">
+        <i class="fa-solid fa-diagram-project"></i><span>Architecture</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════ MAIN ═══════════════════════════════════ -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
+
+    <!-- ════════════ TAB 1: PERSONALITY STUDIO ════════════ -->
+    <div id="tabContent-studio" class="space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- LEFT: Sliders -->
+        <div class="lg:col-span-2 bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-base font-bold text-slate-100">Universal Behaviour Profile</h2>
+              <p class="text-xs text-slate-400 mt-0.5">Sliders map 0–100% → steering alpha at each residual layer</p>
+            </div>
+            <button onclick="saveUBP()" id="saveBtn"
+              class="text-xs px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-medium transition flex items-center gap-1.5">
+              <i class="fa-solid fa-floppy-disk"></i> Apply
+            </button>
+          </div>
+
+          <!-- Trait Sliders -->
+          <div class="space-y-5" id="sliderContainer">
+            <!-- directness -->
+            <div class="space-y-1.5">
+              <div class="flex justify-between text-xs font-medium">
+                <span class="flex items-center gap-1.5">
+                  <span class="h-2 w-2 rounded-full bg-indigo-500"></span>
+                  <span class="text-slate-200 uppercase tracking-widest">Directness</span>
+                  <span class="text-slate-500 normal-case font-normal">— blunt vs. hedged</span>
+                </span>
+                <span id="val-directness" class="font-mono text-indigo-300 font-bold">85%</span>
+              </div>
+              <input type="range" min="0" max="100" value="85"
+                class="w-full track-directness" id="slider-directness"
+                oninput="onSliderChange('directness', this.value)">
+            </div>
+            <!-- formality -->
+            <div class="space-y-1.5">
+              <div class="flex justify-between text-xs font-medium">
+                <span class="flex items-center gap-1.5">
+                  <span class="h-2 w-2 rounded-full bg-violet-500"></span>
+                  <span class="text-slate-200 uppercase tracking-widest">Formality</span>
+                  <span class="text-slate-500 normal-case font-normal">— professional vs. casual</span>
+                </span>
+                <span id="val-formality" class="font-mono text-violet-300 font-bold">35%</span>
+              </div>
+              <input type="range" min="0" max="100" value="35"
+                class="w-full track-formality" id="slider-formality"
+                oninput="onSliderChange('formality', this.value)">
+            </div>
+            <!-- verbosity -->
+            <div class="space-y-1.5">
+              <div class="flex justify-between text-xs font-medium">
+                <span class="flex items-center gap-1.5">
+                  <span class="h-2 w-2 rounded-full bg-cyan-500"></span>
+                  <span class="text-slate-200 uppercase tracking-widest">Verbosity</span>
+                  <span class="text-slate-500 normal-case font-normal">— detailed vs. terse</span>
+                </span>
+                <span id="val-verbosity" class="font-mono text-cyan-300 font-bold">40%</span>
+              </div>
+              <input type="range" min="0" max="100" value="40"
+                class="w-full track-verbosity" id="slider-verbosity"
+                oninput="onSliderChange('verbosity', this.value)">
+            </div>
+            <!-- empathy -->
+            <div class="space-y-1.5">
+              <div class="flex justify-between text-xs font-medium">
+                <span class="flex items-center gap-1.5">
+                  <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+                  <span class="text-slate-200 uppercase tracking-widest">Empathy</span>
+                  <span class="text-slate-500 normal-case font-normal">— warm vs. neutral (UBP only)</span>
+                </span>
+                <span id="val-empathy" class="font-mono text-emerald-300 font-bold">60%</span>
+              </div>
+              <input type="range" min="0" max="100" value="60"
+                class="w-full track-empathy" id="slider-empathy"
+                oninput="onSliderChange('empathy', this.value)">
+            </div>
+            <!-- initiative -->
+            <div class="space-y-1.5">
+              <div class="flex justify-between text-xs font-medium">
+                <span class="flex items-center gap-1.5">
+                  <span class="h-2 w-2 rounded-full bg-amber-500"></span>
+                  <span class="text-slate-200 uppercase tracking-widest">Initiative</span>
+                  <span class="text-slate-500 normal-case font-normal">— proactive vs. responsive (UBP only)</span>
+                </span>
+                <span id="val-initiative" class="font-mono text-amber-300 font-bold">50%</span>
+              </div>
+              <input type="range" min="0" max="100" value="50"
+                class="w-full track-initiative" id="slider-initiative"
+                oninput="onSliderChange('initiative', this.value)">
+            </div>
+          </div>
+
+          <!-- Save feedback -->
+          <div id="saveFeedback" class="hidden text-xs text-emerald-400 flex items-center gap-1.5">
+            <i class="fa-solid fa-check-circle"></i> Profile applied to steering engine.
+          </div>
+        </div>
+
+        <!-- RIGHT: Presets + Layer Heatmap -->
+        <div class="space-y-5">
+          <!-- Presets -->
+          <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5 space-y-3">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Quick Presets</h3>
+            <div class="space-y-2" id="presetsContainer">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- Layer Weight Heatmap -->
+          <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Compiled Layer Weights</h3>
+              <span class="text-[10px] text-slate-500">α = (slider − 0.5) × 2 × 3</span>
+            </div>
+            <div id="layerHeatmap" class="space-y-1.5 font-mono text-xs">
+              <!-- Rendered on slider change -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════ TAB 2: LIVE PLAYGROUND ════════════ -->
+    <div id="tabContent-playground" class="hidden space-y-6">
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+
+        <!-- Input panel -->
+        <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-4">
+          <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
+            <i class="fa-solid fa-flask-vial text-indigo-400"></i> Generation Playground
+          </h2>
+
+          <div class="space-y-2">
+            <label class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Prompt</label>
+            <textarea id="promptInput" rows="4" placeholder="Enter your prompt here…"
+              class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+          </div>
+
+          <!-- Quick prompts -->
+          <div class="flex flex-wrap gap-2">
+            <span class="text-xs text-slate-500 self-center">Try:</span>
+            <button onclick="setPrompt('Should our 3-person startup adopt Kubernetes?')"
+              class="text-xs px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition">
+              Kubernetes decision
+            </button>
+            <button onclick="setPrompt('Explain what a p-value is to a non-statistician.')"
+              class="text-xs px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition">
+              p-value explanation
+            </button>
+            <button onclick="setPrompt('Review this code: for i in range(len(arr)): print(arr[i])')"
+              class="text-xs px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition">
+              Code review
+            </button>
+            <button onclick="setPrompt('Should I rewrite our legacy PHP monolith in Go?')"
+              class="text-xs px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition">
+              Stack rewrite
+            </button>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <div class="flex flex-col gap-1">
+              <label class="text-xs text-slate-500">Max tokens</label>
+              <input type="number" id="maxTokensInput" value="80" min="10" max="300"
+                class="w-24 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-sm text-slate-200 focus:outline-none focus:border-indigo-500">
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs text-slate-500">Mode</label>
+              <select id="genMode"
+                class="bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-sm text-slate-200 focus:outline-none">
+                <option value="stream">Streaming (SSE)</option>
+                <option value="blocking">Blocking (compare)</option>
+              </select>
+            </div>
+          </div>
+
+          <button id="generateBtn" onclick="runGeneration()"
+            class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition">
+            <i class="fa-solid fa-play"></i><span>Run Generation</span>
+          </button>
+        </div>
+
+        <!-- Output panel -->
+        <div class="space-y-4">
+          <!-- Steered output -->
+          <div class="bg-slate-900 rounded-2xl border border-indigo-900/60 p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <div class="h-2 w-2 rounded-full bg-indigo-500 animate-pulse"></div>
+                <span class="text-xs font-bold text-indigo-400 uppercase tracking-widest">Steered Output</span>
+              </div>
+              <div id="steeringBadge" class="text-[10px] px-2 py-0.5 rounded-full border border-indigo-800 text-indigo-400 bg-indigo-950/60 font-mono">
+                Active
+              </div>
+            </div>
+            <pre id="steeredOutput" class="token-stream text-sm text-slate-200 min-h-[80px] leading-relaxed">
+<span class="text-slate-600 italic">Output will appear here…</span></pre>
+            <div id="generationMeta" class="hidden text-[11px] text-slate-500 border-t border-slate-800 pt-2 font-mono"></div>
+          </div>
+
+          <!-- Baseline (compare mode) -->
+          <div id="baselinePanel" class="bg-slate-900 rounded-2xl border border-slate-800 p-5 space-y-3">
+            <div class="flex items-center gap-2">
+              <div class="h-2 w-2 rounded-full bg-slate-500"></div>
+              <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Baseline (No Steering)</span>
+            </div>
+            <pre id="baselineOutput" class="token-stream text-sm text-slate-400 min-h-[80px] leading-relaxed">
+<span class="text-slate-600 italic">Baseline output will appear here…</span></pre>
+          </div>
+
+          <!-- Active weights -->
+          <div class="bg-slate-900 rounded-2xl border border-slate-800 p-4 space-y-2">
+            <h3 class="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Active Steering Weights (last run)</h3>
+            <div id="activeWeightsDisplay" class="font-mono text-xs text-slate-400">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════ TAB 3: CALIBRATION WIZARD ════════════ -->
+    <div id="tabContent-wizard" class="hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- Calibration controls -->
+        <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-5">
+          <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
+            <i class="fa-solid fa-screwdriver-wrench text-indigo-400"></i> Run Calibration
+          </h2>
+          <p class="text-xs text-slate-400">
+            Generates contrastive pairs via Ollama phi3, runs teacher-forced passes through Phi-3 Mini,
+            computes mean activation diff per layer, and stores the unit-normalised steering vectors in the MCP.
+          </p>
+
+          <div class="space-y-3">
+            <label class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Traits to calibrate</label>
+            <div class="flex flex-wrap gap-2" id="traitCheckboxes">
+              <label class="flex items-center gap-1.5 cursor-pointer">
+                <input type="checkbox" value="directness" checked class="accent-indigo-500"> <span class="text-sm text-slate-300">directness</span>
+              </label>
+              <label class="flex items-center gap-1.5 cursor-pointer">
+                <input type="checkbox" value="formality" checked class="accent-indigo-500"> <span class="text-sm text-slate-300">formality</span>
+              </label>
+              <label class="flex items-center gap-1.5 cursor-pointer">
+                <input type="checkbox" value="verbosity" checked class="accent-indigo-500"> <span class="text-sm text-slate-300">verbosity</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Quality preset</label>
+            <select id="calibPreset"
+              class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none">
+              <option value="balanced">Balanced (recommended)</option>
+              <option value="fast">Fast (fewer pairs)</option>
+              <option value="thorough">Thorough (more pairs, slower)</option>
+            </select>
+          </div>
+
+          <button id="calibBtn" onclick="triggerCalibration()"
+            class="w-full py-2.5 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition">
+            <i class="fa-solid fa-atom fa-spin hidden" id="calibSpinner"></i>
+            <i class="fa-solid fa-bolt" id="calibBoltIcon"></i>
+            <span id="calibBtnLabel">Run Calibration</span>
+          </button>
+
+          <!-- Progress -->
+          <div id="calibProgress" class="hidden space-y-2">
+            <div class="flex items-center gap-2 text-xs text-slate-400">
+              <i class="fa-solid fa-spinner fa-spin text-purple-400"></i>
+              <span id="calibProgressMsg">Starting…</span>
+            </div>
+            <div class="w-full bg-slate-800 rounded-full h-1.5">
+              <div id="calibProgressBar" class="bg-purple-500 h-1.5 rounded-full transition-all duration-500" style="width: 10%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Current MCP report -->
+        <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-slate-200">Current MCP Report</h3>
+            <button onclick="loadCalibrationReport()"
+              class="text-xs px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition">
+              <i class="fa-solid fa-refresh"></i> Refresh
+            </button>
+          </div>
+          <pre id="mcpReportJson"
+            class="text-xs font-mono bg-slate-950 p-4 rounded-xl border border-slate-800 overflow-x-auto text-indigo-300 max-h-80">
+Loading…</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════ TAB 4: CONTRASTIVE DATASETS ════════════ -->
+    <div id="tabContent-datasets" class="hidden space-y-5">
+      <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-5">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-base font-bold text-slate-100">Contrastive Training Pairs</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Loaded from <code class="bg-slate-800 px-1 rounded">artifacts/datasets/calibration_*.json</code></p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="loadDataset('directness')"
+              class="text-xs px-3 py-1.5 bg-indigo-900/60 hover:bg-indigo-900 border border-indigo-800 text-indigo-300 rounded-lg transition">directness</button>
+            <button onclick="loadDataset('formality')"
+              class="text-xs px-3 py-1.5 bg-violet-900/60 hover:bg-violet-900 border border-violet-800 text-violet-300 rounded-lg transition">formality</button>
+            <button onclick="loadDataset('verbosity')"
+              class="text-xs px-3 py-1.5 bg-cyan-900/60 hover:bg-cyan-900 border border-cyan-800 text-cyan-300 rounded-lg transition">verbosity</button>
+          </div>
+        </div>
+        <div id="datasetPairsContainer" class="space-y-4">
+          <div class="text-slate-500 text-sm">Select a trait above to load its contrastive pairs.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════ TAB 5: ARCHITECTURE ════════════ -->
+    <div id="tabContent-blueprint" class="hidden space-y-6">
+      <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-6">
+        <h2 class="text-lg font-bold text-slate-100">System Architecture</h2>
+        <p class="text-xs text-slate-400">
+          The MBCT system decouples user intent (UBP sliders) from model-specific mechanics (MCP vectors).
+          Steering is applied at inference-time only — model weights are never modified.
+        </p>
+
+        <div class="bg-slate-950 p-5 rounded-xl border border-slate-800 font-mono text-xs text-indigo-300 leading-loose overflow-x-auto whitespace-pre">
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        MBCT — System Data Flow                              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  PERSONALITY STUDIO  ──sliders 0-100%──▶  Universal Behaviour Profile (UBP)│
+│                                                      │                      │
+│                                                      ▼                      │
+│  Calibration Wizard  ──runs once──────▶  PersonalityCompiler                │
+│      Ollama phi3 (pairs generator)        UBP × MCP → CompiledSteeringPlan  │
+│      Phi-3 Mini (teacher-forced)              α[trait,layer] = (s-0.5)×2×3  │
+│      VectorDeriver (mean diff + norm)                │                      │
+│      MCP → artifacts/profiles/mcp.json              ▼                      │
+│                                           SteeringController                │
+│  FROZEN MODEL ◀─────hooks──────────────── ActivationHookManager             │
+│  Phi-3 Mini 3.8B                              h'ₗ = hₗ + Σ α[t,l]·v[t,l]   │
+│  (32 transformer layers)                      Layers: 12, 14, 16            │
+│  No weight modification                                                     │
+│                                                      │                      │
+│  Streaming SSE ◀──/api/steering/generate/stream──────┘                      │
+│  Side-by-side ◀──/api/steering/generate (blocking)                          │
+│                                                                             │
+│  Kill-Switch: master_enabled=False → hooks pass through unchanged           │
+└─────────────────────────────────────────────────────────────────────────────┘</div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+            <h4 class="font-bold text-indigo-400 mb-2">UBP — Universal Behaviour Profile</h4>
+            <p class="text-slate-400">Model-agnostic. Human-readable sliders (0–100%). Stored per-session. Can be serialised to JSON for sharing across model variants.</p>
+          </div>
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+            <h4 class="font-bold text-purple-400 mb-2">MCP — Model Calibration Profile</h4>
+            <p class="text-slate-400">Model-specific. Stores unit-normalised steering vectors per trait per layer. Generated once via contrastive activation diff. Persisted to <code>artifacts/profiles/mcp_*.json</code>.</p>
+          </div>
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+            <h4 class="font-bold text-cyan-400 mb-2">Compiled Steering Plan</h4>
+            <p class="text-slate-400">Runtime artefact. Resolved alpha per layer: <code>α = (slider − 0.5) × 2 × max_alpha</code>. Positive = towards trait pole; negative = away. Applied via forward hooks on frozen model.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ═══════════════════════════════════ SCRIPTS ═══════════════════════════════════ -->
+  <script>
+    // ─── State ───────────────────────────────────────────────────────────────
+    let ubp = {
+      profile_id: "default-assistant",
+      traits: { directness: 0.85, formality: 0.35, verbosity: 0.40, empathy: 0.60, initiative: 0.50 }
+    };
+    let masterEnabled = true;
+    let activeCalibJobId = null;
+    let calibPollTimer = null;
+    let chosenLayers = [12, 14, 16];  // updated from /api/status
+
+    const TRAIT_COLORS = {
+      directness: '#6366f1',
+      formality:  '#8b5cf6',
+      verbosity:  '#06b6d4',
+      empathy:    '#10b981',
+      initiative: '#f59e0b'
+    };
+
+    // ─── Initialise ──────────────────────────────────────────────────────────
+    window.addEventListener('DOMContentLoaded', async () => {
+      updateAllSliderTracks();
+      renderHeatmap();
+      setPrompt('Should our 3-person startup adopt Kubernetes?');
+      await loadStatus();
+      await loadPresets();
+    });
+
+    async function loadStatus() {
+      try {
+        const res = await fetch('/api/status');
+        const d = await res.json();
+
+        // Header model pill
+        document.getElementById('headerModelName').innerText = d.active_model || '—';
+        document.getElementById('serverDot').className = 'h-2 w-2 rounded-full ' + (d.model_loaded ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400');
+        document.getElementById('modelPill').classList.remove('hidden');
+
+        // Calibration pill
+        const calibIcon = document.getElementById('calibIcon');
+        const calibLabel = document.getElementById('calibLabel');
+        document.getElementById('calibPill').classList.remove('hidden');
+        if (d.calibrated) {
+          calibIcon.className = 'fa-solid fa-circle-check text-emerald-400 text-xs';
+          calibLabel.innerText = `Calibrated (${d.calibrated_traits.join(', ')})`;
+        } else {
+          calibIcon.className = 'fa-solid fa-circle-xmark text-rose-400 text-xs';
+          calibLabel.innerText = 'Not calibrated';
+        }
+
+        // Master toggle visual state
+        masterEnabled = d.master_steering_enabled !== false;
+        applyToggleVisual(masterEnabled);
+
+        if (d.chosen_layers && d.chosen_layers.length > 0) {
+          chosenLayers = d.chosen_layers;
+          renderHeatmap();
+        }
+      } catch (e) {
+        console.warn('Status load failed:', e);
+      }
+    }
+
+    async function loadPresets() {
+      try {
+        const res = await fetch('/api/profiles/presets');
+        const d = await res.json();
+        const container = document.getElementById('presetsContainer');
+        container.innerHTML = '';
+        for (const [key, preset] of Object.entries(d.presets)) {
+          container.innerHTML += `
+            <button onclick="applyPreset('${key}')"
+              class="w-full text-left px-3 py-2.5 bg-slate-800 hover:bg-slate-750 border border-slate-700 hover:border-indigo-700 rounded-xl transition group">
+              <div class="flex items-center gap-2 mb-0.5">
+                <span class="text-base">${preset.icon}</span>
+                <span class="text-sm font-semibold text-slate-200 group-hover:text-indigo-300 transition">${preset.label}</span>
+              </div>
+              <p class="text-xs text-slate-500 leading-snug ml-6">${preset.description}</p>
+            </button>`;
+        }
+        // Store presets for client-side use
+        window._presets = d.presets;
+      } catch (e) {
+        // Fallback inline presets
+        window._presets = {
+          direct_architect: { traits: { directness: 0.95, formality: 0.80, verbosity: 0.30, empathy: 0.40, initiative: 0.70 } },
+          friendly_mentor:  { traits: { directness: 0.30, formality: 0.20, verbosity: 0.75, empathy: 0.90, initiative: 0.50 } },
+          brutal_reviewer:  { traits: { directness: 1.00, formality: 0.50, verbosity: 0.25, empathy: 0.20, initiative: 0.80 } },
+          neutral:          { traits: { directness: 0.50, formality: 0.50, verbosity: 0.50, empathy: 0.50, initiative: 0.50 } }
+        };
+      }
+    }
+
+    // ─── Tab switching ────────────────────────────────────────────────────────
+    function switchTab(tabId) {
+      ['studio','playground','wizard','datasets','blueprint'].forEach(t => {
+        document.getElementById(`tabContent-${t}`).classList.add('hidden');
+        document.getElementById(`tabBtn-${t}`).className = 'py-3 px-1 tab-inactive font-medium text-sm flex items-center space-x-2';
+      });
+      document.getElementById(`tabContent-${tabId}`).classList.remove('hidden');
+      document.getElementById(`tabBtn-${tabId}`).className = 'py-3 px-1 tab-active font-medium text-sm flex items-center space-x-2';
+
+      if (tabId === 'wizard') loadCalibrationReport();
+      if (tabId === 'datasets') loadDataset('directness');
+    }
+
+    // ─── Sliders ──────────────────────────────────────────────────────────────
+    function onSliderChange(trait, rawVal) {
+      const val = parseInt(rawVal);
+      ubp.traits[trait] = val / 100.0;
+
+      // Label
+      const colorMap = { directness: 'text-indigo-300', formality: 'text-violet-300', verbosity: 'text-cyan-300', empathy: 'text-emerald-300', initiative: 'text-amber-300' };
+      document.getElementById(`val-${trait}`).innerText = val + '%';
+
+      // Track fill
+      const slider = document.getElementById(`slider-${trait}`);
+      slider.style.setProperty('--pct', val + '%');
+
+      renderHeatmap();
+    }
+
+    function updateAllSliderTracks() {
+      ['directness','formality','verbosity','empathy','initiative'].forEach(t => {
+        const slider = document.getElementById(`slider-${t}`);
+        if (slider) {
+          slider.style.setProperty('--pct', slider.value + '%');
+        }
+      });
+    }
+
+    function renderHeatmap() {
+      const traits = ['directness','formality','verbosity'];
+      const maxAlpha = 3.0;
+      let html = '';
+      chosenLayers.forEach(l => {
+        html += `<div class="text-[11px] text-slate-500 mb-0.5">Layer ${l}</div>`;
+        html += `<div class="flex gap-1 mb-2">`;
+        traits.forEach(t => {
+          const alpha = (ubp.traits[t] - 0.5) * 2 * maxAlpha;
+          const pct = Math.abs(alpha) / maxAlpha;
+          const isPos = alpha >= 0;
+          const color = TRAIT_COLORS[t];
+          const bgOpacity = Math.round(pct * 100);
+          html += `
+            <div class="layer-cell flex-1 rounded px-1.5 py-1 border ${isPos ? 'border-indigo-900/40' : 'border-slate-700/40'}"
+              style="background: ${color}${Math.round(pct * 40).toString(16).padStart(2,'0')}">
+              <div class="text-[9px] text-slate-400">${t.substring(0,3)}</div>
+              <div class="font-bold ${isPos ? 'text-slate-200' : 'text-slate-500'}" style="color:${color}">
+                ${alpha >= 0 ? '+' : ''}${alpha.toFixed(2)}
+              </div>
+            </div>`;
+        });
+        html += `</div>`;
+      });
+      document.getElementById('layerHeatmap').innerHTML = html;
+    }
+
+    // ─── Presets ──────────────────────────────────────────────────────────────
+    function applyPreset(key) {
+      const preset = window._presets?.[key];
+      if (!preset) return;
+      Object.entries(preset.traits).forEach(([k, v]) => {
+        const slider = document.getElementById(`slider-${k}`);
+        if (slider) {
+          slider.value = Math.round(v * 100);
+          onSliderChange(k, Math.round(v * 100));
+        }
+      });
+      saveUBP();
+    }
+
+    // ─── UBP Save ─────────────────────────────────────────────────────────────
+    async function saveUBP() {
+      const btn = document.getElementById('saveBtn');
+      btn.disabled = true;
+      try {
+        const res = await fetch('/api/profiles/behaviour', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(ubp)
+        });
+        const d = await res.json();
+
+        // Show feedback
+        const fb = document.getElementById('saveFeedback');
+        fb.classList.remove('hidden');
+        setTimeout(() => fb.classList.add('hidden'), 2500);
+
+        // Update active weights if plan returned
+        if (d.active_weights) updateActiveWeightsDisplay(d.active_weights);
+      } catch (e) {
+        console.error('Save UBP failed:', e);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    // ─── Master Toggle ────────────────────────────────────────────────────────
+    async function toggleMasterSteering() {
+      masterEnabled = !masterEnabled;
+      applyToggleVisual(masterEnabled);
+      await fetch('/api/steering/toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled: masterEnabled })
+      });
+    }
+
+    function applyToggleVisual(enabled) {
+      const btn = document.getElementById('masterToggleBtn');
+      const knob = document.getElementById('masterToggleKnob');
+      const label = document.getElementById('masterToggleLabel');
+      if (enabled) {
+        btn.className = 'relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none bg-indigo-600';
+        knob.className = 'inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-6';
+        label.className = 'text-xs font-mono text-emerald-400';
+        label.innerText = 'ON';
+      } else {
+        btn.className = 'relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none bg-slate-700';
+        knob.className = 'inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-1';
+        label.className = 'text-xs font-mono text-slate-500';
+        label.innerText = 'OFF';
+      }
+    }
+
+    // ─── Generation ───────────────────────────────────────────────────────────
+    function setPrompt(text) {
+      document.getElementById('promptInput').value = text;
+    }
+
+    async function runGeneration() {
+      const prompt = document.getElementById('promptInput').value.trim();
+      if (!prompt) return;
+
+      const mode = document.getElementById('genMode').value;
+      const maxTokens = parseInt(document.getElementById('maxTokensInput').value) || 80;
+      const btn = document.getElementById('generateBtn');
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>Generating…</span>`;
+
+      document.getElementById('steeredOutput').innerHTML = `<span class="text-slate-500 italic">Generating…</span>`;
+      document.getElementById('baselineOutput').innerHTML = `<span class="text-slate-500 italic">${mode === 'blocking' ? 'Running baseline…' : '(streaming mode — no baseline)'}</span>`;
+      document.getElementById('generationMeta').classList.add('hidden');
+
+      try {
+        if (mode === 'stream') {
+          await runStreamGeneration(prompt, maxTokens);
+        } else {
+          await runBlockingGeneration(prompt, maxTokens);
+        }
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-play"></i><span>Run Generation</span>`;
+      }
+    }
+
+    async function runStreamGeneration(prompt, maxTokens) {
+      const start = Date.now();
+      let tokenCount = 0;
+      let accumulated = '';
+
+      document.getElementById('steeredOutput').innerHTML = '';
+      document.getElementById('baselineOutput').innerHTML = `<span class="text-slate-600 italic text-xs">(Streaming mode — baseline not generated simultaneously)</span>`;
+
+      const res = await fetch('/api/steering/generate/stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, max_tokens: maxTokens, temperature: 0.0, steered: true })
+      });
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        const lines = buffer.split('\n\n');
+        buffer = lines.pop();  // Keep incomplete chunk
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          try {
+            const payload = JSON.parse(line.slice(6));
+            if (!payload.done) {
+              accumulated += payload.token;
+              tokenCount++;
+              document.getElementById('steeredOutput').innerText = accumulated;
+            } else {
+              // Final message
+              const elapsed = ((Date.now() - start) / 1000).toFixed(1);
+              const metaEl = document.getElementById('generationMeta');
+              metaEl.classList.remove('hidden');
+              metaEl.innerText = `${tokenCount} tokens · ${elapsed}s · steering: ${payload.steering_applied ? 'active' : 'bypassed'}`;
+              if (payload.active_weights) updateActiveWeightsDisplay(payload.active_weights);
+            }
+          } catch (_) {}
+        }
+      }
+    }
+
+    async function runBlockingGeneration(prompt, maxTokens) {
+      const start = Date.now();
+      const res = await fetch('/api/steering/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, max_tokens: maxTokens, temperature: 0.0, compare_baseline: true })
+      });
+      const data = await res.json();
+      const elapsed = ((Date.now() - start) / 1000).toFixed(1);
+
+      document.getElementById('steeredOutput').innerText = data.steered_response || 'No response';
+      document.getElementById('baselineOutput').innerText = data.baseline_response || 'No baseline';
+
+      const metaEl = document.getElementById('generationMeta');
+      metaEl.classList.remove('hidden');
+      metaEl.innerText = `${elapsed}s total · steering: ${data.steering_applied ? 'active' : 'bypassed'}`;
+
+      if (data.active_weights) updateActiveWeightsDisplay(data.active_weights);
+    }
+
+    function updateActiveWeightsDisplay(weights) {
+      const el = document.getElementById('activeWeightsDisplay');
+      if (!weights || Object.keys(weights).length === 0) {
+        el.innerText = '—';
+        return;
+      }
+      let lines = [];
+      for (const [layer, traits] of Object.entries(weights)) {
+        const parts = Object.entries(traits).map(([t, a]) => `${t}=${a >= 0 ? '+' : ''}${a.toFixed(2)}`).join('  ');
+        lines.push(`L${layer}: ${parts}`);
+      }
+      el.innerText = lines.join('\n');
+    }
+
+    // ─── Calibration ──────────────────────────────────────────────────────────
+    async function triggerCalibration() {
+      const checkboxes = document.querySelectorAll('#traitCheckboxes input:checked');
+      const traits = Array.from(checkboxes).map(c => c.value);
+      if (traits.length === 0) { alert('Select at least one trait.'); return; }
+
+      const preset = document.getElementById('calibPreset').value;
+      const btn = document.getElementById('calibBtn');
+      btn.disabled = true;
+      document.getElementById('calibSpinner').classList.remove('hidden');
+      document.getElementById('calibBoltIcon').classList.add('hidden');
+      document.getElementById('calibBtnLabel').innerText = 'Running…';
+      document.getElementById('calibProgress').classList.remove('hidden');
+      document.getElementById('calibProgressMsg').innerText = 'Submitting job…';
+      document.getElementById('calibProgressBar').style.width = '5%';
+
+      try {
+        const res = await fetch('/api/calibrations/run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model_key: 'phi-3-mini', traits, preset })
+        });
+        const d = await res.json();
+        activeCalibJobId = d.job_id;
+        document.getElementById('calibProgressMsg').innerText = `Job ${d.job_id} started…`;
+        // Start polling
+        calibPollTimer = setInterval(pollCalibStatus, 2000);
+      } catch (e) {
+        document.getElementById('calibProgressMsg').innerText = 'Error: ' + e.message;
+        resetCalibBtn();
+      }
+    }
+
+    async function pollCalibStatus() {
+      if (!activeCalibJobId) return;
+      try {
+        const res = await fetch(`/api/calibrations/status/${activeCalibJobId}`);
+        const d = await res.json();
+        document.getElementById('calibProgressMsg').innerText = d.progress || d.status;
+
+        const widths = { running: '55%', done: '100%', error: '100%' };
+        document.getElementById('calibProgressBar').style.width = widths[d.status] || '30%';
+
+        if (d.status === 'done') {
+          clearInterval(calibPollTimer);
+          resetCalibBtn();
+          document.getElementById('calibBtnLabel').innerText = 'Run Calibration';
+          document.getElementById('calibProgressBar').className = 'bg-emerald-500 h-1.5 rounded-full transition-all duration-500';
+          loadCalibrationReport();
+          loadStatus();
+        } else if (d.status === 'error') {
+          clearInterval(calibPollTimer);
+          resetCalibBtn();
+          document.getElementById('calibProgressMsg').innerText = 'Error: ' + (d.error || 'Unknown');
+          document.getElementById('calibProgressBar').className = 'bg-rose-500 h-1.5 rounded-full transition-all duration-500';
+        }
+      } catch (e) {}
+    }
+
+    function resetCalibBtn() {
+      const btn = document.getElementById('calibBtn');
+      btn.disabled = false;
+      document.getElementById('calibSpinner').classList.add('hidden');
+      document.getElementById('calibBoltIcon').classList.remove('hidden');
+      document.getElementById('calibBtnLabel').innerText = 'Run Calibration';
+    }
+
+    async function loadCalibrationReport() {
+      try {
+        const res = await fetch('/api/calibrations/current');
+        const data = await res.json();
+        document.getElementById('mcpReportJson').innerText = JSON.stringify(data, null, 2);
+      } catch (e) {
+        document.getElementById('mcpReportJson').innerText = 'Failed to load: ' + e.message;
+      }
+    }
+
+    // ─── Dataset viewer ───────────────────────────────────────────────────────
+    async function loadDataset(trait) {
+      const container = document.getElementById('datasetPairsContainer');
+      container.innerHTML = `<div class="text-slate-500 text-sm"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Loading ${trait} dataset…</div>`;
+      try {
+        const res = await fetch(`/api/datasets/${trait}`);
+        if (!res.ok) throw new Error(res.statusText);
+        const data = await res.json();
+        const pairs = data.pairs || [];
+        if (pairs.length === 0) {
+          container.innerHTML = `<div class="text-slate-500 text-sm">No pairs found for '${trait}'.</div>`;
+          return;
+        }
+        let html = `<p class="text-xs text-slate-500">${pairs.length} pairs loaded from artifacts</p>`;
+        pairs.forEach((p, idx) => {
+          const target = p.positive_response || p.target_response || p.target || '';
+          const contrast = p.contrast_response || p.contrast || '';
+          const scenario = p.scenario || `Pair #${idx+1}`;
+          const prompt = p.user_prompt || '';
+          const invariant = p.invariant_summary || p.invariant || '';
+          html += `
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-indigo-400">Pair #${idx+1}: ${scenario}</span>
+                <span class="text-[10px] bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded border border-emerald-800/60">Validated</span>
+              </div>
+              ${prompt ? `<div class="text-xs bg-slate-900 p-2 rounded text-slate-300"><span class="text-slate-500 font-semibold">Prompt:</span> "${prompt}"</div>` : ''}
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                <div class="bg-slate-900/60 p-2.5 rounded border border-indigo-900/40">
+                  <div class="text-[10px] font-bold text-indigo-400 uppercase mb-1">Target Pole (High ${trait})</div>
+                  <div class="text-slate-300">${target}</div>
+                </div>
+                <div class="bg-slate-900/60 p-2.5 rounded border border-slate-800">
+                  <div class="text-[10px] font-bold text-slate-400 uppercase mb-1">Contrast Pole (Low ${trait})</div>
+                  <div class="text-slate-400">${contrast}</div>
+                </div>
+              </div>
+              ${invariant ? `<div class="text-[11px] text-slate-500"><span class="text-slate-400 font-semibold">Invariant:</span> ${invariant}</div>` : ''}
+            </div>`;
+        });
+        container.innerHTML = html;
+      } catch (e) {
+        container.innerHTML = `<div class="text-rose-400 text-sm">Failed to load: ${e.message}</div>`;
+      }
+    }
+  </script>
+</body>
+</html>
