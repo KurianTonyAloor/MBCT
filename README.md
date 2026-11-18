@@ -2,6 +2,7 @@
 
 > **Contrastive Activation Steering** — inject personality trait vectors into a frozen transformer's residual stream at inference time. No fine-tuning. No weight modification.
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.12-blue)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.128-green)](https://fastapi.tiangolo.com)
 [![Phi-3 Mini](https://img.shields.io/badge/model-Phi--3--Mini--4k-purple)](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct)
@@ -171,4 +172,6 @@ MBCT/
 
 ## License
 
-MIT
+This project is licensed under the **MIT License** — see [LICENSE](LICENSE) for the full text.
+
+You are free to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of this software, provided the copyright notice and permission notice are included in all copies or substantial portions.
