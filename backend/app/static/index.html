@@ -859,6 +859,7 @@ Loading…</pre>
       try {
         const res = await fetch('/api/status');
         const d = await res.json();
+        window._activeModelKey = d.active_model || 'phi-3-mini';
 
         // Header model pill
         document.getElementById('headerModelName').innerText = d.active_model || '—';
@@ -1385,10 +1386,11 @@ Loading…</pre>
       document.getElementById('calibProgressBar').style.width = '5%';
 
       try {
+        const model_key = window._activeModelKey || 'phi-3-mini';
         const res = await fetch('/api/calibrations/run', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ model_key: 'phi-3-mini', traits, preset })
+          body: JSON.stringify({ model_key, traits, preset })
         });
         const d = await res.json();
         activeCalibJobId = d.job_id;
@@ -1805,6 +1807,39 @@ Loading…</pre>
       document.getElementById('memoryTestQuery').value = text;
       testMemoryQuery();
     }
+
+    // ─── Global Scope Window Bindings ──────────────────────────────────────────
+    window.triggerCalibration = triggerCalibration;
+    window.pollCalibStatus = pollCalibStatus;
+    window.resetCalibBtn = resetCalibBtn;
+    window.loadCalibrationReport = loadCalibrationReport;
+    window.runGeneration = runGeneration;
+    window.runStreamGeneration = runStreamGeneration;
+    window.runBlockingGeneration = runBlockingGeneration;
+    window.toggleMasterSteering = toggleMasterSteering;
+    window.toggleMemoryGlobal = toggleMemoryGlobal;
+    window.switchTab = switchTab;
+    window.saveUBP = saveUBP;
+    window.applyPreset = applyPreset;
+    window.setPrompt = setPrompt;
+    window.filterMemories = filterMemories;
+    window.submitNewMemory = submitNewMemory;
+    window.testMemoryQuery = testMemoryQuery;
+    window.runSampleMemQuery = runSampleMemQuery;
+    window.toggleMemory = toggleMemory;
+    window.deleteMemory = deleteMemory;
+    window.selectProviderPreset = selectProviderPreset;
+    window.toggleKeyVisibility = toggleKeyVisibility;
+    window.testActiveProvider = testActiveProvider;
+    window.saveActiveProvider = saveActiveProvider;
+    window.checkCompatibility = checkCompatibility;
+    window.loadDataset = loadDataset;
+    window.openModelModal = openModelModal;
+    window.closeModelModal = closeModelModal;
+    window.scanModels = scanModels;
+    window.loadCustomModel = loadCustomModel;
+    window.loadSelectedModel = loadSelectedModel;
+    window.onSliderChange = onSliderChange;
   </script>
 </body>
 </html>
