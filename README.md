@@ -129,10 +129,78 @@ Then open **http://127.0.0.1:8088** — the Personality Studio UI loads.
 
 ---
 
+---
+
+## Local API Integration (Universal Client Support)
+
+MBCT provides a standard **OpenAI-compatible API layer** alongside a simplified direct REST API. Any third-party application, local script, or agent framework can connect directly to MBCT with zero code changes.
+
+### Supported Integrations
+* **OpenAI SDK** (`Python`, `Node.js`, `TypeScript`)
+* **LangChain & LlamaIndex** (via `ChatOpenAI(base_url="http://127.0.0.1:8088/v1")`)
+* **Developer Tools**: Continue.dev, Cursor, Open WebUI, LibreChat, LM Studio
+* **Standard HTTP / cURL**: Any language supporting HTTP requests
+
+### 1. OpenAI Python SDK Example
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="http://127.0.0.1:8088/v1",
+    api_key="mbct-local"  # Any dummy key is accepted
+)
+
+# Standard chat completion with optional trait steering
+response = client.chat.completions.create(
+    model="phi-3-mini",
+    messages=[
+        {"role": "system", "content": "You are a concise technical advisor."},
+        {"role": "user", "content": "Should our startup adopt Kubernetes?"}
+    ],
+    temperature=0.3,
+    max_tokens=100,
+    extra_body={
+        # Dial personality on the fly for this specific request!
+        "traits": {"directness": 0.95, "formality": 0.80, "verbosity": 0.20},
+        "inject_memory": True  # Uses external memory store
+    }
+)
+
+print(response.choices[0].message.content)
+```
+
+### 2. cURL Example
+```bash
+curl -X POST http://127.0.0.1:8088/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "phi-3-mini",
+    "messages": [{"role": "user", "content": "Explain mutexes in one sentence."}],
+    "traits": {"directness": 0.9, "formality": 0.7}
+  }'
+```
+
+### 3. Simple REST API (`/api/generate`)
+```bash
+curl -X POST http://127.0.0.1:8088/api/generate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "What database architecture do we use?",
+    "inject_memory": true
+  }'
+```
+
+---
+
 ## API Endpoints
 
 | Method | Endpoint | Description |
 |---|---|---|
+| `POST` | `/v1/chat/completions` | **OpenAI-compatible Chat Completions** (streaming + non-streaming, per-request trait overrides, memory injection) |
+| `POST` | `/v1/completions` | **OpenAI-compatible Text Completions** |
+| `GET` | `/v1/models` | **OpenAI-compatible Model Listing** |
+| `POST` | `/api/generate` | **Simplified Local Generation API** (prompt, traits, memory) |
+| `POST` | `/api/chat` | **Simplified Local Chat API** |
 | `GET` | `/api/status` | System status, model loaded, calibration state |
 | `GET` | `/api/models` | Supported presets, discovered local HF models, and Ollama models |
 | `POST` | `/api/models/load` | Dynamically load ANY local model (preset, HF ID, or folder path) |

@@ -2,10 +2,11 @@
 
 import os
 import sys
+import time
 import asyncio
 import uuid
 import json
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Union, Tuple
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -24,7 +25,7 @@ from app.core.types import (
     MemoryProvenance
 )
 from app.prompt_registry.registry import list_traits
-from app.models.registry import ModelLoader
+from app.models.registry import ModelLoader, SUPPORTED_PRESETS
 from app.providers.manager import ProviderManager, PROVIDER_PRESETS
 from app.providers.base import BaseCalibrationProvider
 from app.steering.calibrator import CalibrationService
@@ -712,6 +713,363 @@ def get_dataset(trait: str):
     else:
         pairs = data.get("pairs", [])
     return {"trait": trait, "count": len(pairs), "pairs": pairs[:10]}
+
+
+# ---------------------------------------------------------------------------
+# OpenAI-Compatible API Layer (/v1/chat/completions, /v1/completions, /v1/models)
+# Universal integration layer for local apps, scripts, LangChain, Cursor, etc.
+# ---------------------------------------------------------------------------
+
+class OpenAIChatMessage(BaseModel):
+    role: str = "user"
+    content: str = ""
+    name: Optional[str] = None
+
+
+class OpenAIChatCompletionRequest(BaseModel):
+    model: Optional[str] = None
+    messages: List[OpenAIChatMessage]
+    temperature: Optional[float] = 0.7
+    max_tokens: Optional[int] = 128
+    max_new_tokens: Optional[int] = None
+    stream: Optional[bool] = False
+    traits: Optional[Dict[str, float]] = None
+    steering: Optional[bool] = None
+    inject_memory: Optional[bool] = True
+
+
+class OpenAICompletionRequest(BaseModel):
+    model: Optional[str] = None
+    prompt: Union[str, List[str]] = ""
+    temperature: Optional[float] = 0.7
+    max_tokens: Optional[int] = 128
+    max_new_tokens: Optional[int] = None
+    stream: Optional[bool] = False
+    traits: Optional[Dict[str, float]] = None
+    steering: Optional[bool] = None
+    inject_memory: Optional[bool] = True
+
+
+class SimpleGenerateRequest(BaseModel):
+    prompt: Optional[str] = None
+    messages: Optional[List[OpenAIChatMessage]] = None
+    traits: Optional[Dict[str, float]] = None
+    temperature: Optional[float] = 0.7
+    max_tokens: Optional[int] = 120
+    stream: Optional[bool] = False
+    steering: Optional[bool] = None
+    inject_memory: Optional[bool] = True
+
+
+def _prepare_inference_context(
+    messages_or_prompt: Union[str, List[Any]],
+    inject_memory: bool = True
+) -> Tuple[str, List[MemoryItem]]:
+    """Retrieve external memory if enabled and format final prompt using architecture chat template."""
+    retrieved_memories = []
+    
+    if isinstance(messages_or_prompt, str):
+        query_text = messages_or_prompt
+        messages = [{"role": "user", "content": messages_or_prompt}]
+    else:
+        messages = []
+        for m in messages_or_prompt:
+            if hasattr(m, "model_dump"):
+                messages.append(m.model_dump())
+            elif isinstance(m, dict):
+                messages.append(dict(m))
+            else:
+                messages.append({"role": getattr(m, "role", "user"), "content": getattr(m, "content", "")})
+        query_text = ""
+        for m in reversed(messages):
+            if m.get("role") == "user":
+                query_text = m.get("content", "")
+                break
+    
+    if inject_memory and memory_store.master_enabled and query_text:
+        retrieved_memories = memory_store.retrieve_relevant(query_text, limit=3)
+        mem_block = memory_store.format_context_block(retrieved_memories)
+        if mem_block:
+            for i in range(len(messages) - 1, -1, -1):
+                if messages[i].get("role") == "user":
+                    orig = messages[i].get("content", "")
+                    messages[i]["content"] = f"{mem_block}\n{orig}"
+                    break
+
+    ctrl = get_or_init_controller()
+    formatted_prompt = ModelLoader.format_prompt(messages, ctrl.tokenizer, active_model_key)
+    return formatted_prompt, retrieved_memories
+
+
+def _apply_request_traits(traits: Optional[Dict[str, float]], steering: Optional[bool]):
+    """Optionally apply per-request trait overrides to the controller."""
+    ctrl = get_or_init_controller()
+    
+    if steering is False:
+        is_steered = False
+    elif steering is True:
+        is_steered = True
+    else:
+        is_steered = master_steering_enabled
+
+    if traits and calibration_service.current_mcp:
+        effective_traits = {**current_ubp.traits, **traits}
+        temp_ubp = UniversalBehaviourProfile(
+            profile_id="request-override",
+            traits=effective_traits
+        )
+        temp_plan = PersonalityCompiler.compile(temp_ubp, calibration_service.current_mcp)
+        ctrl.apply_plan(temp_plan, calibration_service.current_mcp)
+    else:
+        effective_traits = current_ubp.traits
+
+    return ctrl, is_steered, effective_traits
+
+
+def _restore_system_plan():
+    """Restore the default system plan after a per-request trait override."""
+    if current_plan and calibration_service.current_mcp:
+        ctrl = get_or_init_controller()
+        ctrl.apply_plan(current_plan, calibration_service.current_mcp)
+
+
+@app.get("/v1/models")
+def openai_list_models():
+    """OpenAI-compatible model list endpoint for external applications."""
+    models_data = [
+        {
+            "id": active_model_key,
+            "object": "model",
+            "created": 1700000000,
+            "owned_by": "mbct",
+            "permission": [],
+            "root": active_model_key,
+            "parent": None
+        }
+    ]
+    for key in SUPPORTED_PRESETS:
+        if key != active_model_key:
+            models_data.append({
+                "id": key,
+                "object": "model",
+                "created": 1700000000,
+                "owned_by": "mbct",
+                "permission": [],
+                "root": key,
+                "parent": None
+            })
+    return {"object": "list", "data": models_data}
+
+
+@app.post("/v1/chat/completions")
+async def openai_chat_completions(req: OpenAIChatCompletionRequest):
+    """
+    OpenAI-compatible Chat Completions endpoint.
+    Use in ANY application via base_url='http://127.0.0.1:8088/v1' and any API key.
+    """
+    max_tokens = req.max_new_tokens or req.max_tokens or 128
+    formatted_prompt, retrieved_memories = _prepare_inference_context(
+        req.messages,
+        inject_memory=req.inject_memory if req.inject_memory is not None else True
+    )
+    ctrl, is_steered, effective_traits = _apply_request_traits(req.traits, req.steering)
+    cmpl_id = f"chatcmpl-{uuid.uuid4().hex[:12]}"
+    created_ts = int(time.time())
+    model_name = req.model or active_model_key
+
+    if req.stream:
+        async def _stream_openai():
+            loop = asyncio.get_event_loop()
+            token_queue: asyncio.Queue = asyncio.Queue()
+
+            def _stream_worker():
+                try:
+                    for token in ctrl.generate_stream(
+                        formatted_prompt,
+                        max_new_tokens=max_tokens,
+                        temperature=req.temperature or 0.7,
+                        steered=is_steered
+                    ):
+                        loop.call_soon_threadsafe(token_queue.put_nowait, token)
+                finally:
+                    loop.call_soon_threadsafe(token_queue.put_nowait, None)
+
+            import threading
+            threading.Thread(target=_stream_worker, daemon=True).start()
+
+            first_chunk = {
+                "id": cmpl_id,
+                "object": "chat.completion.chunk",
+                "created": created_ts,
+                "model": model_name,
+                "choices": [{"index": 0, "delta": {"role": "assistant"}, "finish_reason": None}]
+            }
+            yield f"data: {json.dumps(first_chunk)}\n\n"
+
+            while True:
+                tok = await token_queue.get()
+                if tok is None:
+                    break
+                chunk = {
+                    "id": cmpl_id,
+                    "object": "chat.completion.chunk",
+                    "created": created_ts,
+                    "model": model_name,
+                    "choices": [{"index": 0, "delta": {"content": tok}, "finish_reason": None}]
+                }
+                yield f"data: {json.dumps(chunk)}\n\n"
+
+            final_chunk = {
+                "id": cmpl_id,
+                "object": "chat.completion.chunk",
+                "created": created_ts,
+                "model": model_name,
+                "choices": [{"index": 0, "delta": {}, "finish_reason": "stop"}]
+            }
+            yield f"data: {json.dumps(final_chunk)}\n\n"
+            yield "data: [DONE]\n\n"
+            if req.traits:
+                _restore_system_plan()
+
+        return StreamingResponse(
+            _stream_openai(),
+            media_type="text/event-stream",
+            headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}
+        )
+
+    # Non-streaming
+    def _run_inference():
+        try:
+            return ctrl.generate(
+                formatted_prompt,
+                max_new_tokens=max_tokens,
+                temperature=req.temperature or 0.7,
+                steered=is_steered
+            )
+        finally:
+            if req.traits:
+                _restore_system_plan()
+
+    output_text = await asyncio.to_thread(_run_inference)
+    prompt_tokens = len(ctrl.tokenizer.encode(formatted_prompt))
+    completion_tokens = len(ctrl.tokenizer.encode(output_text))
+
+    return {
+        "id": cmpl_id,
+        "object": "chat.completion",
+        "created": created_ts,
+        "model": model_name,
+        "choices": [
+            {
+                "index": 0,
+                "message": {
+                    "role": "assistant",
+                    "content": output_text
+                },
+                "finish_reason": "stop"
+            }
+        ],
+        "usage": {
+            "prompt_tokens": prompt_tokens,
+            "completion_tokens": completion_tokens,
+            "total_tokens": prompt_tokens + completion_tokens
+        },
+        "mbct": {
+            "steering_applied": is_steered,
+            "memory_applied": len(retrieved_memories) > 0,
+            "active_traits": effective_traits,
+            "retrieved_memories_count": len(retrieved_memories)
+        }
+    }
+
+
+@app.post("/v1/completions")
+async def openai_completions(req: OpenAICompletionRequest):
+    """OpenAI-compatible standard text completion endpoint."""
+    max_tokens = req.max_new_tokens or req.max_tokens or 128
+    prompt_text = req.prompt if isinstance(req.prompt, str) else "\n".join(req.prompt)
+    formatted_prompt, retrieved_memories = _prepare_inference_context(
+        prompt_text,
+        inject_memory=req.inject_memory if req.inject_memory is not None else True
+    )
+    ctrl, is_steered, effective_traits = _apply_request_traits(req.traits, req.steering)
+    cmpl_id = f"cmpl-{uuid.uuid4().hex[:12]}"
+    created_ts = int(time.time())
+    model_name = req.model or active_model_key
+
+    def _run():
+        try:
+            return ctrl.generate(
+                formatted_prompt,
+                max_new_tokens=max_tokens,
+                temperature=req.temperature or 0.7,
+                steered=is_steered
+            )
+        finally:
+            if req.traits:
+                _restore_system_plan()
+
+    output_text = await asyncio.to_thread(_run)
+    prompt_tokens = len(ctrl.tokenizer.encode(formatted_prompt))
+    completion_tokens = len(ctrl.tokenizer.encode(output_text))
+
+    return {
+        "id": cmpl_id,
+        "object": "text_completion",
+        "created": created_ts,
+        "model": model_name,
+        "choices": [
+            {
+                "text": output_text,
+                "index": 0,
+                "finish_reason": "stop"
+            }
+        ],
+        "usage": {
+            "prompt_tokens": prompt_tokens,
+            "completion_tokens": completion_tokens,
+            "total_tokens": prompt_tokens + completion_tokens
+        },
+        "mbct": {
+            "steering_applied": is_steered,
+            "memory_applied": len(retrieved_memories) > 0,
+            "active_traits": effective_traits
+        }
+    }
+
+
+@app.post("/api/generate")
+@app.post("/api/chat")
+async def simple_local_api(req: SimpleGenerateRequest):
+    """
+    Simplified local API for developers and scripts.
+    Accepts prompt or messages, with optional traits and streaming.
+    """
+    input_content = req.messages if req.messages else (req.prompt or "")
+    if not input_content:
+        raise HTTPException(status_code=400, detail="Must provide 'prompt' or 'messages'.")
+
+    chat_req = OpenAIChatCompletionRequest(
+        messages=req.messages if req.messages else [OpenAIChatMessage(role="user", content=req.prompt or "")],
+        temperature=req.temperature,
+        max_tokens=req.max_tokens,
+        stream=req.stream,
+        traits=req.traits,
+        steering=req.steering,
+        inject_memory=req.inject_memory
+    )
+    res = await openai_chat_completions(chat_req)
+    if req.stream:
+        return res
+
+    return {
+        "response": res["choices"][0]["message"]["content"],
+        "model": res["model"],
+        "steering_applied": res["mbct"]["steering_applied"],
+        "memory_applied": res["mbct"]["memory_applied"],
+        "traits": res["mbct"]["active_traits"],
+        "usage": res["usage"]
+    }
 
 
 if __name__ == "__main__":

@@ -43,16 +43,73 @@
     "intensity": 0.8,
     "domain": "generated",
     "scenario": "Draft a message to a client explaining a scheduled maintenance downtime",
-    "user_prompt": "How do I inform my client about the upcoming maintenance that will cause downtime?",
-    "positive_response": "We wish to inform you that a necessary maintenance procedure is slated for execution on the forthcoming Thursday from 8:00 AM to 2:00 PM. During this window, our systems will be temporarily non-operational. We apologize for any inconvenience this may cause and appreciate your understanding in this matter.",
-    "contrast_response": "Hey there! Just wanted to give you a heads up that we're gonna do some upkeep on our system starting next Thursday at 8am and wrapping up by 2pm. Sorry if it messes up your day, but we gotta keep things running smoothly. Thanks for getting it!",
-    "invariant_summary": "Both responses inform the client of the scheduled maintenance timing and the expected downtime, ensuring the client understands the necessity of the maintenance and apologizes for any inconvenience.",
+    "user_prompt": "How should I professionally inform my client about the downtime next week?",
+    "positive_response": "We wish to inform you that our services will be temporarily unavailable for scheduled maintenance on Thursday at 8 AM. Please ensure that all critical tasks are completed by Wednesday noon to accommodate this necessary interruption.",
+    "contrast_response": "Hey there! Just wanted to give you a heads up that we're going to be down for a bit next week. Maintenance's gotta be done on Thursday at 8 AM, so you might wanna wrap up any urgent stuff before that.",
+    "invariant_summary": "Both the high-formality and low-formality responses inform the client about the downtime occurring on Thursday at 8 AM and advise completing critical tasks before this period. The only difference lies in the tone and language style used, with the formal response using a professional register and tone, and the informal response adopting a casual and friendly tone.",
     "validation": {
       "schema_valid": true,
       "semantic_equivalence": "passed",
       "trait_isolation": "passed",
       "factual_consistency": "passed",
-      "length_confound_ratio": 1.02,
+      "length_confound_ratio": 0.88,
+      "notes": []
+    }
+  },
+  {
+    "example_id": "formality-gen-004",
+    "trait_id": "formality",
+    "intensity": 0.8,
+    "domain": "generated",
+    "scenario": "Respond to a coworker asking how to set up their local dev environment",
+    "user_prompt": "Could you guide me on setting up my local development environment?",
+    "positive_response": "Certainly. To configure your local development environment, you must first install the necessary software packages. You may start by acquiring a virtual machine like VirtualBox or VMware, or alternatively, set up a containerized environment using Docker. Proceed by installing an Integrated Development Environment (IDE) such as Eclipse or Visual Studio Code, followed by selecting a programming language, for instance, Python, and then establishing a version control system like Git. Lastly, clone your project's repository and install any required libraries or frameworks, as delineated in the project's documentation.",
+    "contrast_response": "Sure thing! To get your local dev setup going, grab a tool like VirtualBox or VMware, or you could go for Docker. Then pick an IDE that suits you, like Eclipse or VSCode, and pick a language, say Python. Oh, and make sure to set up Git for version control. Once you clone the project from the repo, just follow the docs for any extra tools or libraries that need to be installed.",
+    "invariant_summary": "Both the high formality and low formality responses provide a step-by-step guide on setting up a local development environment. They include instructions on installing virtualization software, selecting an IDE, setting up version control, cloning a project, and installing any additional tools or libraries, as per the project documentation.",
+    "validation": {
+      "schema_valid": true,
+      "semantic_equivalence": "passed",
+      "trait_isolation": "passed",
+      "factual_consistency": "passed",
+      "length_confound_ratio": 1.19,
+      "notes": []
+    }
+  },
+  {
+    "example_id": "formality-gen-005",
+    "trait_id": "formality",
+    "intensity": 0.8,
+    "domain": "generated",
+    "scenario": "Explain to a team lead why a sprint deadline might slip by two days",
+    "user_prompt": "What are the possible reasons a sprint deadline might extend by two days?",
+    "positive_response": "Dear Team Lead, I regret to inform you that the anticipated sprint deadline may extend by two days. This delay can be attributed to several factors, including unforeseen complexities in the project requirements, potential discrepancies in the team'curve-of-convergence, and the necessity to ensure quality assurance protocols are met prior to the final submission. In light of these circumstances, I assure you that all measures are being taken to mitigate the impact on our timeline and maintain project integrity.",
+    "contrast_response": "Hey Lead, so here's the thing, the sprint deadline might slide by two days. Looks like we hit some snags with the project stuff, like unexpected twists in the requirements and getting our heads around how much work we can really do. We also gotta make sure we're not cutting corners and that the final product is solid, which takes time. So, yeah, we're a bit behind, but we're working on it and trying not to mess things up too much.",
+    "invariant_summary": "Both responses convey the need for a two-day extension of the sprint deadline due to unforeseen complexities in the project, the requirement to understand the team's capacity, and the importance of maintaining quality assurance. Both responses highlight that the team is actively working on the situation, but they differ significantly in their level of formality.",
+    "validation": {
+      "schema_valid": true,
+      "semantic_equivalence": "passed",
+      "trait_isolation": "passed",
+      "factual_consistency": "passed",
+      "length_confound_ratio": 0.96,
+      "notes": []
+    }
+  },
+  {
+    "example_id": "formality-gen-006",
+    "trait_id": "formality",
+    "intensity": 0.8,
+    "domain": "generated",
+    "scenario": "Welcome a new contributor to an open-source project repository",
+    "user_prompt": "How should I formally welcome a new contributor to our repository?",
+    "positive_response": "We are delighted to introduce you to the team. Your participation in our project is highly valued, and we eagerly anticipate the unique perspectives and contributions you will bring to our collaborative endeavor.",
+    "contrast_response": "Hey there! Welcome aboard. We're super pumped to have you on the team. Your ideas are gonna shake things up for the better, so let's get cracking and build something amazing together.",
+    "invariant_summary": "Both responses invite the newcomer to join the project and express enthusiasm for their involvement. The invariant factual claims/answers, in this case, are the acknowledgement of the new contributor's value and the anticipation of their contributions. The formality level, in terms of language and tone, is the distinguishing factor between the two responses.",
+    "validation": {
+      "schema_valid": true,
+      "semantic_equivalence": "passed",
+      "trait_isolation": "passed",
+      "factual_consistency": "passed",
+      "length_confound_ratio": 1.03,
       "notes": []
     }
   }

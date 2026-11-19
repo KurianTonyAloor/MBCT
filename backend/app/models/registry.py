@@ -8,7 +8,7 @@ import torch
 import urllib.request
 import json
 from transformers import AutoModelForCausalLM, AutoTokenizer, AutoConfig
-from typing import Dict, Any, Optional, Tuple, List
+from typing import Dict, Any, Optional, Tuple, List, Union
 from app.steering.hooks import ActivationHookManager
 
 
@@ -60,12 +60,17 @@ class ModelLoader:
     _active_metadata: Dict[str, Any] = {}
 
     @classmethod
-    def format_prompt(cls, prompt: str, tokenizer: Any, model_key: str = "") -> str:
-        """Format user prompt using model's native chat template or architecture fallback."""
+    def format_prompt(cls, prompt_or_messages: Union[str, List[Dict[str, str]]], tokenizer: Any, model_key: str = "") -> str:
+        """Format user prompt or messages using model's native chat template or architecture fallback."""
+        if isinstance(prompt_or_messages, str):
+            messages = [{"role": "user", "content": prompt_or_messages}]
+        else:
+            messages = prompt_or_messages
+
         if hasattr(tokenizer, "apply_chat_template") and tokenizer.chat_template:
             try:
                 return tokenizer.apply_chat_template(
-                    [{"role": "user", "content": prompt}],
+                    messages,
                     tokenize=False,
                     add_generation_prompt=True
                 )
@@ -75,17 +80,57 @@ class ModelLoader:
         # Robust fallbacks for diverse architectures
         k = (model_key or cls._active_model_key or "").lower()
         if "qwen" in k or "chatml" in k:
-            return f"<|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant\n"
+            out = ""
+            for m in messages:
+                out += f"<|im_start|>{m.get('role', 'user')}\n{m.get('content', '')}<|im_end|>\n"
+            out += "<|im_start|>assistant\n"
+            return out
         elif "tinyllama" in k or "llama" in k or "mistral" in k:
-            return f"<|user|>\n{prompt}</s>\n<|assistant|>\n"
+            out = ""
+            for m in messages:
+                r = m.get("role", "user")
+                c = m.get("content", "")
+                if r == "system":
+                    out += f"<<SYS>>\n{c}\n<</SYS>>\n\n"
+                elif r == "user":
+                    out += f"<|user|>\n{c}</s>\n"
+                elif r == "assistant":
+                    out += f"<|assistant|>\n{c}</s>\n"
+            out += "<|assistant|>\n"
+            return out
         elif "phi" in k:
-            return f"<|user|>\n{prompt}<|end|>\n<|assistant|>\n"
+            out = ""
+            for m in messages:
+                r = m.get("role", "user")
+                c = m.get("content", "")
+                if r == "system":
+                    out += f"<|system|>\n{c}<|end|>\n"
+                elif r == "user":
+                    out += f"<|user|>\n{c}<|end|>\n"
+                elif r == "assistant":
+                    out += f"<|assistant|>\n{c}<|end|>\n"
+            out += "<|assistant|>\n"
+            return out
         elif "gemma" in k:
-            return f"<start_of_turn>user\n{prompt}<end_of_turn>\n<start_of_turn>model\n"
+            out = ""
+            for m in messages:
+                r = "model" if m.get("role") == "assistant" else "user"
+                out += f"<start_of_turn>{r}\n{m.get('content', '')}<end_of_turn>\n"
+            out += "<start_of_turn>model\n"
+            return out
         elif "gpt2" in k:
-            return f"User: {prompt}\nAssistant:"
+            out = ""
+            for m in messages:
+                r = "Assistant:" if m.get("role") == "assistant" else "User:"
+                out += f"{r} {m.get('content', '')}\n"
+            out += "Assistant:"
+            return out
 
-        return f"{prompt}\n"
+        out = ""
+        for m in messages:
+            out += f"{m.get('role', 'user').capitalize()}: {m.get('content', '')}\n"
+        out += "Assistant: "
+        return out
 
     @classmethod
     def get_hf_hub_cache_dir(cls) -> str:
