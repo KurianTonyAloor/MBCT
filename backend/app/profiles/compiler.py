@@ -10,6 +10,7 @@ from app.core.types import (
     ModelCalibrationProfile,
     CompiledSteeringPlan
 )
+from app.steering.layer_budget import select_injection_layers
 
 
 def _dot(a: List[float], b: List[float]) -> float:
@@ -46,7 +47,8 @@ class PersonalityCompiler:
         ubp: UniversalBehaviourProfile,
         mcp: ModelCalibrationProfile,
         active_trait_toggles: Optional[Dict[str, bool]] = None,
-        orthogonalize: bool = True
+        orthogonalize: bool = True,
+        num_layers: int = 0
     ) -> CompiledSteeringPlan:
         """Compile model-independent slider values into model-specific layer injection weights.
 
@@ -57,6 +59,9 @@ class PersonalityCompiler:
           4. Store warnings for all pairs above WARN threshold.
         """
         active_toggles = active_trait_toggles or {}
+        # num_layers lets the plan respect the target model's depth: the MCP's
+        # layer list is only a candidate set, not a promise that every one of
+        # those layers should be perturbed on a smaller model.
         resolved_weights: Dict[int, Dict[str, float]] = {}
         warnings: List[str] = []
 
@@ -89,6 +94,11 @@ class PersonalityCompiler:
         for trait_id in active_traits:
             layers = mcp.chosen_layers.get(trait_id, list(mcp.vectors[trait_id].keys()))
             all_layers.update(int(l) for l in layers)
+
+        # ── Model-size guard: how many layers can this model actually take? ──
+        kept_layers, budget_notes = select_injection_layers(sorted(all_layers), num_layers)
+        all_layers = set(kept_layers)
+        warnings.extend(budget_notes)
 
         # For each layer, check pairwise similarities and optionally orthogonalize
         orthogonalized_vecs: Dict[str, Dict[int, List[float]]] = {
@@ -140,6 +150,8 @@ class PersonalityCompiler:
             layers = mcp.chosen_layers.get(trait_id, list(mcp.vectors[trait_id].keys()))
             for layer_raw in layers:
                 layer_idx = int(layer_raw)
+                if layer_idx not in all_layers:
+                    continue
                 if layer_idx not in resolved_weights:
                     resolved_weights[layer_idx] = {}
                 resolved_weights[layer_idx][trait_id] = round(alpha, 4)

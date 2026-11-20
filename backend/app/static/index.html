@@ -304,6 +304,9 @@
             class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition">
             <i class="fa-solid fa-play"></i><span>Run Generation</span>
           </button>
+          <button id="baselineBtn" onclick="runBaselineGeneration()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition">
+            <i class="fa-solid fa-plaintex"></i><span>Generate Baseline</span>
+          </button>
         </div>
 
         <!-- Output panel -->
@@ -1241,10 +1244,9 @@ Loading…</pre>
       const maxTokens = parseInt(document.getElementById('maxTokensInput').value) || 80;
       const btn = document.getElementById('generateBtn');
       btn.disabled = true;
-      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>Generating…</span>`;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>Generating...</span>`;
 
-      document.getElementById('steeredOutput').innerHTML = `<span class="text-slate-500 italic">Generating…</span>`;
-      document.getElementById('baselineOutput').innerHTML = `<span class="text-slate-500 italic">${mode === 'blocking' ? 'Running baseline…' : '(streaming mode — no baseline)'}</span>`;
+      document.getElementById('steeredOutput').innerHTML = `<span class="text-slate-500 italic">Generating...</span>`;
       document.getElementById('generationMeta').classList.add('hidden');
 
       try {
@@ -1259,6 +1261,50 @@ Loading…</pre>
       }
     }
 
+    async function runBaselineGeneration() {
+      const prompt = document.getElementById('promptInput').value.trim();
+      if (!prompt) return;
+
+      const maxTokens = parseInt(document.getElementById('maxTokensInput').value) || 80;
+      const btn = document.getElementById('baselineBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Generating...</span>';
+
+      const baselineOutput = document.getElementById('baselineOutput');
+      const baselinePanel = document.getElementById('baselinePanel');
+      baselineOutput.innerHTML = '<span class="text-slate-500 italic">Running baseline...</span>';
+      baselinePanel.classList.remove('hidden');
+
+      try {
+        const res = await fetch('/api/steering/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: prompt,
+            max_tokens: maxTokens,
+            temperature: 0.0,
+            steered: false,
+            compare_baseline: true,
+            inject_memory: false
+          })
+        });
+        const data = await res.json();
+        if (data.baseline_response) {
+          baselineOutput.innerText = data.baseline_response;
+        } else if (data.error) {
+          baselineOutput.innerHTML = '<span class="text-red-400 italic">' + data.error + '</span>';
+        } else {
+          baselineOutput.innerHTML = '<span class="text-slate-500 italic">No baseline response generated</span>';
+        }
+      } catch (error) {
+        console.error('Baseline generation failed:', error);
+        baselineOutput.innerHTML = '<span class="text-red-400 italic">Baseline generation failed - see browser console</span>';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-plaintex"></i><span>Generate Baseline</span>';
+      }
+    }
+
     async function runStreamGeneration(prompt, maxTokens) {
       const start = Date.now();
       let tokenCount = 0;
@@ -1266,7 +1312,6 @@ Loading…</pre>
       const injectMemory = document.getElementById('injectMemoryCheck')?.checked !== false;
 
       document.getElementById('steeredOutput').innerHTML = '';
-      document.getElementById('baselineOutput').innerHTML = `<span class="text-slate-600 italic text-xs">(Streaming mode — baseline not generated simultaneously)</span>`;
       document.getElementById('memoryRetrievedBadge').classList.add('hidden');
       document.getElementById('injectedMemoryDetails').classList.add('hidden');
 
@@ -1330,13 +1375,13 @@ Loading…</pre>
       const res = await fetch('/api/steering/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, max_tokens: maxTokens, temperature: 0.0, compare_baseline: true, inject_memory: injectMemory })
+        body: JSON.stringify({ prompt, max_tokens: maxTokens, temperature: 0.0, compare_baseline: false, inject_memory: injectMemory })
       });
       const data = await res.json();
       const elapsed = ((Date.now() - start) / 1000).toFixed(1);
 
       document.getElementById('steeredOutput').innerText = data.steered_response || 'No response';
-      document.getElementById('baselineOutput').innerText = data.baseline_response || 'No baseline';
+      if (data.baseline_response) { document.getElementById('baselineOutput').innerText = data.baseline_response; document.getElementById('baselinePanel').classList.remove('hidden'); }
 
       const metaEl = document.getElementById('generationMeta');
       metaEl.classList.remove('hidden');

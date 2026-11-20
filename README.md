@@ -85,6 +85,63 @@ MBCT is architecture-agnostic. You can select, load, and steer **any local model
 
 ---
 
+## LLM-as-a-Judge Evaluation
+
+Measuring steering by reading one output is guesswork — a pushed slider and a better answer are not the same thing. So every profile is evaluated as a **steered-vs-baseline pair**: the same model, the same prompt, the same decoding settings, one arm steered and one unsteered. The baseline is the control that separates *"the model happened to answer well"* from *"the steering changed the answer"*.
+
+`POST /api/steering/generate` returns both arms in one response, which is exactly the unit the judge scores.
+
+### Rubric
+
+A judge reads both arms blind to the active weights and scores each 0–5:
+
+| Dimension | Weight | What it measures |
+|---|---|---|
+| Trait adherence | 65% | Split across the dialled traits (directness 30 / formality 20 / verbosity 15): did each slider move **its own** target, in the intended direction? |
+| Baseline contrast | 10% | Is the steered arm visibly different from the control, in the intended direction? |
+| Semantic preservation | 15% | Same question answered, no topic drift, no invented facts |
+| Coherence / completeness | 10% | Grammatical, on-topic, and terminating on a complete thought |
+
+### Run 1 — Direct Architect, pre-fix build → **LOSS**
+
+Prompt: *"Should our 3-person startup adopt Kubernetes?"* · weights: directness +2.70, formality +1.80, verbosity −1.20
+
+- Formality moved as dialled — the one clean signal in the pair.
+- Directness and verbosity moved **inverted**: the steered arm hedged more and said less per token than the baseline it was meant to outrank.
+- The memory context block was prepended to the user turn, so the model opened by reciting it and never front-loaded an answer.
+- Both arms hit the token cap mid-sentence, so the verbosity axis could not be read at all.
+
+Verdict: **loss**. The traits were live, but the prompt assembly was spending the answer's budget on context and the result was worse to read than the unsteered control.
+
+### Run 2 — Direct Architect, current build → **WIN (3.41 vs 2.33)**
+
+Same prompt and weights, after memory moved to a system turn, retrieval was stopword/synonym-filtered, the vector norm was clamped, and injection was budgeted to 5 of 32 layers (`L11, L13, L16, L19, L21`):
+
+| Dimension | Steered | Baseline |
+|---|---|---|
+| Directness (+2.70) | 3.0 | 2.0 |
+| Formality (+1.80) | **5.0** | 2.5 |
+| Verbosity (−1.20) | 2.0 | 1.5 |
+| Baseline contrast | 3.5 | — |
+| Semantic preservation | 3.5 | 4.0 |
+| Coherence / completeness | 3.0 | 2.5 |
+| **Weighted** | **3.41** | **2.33** |
+
+- **Formality** is the strongest evidence: the steered arm sits in a professional register ("may not be the most suitable choice at this stage") where the baseline stays conversational ("can help manage and scale your applications efficiently").
+- **Directness** moved but at half strength: the steered arm commits to a position, yet still opens by defining Kubernetes and hedges the verdict with "may not be".
+- **Verbosity** did not move. At +1.80 formality against −1.20 verbosity, elaboration pressure wins: the steered arm *adds* a subordinate clause instead of trimming.
+
+### Known limitations
+
+- **Two judged pairs, both Direct Architect**, both `phi-3-mini-4k-instruct` on CPU. No judge runs yet for Friendly Mentor or Brutal Reviewer, and no cross-model runs.
+- **Calibration is the ceiling.** The trait vectors were derived from contrastive sets of 5–6 pairs, which bounds how finely a slider can resolve. `empathy` and `initiative` have no vectors and are inert regardless of slider position.
+- **Length confound.** The directness contrastive pairs differ in length, so part of that vector encodes brevity as well as bluntness. Verbosity was calibrated from a single contrastive set and is the least reliable of the three traits.
+- **Both runs truncated at `max_tokens`**, which is why the verbosity axis is unmeasurable in Run 2: neither arm got to spend its budget.
+- **Run 2 still leaks context metadata**: the memory block's wire tag (`[PREFERENCE] …`) is echoed into roughly the first 26 tokens of the steered arm, against the system instruction not to restate the notes. Visible, bounded, and unfixed.
+- The judge is a single-pass reasoned evaluation, not a trained reward model — treat the scores as an ordering signal between arms, not an absolute quality metric.
+
+---
+
 ## Why This Exists
 
 Right now, if you want a model to behave in a particular personality, the usual route is fine-tuning. That is tedious, resource-heavy, and locked to a specific model and snapshot. MBCT is an attempt to make personality customization usable on any edge system, with whatever local model you already have, without retraining.

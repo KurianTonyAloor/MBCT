@@ -31,6 +31,7 @@ env/
 # Large binary artifacts (MCP vectors can be large)
 # Keep mcp_phi3.json (it's small + needed) but exclude future large ones
 # artifacts/profiles/*.json  ← intentionally NOT ignored (small, needed)
+backend/artifacts/
 
 # OS / IDE
 .DS_Store

@@ -34,6 +34,15 @@ from app.steering.controller import SteeringController
 from app.steering.compatibility import CompatibilityValidator
 from app.memory.store import ExternalMemoryStore
 
+# Windows consoles default to cp1252, which raises UnicodeEncodeError on the
+# non-ASCII characters used in some log lines. Force UTF-8 so logging never
+# crashes a request.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 
 app = FastAPI(
     title="MBCT: Model-Independent Activation Steering Engine",
@@ -143,7 +152,9 @@ def get_or_init_controller() -> SteeringController:
 
         # If an MCP exists, compile and apply plan
         if calibration_service.current_mcp:
-            current_plan = PersonalityCompiler.compile(current_ubp, calibration_service.current_mcp)
+            current_plan = PersonalityCompiler.compile(
+                current_ubp, calibration_service.current_mcp, num_layers=hook_manager.num_layers
+            )
             steering_controller.apply_plan(current_plan, calibration_service.current_mcp)
     return steering_controller
 
@@ -164,6 +175,10 @@ def get_system_status():
         ))
     elif m_info and "recommended_layers" in m_info:
         chosen = m_info["recommended_layers"]
+    # Report what the active plan actually injects, not every layer the MCP has
+    # vectors for: the model-size budget can trim the set at compile time.
+    if current_plan and current_plan.resolved_layer_weights:
+        chosen = sorted(int(l) for l in current_plan.resolved_layer_weights)
 
     return {
         "active_model": active_model_key,
@@ -223,7 +238,9 @@ async def load_model_endpoint(req: ModelLoadRequest):
         # Check if an existing MCP matches this model
         mcp = calibration_service.load_mcp_for_model(active_model_key)
         if mcp:
-            current_plan = PersonalityCompiler.compile(current_ubp, mcp)
+            current_plan = PersonalityCompiler.compile(
+                current_ubp, mcp, num_layers=hook_manager.num_layers
+            )
             steering_controller.apply_plan(current_plan, mcp)
         else:
             current_plan = None
@@ -354,7 +371,9 @@ async def run_calibration(req: CalibrationRequest):
                 calibration_jobs[job_id]["progress"] = "Applying new calibration to steering controller..."
                 global active_model_key, current_plan
                 active_model_key = target_model_key
-                current_plan = PersonalityCompiler.compile(current_ubp, mcp)
+                current_plan = PersonalityCompiler.compile(
+                    current_ubp, mcp, num_layers=ctrl.hook_manager.num_layers
+                )
                 ctrl.apply_plan(current_plan, mcp)
 
                 calibration_jobs[job_id]["status"] = "done"
@@ -523,7 +542,9 @@ def update_behaviour_profile(ubp_update: UniversalBehaviourProfile):
     current_ubp = ubp_update
     if calibration_service.current_mcp:
         ctrl = get_or_init_controller()
-        current_plan = PersonalityCompiler.compile(current_ubp, calibration_service.current_mcp)
+        current_plan = PersonalityCompiler.compile(
+            current_ubp, calibration_service.current_mcp, num_layers=ctrl.hook_manager.num_layers
+        )
         ctrl.apply_plan(current_plan, calibration_service.current_mcp)
     return {
         "status": "updated",
@@ -542,10 +563,35 @@ def get_presets():
 # Generation — blocking + streaming SSE with External Memory Integration
 # ---------------------------------------------------------------------------
 
+# Memory used to be prepended to the user turn, which made the model treat the
+# retrieved facts as text to continue: it opened by reciting them verbatim and
+# never answered the question. Handing the same facts over as a system turn,
+# with an explicit "do not restate" instruction, keeps them as background.
+MEMORY_SYSTEM_INSTRUCTION = (
+    "You are a helpful assistant. The notes below describe the user's project and are "
+    "background only. Use them when they are relevant to the question, but answer the "
+    "question directly. Never repeat, quote, or list the notes back to the user."
+)
+
+
+def _prompt_messages(prompt: str, retrieved: List[MemoryItem]) -> Union[str, List[Dict[str, str]]]:
+    """Build chat messages, placing retrieved memory in the system turn (not the user turn)."""
+    if not retrieved:
+        return prompt
+    block = memory_store.format_context_block(retrieved)
+    if not block:
+        return prompt
+    return [
+        {"role": "system", "content": f"{MEMORY_SYSTEM_INSTRUCTION}\n\n{block}"},
+        {"role": "user", "content": prompt},
+    ]
+
+
 class GenerateRequest(BaseModel):
     prompt: str
     max_tokens: int = 60
     temperature: float = 0.0
+    steered: bool = True
     compare_baseline: bool = True
     inject_memory: bool = True
 
@@ -555,27 +601,28 @@ async def generate_text(req: GenerateRequest):
     """Blocking generation — returns full response after completion, with optional external memory."""
     ctrl = get_or_init_controller()
 
-    # External memory retrieval
+    # External memory retrieval (passed as a system turn, never inside the user turn)
     retrieved_memories = []
-    effective_prompt = req.prompt
     if req.inject_memory and memory_store.master_enabled:
         retrieved_memories = memory_store.retrieve_relevant(req.prompt, limit=3)
-        mem_block = memory_store.format_context_block(retrieved_memories)
-        if mem_block:
-            effective_prompt = f"{mem_block}\n{req.prompt}"
+    effective_prompt = req.prompt
 
     # Model-aware prompt formatting across architectures
-    formatted_prompt = ModelLoader.format_prompt(effective_prompt, ctrl.tokenizer, active_model_key)
+    formatted_prompt = ModelLoader.format_prompt(
+        _prompt_messages(req.prompt, retrieved_memories), ctrl.tokenizer, active_model_key
+    )
 
     def _do_inference():
-        steered_resp = ctrl.generate(
-            formatted_prompt,
-            max_new_tokens=req.max_tokens,
-            temperature=req.temperature,
-            steered=True
-        )
+        steered_resp = None
+        if req.steered:
+            steered_resp = ctrl.generate(
+                formatted_prompt,
+                max_new_tokens=req.max_tokens,
+                temperature=req.temperature,
+                steered=True
+            )
         baseline_resp = None
-        if req.compare_baseline:
+        if req.compare_baseline or not req.steered:
             baseline_resp = ctrl.generate(
                 formatted_prompt,
                 max_new_tokens=req.max_tokens,
@@ -604,6 +651,7 @@ class StreamRequest(BaseModel):
     max_tokens: int = 120
     temperature: float = 0.0
     steered: bool = True
+    compare_baseline: bool = False
     inject_memory: bool = True
 
 
@@ -611,22 +659,22 @@ class StreamRequest(BaseModel):
 async def generate_stream(req: StreamRequest):
     """
     Server-Sent Events streaming endpoint with contextual external memory injection.
+    Supports optional baseline comparison alongside steered output.
     Yields token chunks as: data: {"token": "...", "done": false}
     Final message:          data: {"token": "", "done": true, ...}
     """
     ctrl = get_or_init_controller()
 
-    # External memory retrieval
+    # External memory retrieval (passed as a system turn, never inside the user turn)
     retrieved_memories = []
-    effective_prompt = req.prompt
     if req.inject_memory and memory_store.master_enabled:
         retrieved_memories = memory_store.retrieve_relevant(req.prompt, limit=3)
-        mem_block = memory_store.format_context_block(retrieved_memories)
-        if mem_block:
-            effective_prompt = f"{mem_block}\n{req.prompt}"
+    effective_prompt = req.prompt
 
     # Model-aware prompt formatting across architectures
-    formatted_prompt = ModelLoader.format_prompt(effective_prompt, ctrl.tokenizer, active_model_key)
+    formatted_prompt = ModelLoader.format_prompt(
+        _prompt_messages(req.prompt, retrieved_memories), ctrl.tokenizer, active_model_key
+    )
 
     async def _event_generator():
         loop = asyncio.get_event_loop()
@@ -634,13 +682,37 @@ async def generate_stream(req: StreamRequest):
 
         def _stream_tokens():
             try:
-                for token in ctrl.generate_stream(
-                    formatted_prompt,
-                    max_new_tokens=req.max_tokens,
-                    temperature=req.temperature,
-                    steered=req.steered
-                ):
-                    loop.call_soon_threadsafe(token_queue.put_nowait, token)
+                if req.compare_baseline:
+                    # Alternate between steered and baseline tokens
+                    baseline_turn = True
+                    while True:
+                        if baseline_turn:
+                            # Generate steered tokens
+                            for token in ctrl.generate_stream(
+                                formatted_prompt,
+                                max_new_tokens=req.max_tokens,
+                                temperature=req.temperature,
+                                steered=True
+                            ):
+                                loop.call_soon_threadsafe(token_queue.put_nowait, token)
+                        else:
+                            # Generate baseline (no steering) tokens
+                            for token in ctrl.generate_stream(
+                                formatted_prompt,
+                                max_new_tokens=req.max_tokens,
+                                temperature=req.temperature,
+                                steered=False
+                            ):
+                                loop.call_soon_threadsafe(token_queue.put_nowait, token)
+                        baseline_turn = not baseline_turn
+                else:
+                    for token in ctrl.generate_stream(
+                        formatted_prompt,
+                        max_new_tokens=req.max_tokens,
+                        temperature=req.temperature,
+                        steered=req.steered
+                    ):
+                        loop.call_soon_threadsafe(token_queue.put_nowait, token)
             finally:
                 loop.call_soon_threadsafe(token_queue.put_nowait, None)
 
@@ -790,11 +862,13 @@ def _prepare_inference_context(
         retrieved_memories = memory_store.retrieve_relevant(query_text, limit=3)
         mem_block = memory_store.format_context_block(retrieved_memories)
         if mem_block:
-            for i in range(len(messages) - 1, -1, -1):
-                if messages[i].get("role") == "user":
-                    orig = messages[i].get("content", "")
-                    messages[i]["content"] = f"{mem_block}\n{orig}"
-                    break
+            # Insert as a system turn so the facts read as background context rather than
+            # as part of the user's question (prevents the model reciting them back).
+            system_content = f"{MEMORY_SYSTEM_INSTRUCTION}\n\n{mem_block}"
+            if messages and messages[0].get("role") == "system":
+                messages[0]["content"] = f"{messages[0]['content']}\n\n{system_content}"
+            else:
+                messages.insert(0, {"role": "system", "content": system_content})
 
     ctrl = get_or_init_controller()
     formatted_prompt = ModelLoader.format_prompt(messages, ctrl.tokenizer, active_model_key)
@@ -818,7 +892,9 @@ def _apply_request_traits(traits: Optional[Dict[str, float]], steering: Optional
             profile_id="request-override",
             traits=effective_traits
         )
-        temp_plan = PersonalityCompiler.compile(temp_ubp, calibration_service.current_mcp)
+        temp_plan = PersonalityCompiler.compile(
+            temp_ubp, calibration_service.current_mcp, num_layers=ctrl.hook_manager.num_layers
+        )
         ctrl.apply_plan(temp_plan, calibration_service.current_mcp)
     else:
         effective_traits = current_ubp.traits

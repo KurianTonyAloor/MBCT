@@ -7,6 +7,7 @@ from threading import Thread
 from app.core.types import CompiledSteeringPlan, ModelCalibrationProfile, CompatibilityReport
 from app.steering.hooks import ActivationHookManager
 from app.steering.compatibility import CompatibilityValidator
+from app.steering.layer_budget import select_injection_layers
 
 
 class SteeringController:
@@ -40,7 +41,7 @@ class SteeringController:
         if not compat_report.is_compatible:
             plan.compatibility_warnings.extend(compat_report.violations)
             self.hook_manager.set_steering_enabled(False)
-            print(f"[SteeringController] ❌ REJECTED MCP '{mcp.mcp_id}' due to compatibility violations: {compat_report.violations}", flush=True)
+            print(f"[SteeringController] ERROR: REJECTED MCP '{mcp.mcp_id}' due to compatibility violations: {compat_report.violations}", flush=True)
             return
 
         if compat_report.warnings:
@@ -78,8 +79,31 @@ class SteeringController:
                     total_weight += abs(alpha)
 
             if composite_vec is not None and total_weight > 0:
+                # ── Magnitude normalisation ──────────────────────────────────
+                # Unit trait vectors summed across traits grow as sqrt(sum(alpha^2)),
+                # so a 3-trait preset injects far harder than a 1-trait preset and
+                # over-steers the model (it starts reciting context instead of
+                # answering). Keep the composite direction but clamp its length to
+                # the strongest single trait's alpha.
+                composite_norm = float(composite_vec.norm().item())
+                dominant_alpha = max(abs(a) for a in trait_alphas.values())
+                if composite_norm > 1e-8 and dominant_alpha > 0.0 and composite_norm > dominant_alpha:
+                    composite_vec = composite_vec * (dominant_alpha / composite_norm)
                 combined_vectors[layer_idx] = composite_vec
                 multipliers[layer_idx] = 1.0
+
+        # ── Model-size guard (defence in depth) ──────────────────────────────
+        # A plan compiled without a layer count still cannot exceed what the
+        # loaded model can take: every extra hooked layer costs a Python
+        # callback on every forward pass and compounds the injected direction.
+        if combined_vectors:
+            kept, budget_notes = select_injection_layers(
+                sorted(combined_vectors), self.hook_manager.num_layers
+            )
+            if budget_notes:
+                plan.compatibility_warnings.extend(budget_notes)
+            combined_vectors = {l: combined_vectors[l] for l in kept}
+            multipliers = {l: v for l, v in multipliers.items() if l in combined_vectors}
 
         target_layers = list(combined_vectors.keys())
         if target_layers:
@@ -90,7 +114,7 @@ class SteeringController:
                 enabled=True
             )
             warnings = getattr(plan, "compatibility_warnings", [])
-            warn_str = f" [⚠ {len(warnings)} ortho warnings]" if warnings else ""
+            warn_str = f" [WARNING: {len(warnings)} ortho warnings]" if warnings else ""
             print(f"Steering configured on layers {target_layers} with combined vectors.{warn_str}", flush=True)
         else:
             self.hook_manager.set_steering_enabled(False)

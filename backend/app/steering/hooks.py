@@ -24,6 +24,8 @@ class ActivationHookManager:
         self.steering_enabled: bool = False
         self.steering_vectors: Dict[int, torch.Tensor] = {}  # layer_idx -> vector tensor (hidden_size,)
         self.steering_multipliers: Dict[int, float] = {}    # layer_idx -> alpha
+        # layer_idx -> pre-scaled, device/dtype-ready delta of shape [1, 1, hidden_size]
+        self.steering_deltas: Dict[int, torch.Tensor] = {}
 
     def _resolve_layers(self) -> List[torch.nn.Module]:
         """Dynamically resolve transformer decoder layers across any architecture."""
@@ -124,13 +126,28 @@ class ActivationHookManager:
 
             # 2. Steering mode: inject steering vector into residual stream
             if self.steering_enabled and layer_idx in self.steering_vectors:
-                vec = self.steering_vectors[layer_idx].to(hidden_states.device, dtype=hidden_states.dtype)
-                alpha = self.steering_multipliers.get(layer_idx, 1.0)
-                if alpha != 0.0:
-                    # Inject vector into the sequence positions
-                    # Broadcast vector [hidden_size] to [batch, seq_len, hidden_size]
-                    delta = (alpha * vec).unsqueeze(0).unsqueeze(0)
-                    hidden_states = hidden_states + delta
+                # Deltas are pre-scaled and pre-cast in configure_steering, so a
+                # decode step costs one broadcast add per hooked layer instead of
+                # a multiply, an unsqueeze and two device casts.
+                delta = self.steering_deltas.get(layer_idx)
+                if delta is None or delta.shape[-1] != hidden_states.shape[-1]:
+                    vec = self.steering_vectors[layer_idx].to(hidden_states.device, dtype=hidden_states.dtype)
+                    alpha = self.steering_multipliers.get(layer_idx, 1.0)
+                    if alpha == 0.0:
+                        delta = None
+                    else:
+                        delta = (alpha * vec).unsqueeze(0).unsqueeze(0)
+                if delta is not None:
+                    if hidden_states.shape[1] > 1:
+                        # Prefill pass: the prompt tokens encode the instruction.
+                        # Perturbing them is what makes the model ignore the question,
+                        # so steer only the last position (which produces the first
+                        # generated token). Decode steps (seq_len == 1) are steered fully.
+                        patched = hidden_states.clone()
+                        patched[:, -1:, :] = patched[:, -1:, :] + delta
+                        hidden_states = patched
+                    else:
+                        hidden_states = hidden_states + delta
 
             if is_tuple:
                 return (hidden_states,) + output[1:]
@@ -155,6 +172,21 @@ class ActivationHookManager:
         self.steering_vectors = steering_vectors
         self.steering_multipliers = multipliers
         self.steering_enabled = enabled
+        self._refresh_deltas()
+
+    def _refresh_deltas(self):
+        """Cache alpha * vector in the model's device/dtype, once per plan."""
+        self.steering_deltas = {}
+        try:
+            param = next(self.model.parameters())
+        except (StopIteration, AttributeError):
+            return  # no parameters (stub model): the hook falls back to lazy casting
+        for layer_idx, vec in self.steering_vectors.items():
+            alpha = self.steering_multipliers.get(layer_idx, 1.0)
+            if alpha != 0.0:
+                self.steering_deltas[layer_idx] = (alpha * vec).to(
+                    param.device, dtype=param.dtype
+                ).unsqueeze(0).unsqueeze(0)
 
     def set_steering_enabled(self, enabled: bool):
         """Master kill switch: instantly enable or disable all steering interventions."""

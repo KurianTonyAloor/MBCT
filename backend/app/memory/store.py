@@ -9,6 +9,50 @@ from typing import List, Dict, Any, Optional
 from app.core.types import MemoryItem, MemoryType, MemoryProvenance
 
 
+# Retrieval used to score raw token overlap, so a word like "our" matched every
+# memory (all seeds start with "Our ...") and irrelevant facts were injected into
+# the prompt. Stopwords are dropped and domain terms are expanded to a canonical
+# token, so "3-person startup" matches a memory about "teams under 5 engineers".
+STOPWORDS = {
+    "the", "and", "for", "you", "your", "yours", "our", "ours", "are", "was", "were",
+    "should", "would", "could", "can", "will", "shall", "may", "might", "must",
+    "this", "that", "these", "those", "there", "their", "them", "they", "with",
+    "what", "when", "where", "which", "who", "whom", "why", "how", "about",
+    "have", "has", "had", "been", "being", "does", "did", "done", "doing",
+    "from", "into", "than", "then", "but", "not", "also", "just", "like", "some",
+    "such", "only", "very", "much", "many", "more", "most", "any", "all", "each",
+    "use", "using", "used", "get", "got", "make", "made", "need", "want", "please",
+    "tell", "give", "help", "now", "new", "one", "two", "its", "it", "we", "us",
+}
+
+DOMAIN_SYNONYMS = {
+    "team": {"startup", "startups", "team", "teams", "person", "people", "engineer",
+             "engineers", "headcount", "hire", "hiring", "founder", "founders", "small"},
+    "orchestration": {"kubernetes", "k8s", "orchestration", "container", "containers",
+                      "docker", "microservice", "microservices", "cluster", "clusters"},
+    "database": {"database", "databases", "db", "postgres", "postgresql", "rds", "sql"},
+    "backend": {"backend", "python", "fastapi", "pydantic", "api", "apis"},
+    "architecture": {"architecture", "architectural", "monolith", "monoliths", "design",
+                     "infrastructure", "deployment", "deploy"},
+}
+
+_WORD_TO_CANON: Dict[str, str] = {}
+for _canon, _terms in DOMAIN_SYNONYMS.items():
+    for _term in _terms:
+        _WORD_TO_CANON[_term] = _canon
+
+
+def _canonicalize(words: set) -> set:
+    """Map recognised domain terms to a canonical token; drop stopwords."""
+    out = set()
+    for w in words:
+        if w in STOPWORDS:
+            continue
+        canon = _WORD_TO_CANON.get(w)
+        out.add(canon if canon else w)
+    return out
+
+
 INITIAL_SEED_MEMORIES = [
     {
         "content": "Our primary production database is PostgreSQL 16 on AWS RDS with strict junction tables for many-to-many relationships.",
@@ -150,8 +194,8 @@ class ExternalMemoryStore:
         if not self.master_enabled:
             return []
 
-        # Tokenize query into words (lower, stripped)
-        query_words = set(re.findall(r"\b[a-zA-Z0-9_\-]{3,}\b", query.lower()))
+        # Tokenize query into words (lower, stripped), drop stopwords, expand domain terms
+        query_words = _canonicalize(set(re.findall(r"\b[a-zA-Z0-9_\-]{3,}\b", query.lower())))
         if not query_words:
             return []
 
@@ -160,8 +204,10 @@ class ExternalMemoryStore:
             if not item.enabled:
                 continue
 
-            content_words = set(re.findall(r"\b[a-zA-Z0-9_\-]{3,}\b", item.content.lower()))
-            tag_words = set(t.lower() for t in item.tags)
+            content_words = _canonicalize(
+                set(re.findall(r"\b[a-zA-Z0-9_\-]{3,}\b", item.content.lower()))
+            )
+            tag_words = _canonicalize(set(t.lower() for t in item.tags))
             all_mem_words = content_words.union(tag_words)
 
             # Jaccard + Tag boost relevance

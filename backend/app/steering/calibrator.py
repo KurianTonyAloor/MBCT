@@ -16,6 +16,7 @@ from app.providers.manager import ProviderManager
 from app.dataset.generator import DatasetGenerator
 from app.models.registry import ModelLoader
 from app.steering.deriver import VectorDeriver
+from app.steering.layer_budget import select_injection_layers
 
 
 class CalibrationService:
@@ -96,6 +97,17 @@ class CalibrationService:
             else:
                 num_l = hook_manager.num_layers
                 target_layers = [max(1, int(num_l * 0.4)), int(num_l * 0.5), min(num_l - 1, int(num_l * 0.6))]
+
+        # Model-size guard: the recommended list for a preset can be a large
+        # share of a smaller model's depth, so trim it to what that model can
+        # take before spending calibration time on vectors it will never use.
+        target_layers, layer_notes = select_injection_layers(
+            sorted({int(l) for l in target_layers}), hook_manager.num_layers
+        )
+        for note in layer_notes:
+            print(f"[CalibrationService] {note}", flush=True)
+        if not target_layers:
+            target_layers = [max(0, int(hook_manager.num_layers * 0.5))]
 
         generator = DatasetGenerator(provider=active_provider)
         deriver = VectorDeriver(model, tokenizer, hook_manager)
