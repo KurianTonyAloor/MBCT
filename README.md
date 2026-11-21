@@ -1,4 +1,4 @@
-# MBCT — Model-Independent Personality Steering
+# MBCT — Model Based Character Tuning
 
 > **Personality without fine-tuning** — take any local model you already have on disk, and steer its personality at inference time by injecting small activation vectors into its residual stream. No retraining. No weight changes. Runs on the same hardware the model already runs on.
 
