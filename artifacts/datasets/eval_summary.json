@@ -1,0 +1,83 @@
+{
+  "n_pairs": 300,
+  "control": {
+    "baseline": -2.0591468811035156,
+    "Direct Architect": -2.078397035598755,
+    "Friendly Mentor": -2.092357873916626,
+    "Brutal Reviewer": -2.097913980484009
+  },
+  "profiles": {
+    "Direct Architect": {
+      "n": 300,
+      "mean_delta_logp": 0.04848,
+      "fraction_improved": 0.72,
+      "direction_agreement": 0.5867,
+      "agreement_n": 300,
+      "sign_test_p": 0.0031692672015007496,
+      "control_delta": -0.01925,
+      "per_trait": {
+        "directness": 0.05508,
+        "formality": 0.06878,
+        "verbosity": 0.02156
+      },
+      "per_trait_n": {
+        "directness": 100,
+        "formality": 100,
+        "verbosity": 100
+      },
+      "alphas": {
+        "directness": 2.7,
+        "formality": 1.8,
+        "verbosity": -1.2
+      }
+    },
+    "Friendly Mentor": {
+      "n": 300,
+      "mean_delta_logp": -0.04046,
+      "fraction_improved": 0.27,
+      "direction_agreement": 0.57,
+      "agreement_n": 300,
+      "sign_test_p": 0.017779340914262212,
+      "control_delta": -0.03321,
+      "per_trait": {
+        "directness": -0.02517,
+        "formality": -0.07085,
+        "verbosity": -0.02535
+      },
+      "per_trait_n": {
+        "directness": 100,
+        "formality": 100,
+        "verbosity": 100
+      },
+      "alphas": {
+        "directness": -1.2,
+        "formality": -1.8,
+        "verbosity": 1.5
+      }
+    },
+    "Brutal Reviewer": {
+      "n": 300,
+      "mean_delta_logp": 0.10641,
+      "fraction_improved": 0.8167,
+      "direction_agreement": 0.59,
+      "agreement_n": 200,
+      "sign_test_p": 0.013130355940531583,
+      "control_delta": -0.03877,
+      "per_trait": {
+        "directness": 0.17546,
+        "formality": 0.08292,
+        "verbosity": 0.06084
+      },
+      "per_trait_n": {
+        "directness": 100,
+        "formality": 100,
+        "verbosity": 100
+      },
+      "alphas": {
+        "directness": 3.0,
+        "formality": 0.0,
+        "verbosity": -1.5
+      }
+    }
+  }
+}

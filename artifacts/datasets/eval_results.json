@@ -1,0 +1,3689 @@
+{
+  "pairs": [
+    {
+      "example_id": "eval-directness-001",
+      "trait_id": "directness",
+      "n_prompt_tokens": 19,
+      "scores": {
+        "baseline": -0.6779102683067322,
+        "Direct Architect": -0.6105839014053345,
+        "Friendly Mentor": -0.7112212181091309,
+        "Brutal Reviewer": -0.5862598419189453
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-002",
+      "trait_id": "directness",
+      "n_prompt_tokens": 23,
+      "scores": {
+        "baseline": -2.562316656112671,
+        "Direct Architect": -2.564941644668579,
+        "Friendly Mentor": -2.4714627265930176,
+        "Brutal Reviewer": -2.431286334991455
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-003",
+      "trait_id": "directness",
+      "n_prompt_tokens": 24,
+      "scores": {
+        "baseline": -1.3097469806671143,
+        "Direct Architect": -1.383073329925537,
+        "Friendly Mentor": -1.2665607929229736,
+        "Brutal Reviewer": -1.4241565465927124
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-004",
+      "trait_id": "directness",
+      "n_prompt_tokens": 22,
+      "scores": {
+        "baseline": -1.5135209560394287,
+        "Direct Architect": -1.4491000175476074,
+        "Friendly Mentor": -1.5114914178848267,
+        "Brutal Reviewer": -1.3699290752410889
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-005",
+      "trait_id": "directness",
+      "n_prompt_tokens": 24,
+      "scores": {
+        "baseline": -2.973527431488037,
+        "Direct Architect": -2.7021472454071045,
+        "Friendly Mentor": -3.076908588409424,
+        "Brutal Reviewer": -2.629563808441162
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-006",
+      "trait_id": "directness",
+      "n_prompt_tokens": 24,
+      "scores": {
+        "baseline": -3.1979072093963623,
+        "Direct Architect": -3.180992364883423,
+        "Friendly Mentor": -3.1732254028320312,
+        "Brutal Reviewer": -3.02958607673645
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-007",
+      "trait_id": "directness",
+      "n_prompt_tokens": 23,
+      "scores": {
+        "baseline": -2.1942601203918457,
+        "Direct Architect": -2.15702748298645,
+        "Friendly Mentor": -2.1087677478790283,
+        "Brutal Reviewer": -2.0049188137054443
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-008",
+      "trait_id": "directness",
+      "n_prompt_tokens": 19,
+      "scores": {
+        "baseline": -1.4264435768127441,
+        "Direct Architect": -1.4288418292999268,
+        "Friendly Mentor": -1.3831350803375244,
+        "Brutal Reviewer": -1.3695855140686035
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-009",
+      "trait_id": "directness",
+      "n_prompt_tokens": 20,
+      "scores": {
+        "baseline": -3.639320135116577,
+        "Direct Architect": -3.648259401321411,
+        "Friendly Mentor": -3.6817269325256348,
+        "Brutal Reviewer": -3.553785800933838
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-010",
+      "trait_id": "directness",
+      "n_prompt_tokens": 21,
+      "scores": {
+        "baseline": -3.5531821250915527,
+        "Direct Architect": -3.596151113510132,
+        "Friendly Mentor": -3.5790493488311768,
+        "Brutal Reviewer": -3.488206386566162
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-011",
+      "trait_id": "directness",
+      "n_prompt_tokens": 27,
+      "scores": {
+        "baseline": -3.1103861331939697,
+        "Direct Architect": -3.041311502456665,
+        "Friendly Mentor": -3.289388656616211,
+        "Brutal Reviewer": -2.910776376724243
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-012",
+      "trait_id": "directness",
+      "n_prompt_tokens": 23,
+      "scores": {
+        "baseline": -5.677101135253906,
+        "Direct Architect": -5.670079231262207,
+        "Friendly Mentor": -5.704415321350098,
+        "Brutal Reviewer": -5.410457611083984
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-013",
+      "trait_id": "directness",
+      "n_prompt_tokens": 21,
+      "scores": {
+        "baseline": -0.6329036951065063,
+        "Direct Architect": -0.5931148529052734,
+        "Friendly Mentor": -0.6323060989379883,
+        "Brutal Reviewer": -0.6354103684425354
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-014",
+      "trait_id": "directness",
+      "n_prompt_tokens": 18,
+      "scores": {
+        "baseline": -2.4208879470825195,
+        "Direct Architect": -2.271409273147583,
+        "Friendly Mentor": -2.4914913177490234,
+        "Brutal Reviewer": -2.0635621547698975
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-015",
+      "trait_id": "directness",
+      "n_prompt_tokens": 18,
+      "scores": {
+        "baseline": -2.505993366241455,
+        "Direct Architect": -2.3988962173461914,
+        "Friendly Mentor": -2.5305628776550293,
+        "Brutal Reviewer": -2.112622022628784
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-016",
+      "trait_id": "directness",
+      "n_prompt_tokens": 23,
+      "scores": {
+        "baseline": -4.142634391784668,
+        "Direct Architect": -4.0909833908081055,
+        "Friendly Mentor": -4.235021114349365,
+        "Brutal Reviewer": -3.865856170654297
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-017",
+      "trait_id": "directness",
+      "n_prompt_tokens": 24,
+      "scores": {
+        "baseline": -1.956088900566101,
+        "Direct Architect": -1.9405285120010376,
+        "Friendly Mentor": -1.9785059690475464,
+        "Brutal Reviewer": -1.853371500968933
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-018",
+      "trait_id": "directness",
+      "n_prompt_tokens": 21,
+      "scores": {
+        "baseline": -3.1889562606811523,
+        "Direct Architect": -3.0659308433532715,
+        "Friendly Mentor": -3.1878573894500732,
+        "Brutal Reviewer": -2.9244697093963623
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-019",
+      "trait_id": "directness",
+      "n_prompt_tokens": 21,
+      "scores": {
+        "baseline": -3.103938579559326,
+        "Direct Architect": -3.068002939224243,
+        "Friendly Mentor": -3.0695531368255615,
+        "Brutal Reviewer": -2.769397735595703
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-020",
+      "trait_id": "directness",
+      "n_prompt_tokens": 27,
+      "scores": {
+        "baseline": -2.868283748626709,
+        "Direct Architect": -2.9439682960510254,
+        "Friendly Mentor": -2.8009884357452393,
+        "Brutal Reviewer": -2.7605152130126953
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-021",
+      "trait_id": "directness",
+      "n_prompt_tokens": 20,
+      "scores": {
+        "baseline": -1.2180734872817993,
+        "Direct Architect": -1.1695001125335693,
+        "Friendly Mentor": -1.2360693216323853,
+        "Brutal Reviewer": -1.070477843284607
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-022",
+      "trait_id": "directness",
+      "n_prompt_tokens": 18,
+      "scores": {
+        "baseline": -2.8735156059265137,
+        "Direct Architect": -2.6162869930267334,
+        "Friendly Mentor": -2.999772548675537,
+        "Brutal Reviewer": -2.5078413486480713
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-023",
+      "trait_id": "directness",
+      "n_prompt_tokens": 27,
+      "scores": {
+        "baseline": -3.332977533340454,
+        "Direct Architect": -3.4031834602355957,
+        "Friendly Mentor": -3.253267765045166,
+        "Brutal Reviewer": -3.3729164600372314
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-024",
+      "trait_id": "directness",
+      "n_prompt_tokens": 24,
+      "scores": {
+        "baseline": -4.045233249664307,
+        "Direct Architect": -3.986152172088623,
+        "Friendly Mentor": -4.0408148765563965,
+        "Brutal Reviewer": -3.2616007328033447
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-025",
+      "trait_id": "directness",
+      "n_prompt_tokens": 19,
+      "scores": {
+        "baseline": -2.521239757537842,
+        "Direct Architect": -2.6008048057556152,
+        "Friendly Mentor": -2.3975021839141846,
+        "Brutal Reviewer": -2.472817897796631
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-026",
+      "trait_id": "directness",
+      "n_prompt_tokens": 23,
+      "scores": {
+        "baseline": -3.046323299407959,
+        "Direct Architect": -2.9139089584350586,
+        "Friendly Mentor": -2.9870636463165283,
+        "Brutal Reviewer": -2.80013370513916
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-027",
+      "trait_id": "directness",
+      "n_prompt_tokens": 20,
+      "scores": {
+        "baseline": -5.3904523849487305,
+        "Direct Architect": -5.186313629150391,
+        "Friendly Mentor": -5.3493428230285645,
+        "Brutal Reviewer": -5.036334991455078
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-028",
+      "trait_id": "directness",
+      "n_prompt_tokens": 24,
+      "scores": {
+        "baseline": -2.358297348022461,
+        "Direct Architect": -2.3331642150878906,
+        "Friendly Mentor": -2.413081645965576,
+        "Brutal Reviewer": -2.1674537658691406
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-029",
+      "trait_id": "directness",
+      "n_prompt_tokens": 19,
+      "scores": {
+        "baseline": -0.46923163533210754,
+        "Direct Architect": -0.42813530564308167,
+        "Friendly Mentor": -0.4845544695854187,
+        "Brutal Reviewer": -0.4228927791118622
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-030",
+      "trait_id": "directness",
+      "n_prompt_tokens": 21,
+      "scores": {
+        "baseline": -4.518081188201904,
+        "Direct Architect": -4.465549945831299,
+        "Friendly Mentor": -4.566766738891602,
+        "Brutal Reviewer": -4.428165912628174
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-031",
+      "trait_id": "directness",
+      "n_prompt_tokens": 24,
+      "scores": {
+        "baseline": -2.818971872329712,
+        "Direct Architect": -2.8282642364501953,
+        "Friendly Mentor": -2.7290196418762207,
+        "Brutal Reviewer": -2.7030763626098633
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-032",
+      "trait_id": "directness",
+      "n_prompt_tokens": 21,
+      "scores": {
+        "baseline": -4.141890048980713,
+        "Direct Architect": -4.118818283081055,
+        "Friendly Mentor": -4.18943452835083,
+        "Brutal Reviewer": -3.8560595512390137
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-033",
+      "trait_id": "directness",
+      "n_prompt_tokens": 23,
+      "scores": {
+        "baseline": -1.966225028038025,
+        "Direct Architect": -2.0101354122161865,
+        "Friendly Mentor": -2.0171778202056885,
+        "Brutal Reviewer": -1.885128140449524
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-034",
+      "trait_id": "directness",
+      "n_prompt_tokens": 21,
+      "scores": {
+        "baseline": -1.1514325141906738,
+        "Direct Architect": -1.063387393951416,
+        "Friendly Mentor": -1.1577397584915161,
+        "Brutal Reviewer": -1.1335408687591553
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-035",
+      "trait_id": "directness",
+      "n_prompt_tokens": 21,
+      "scores": {
+        "baseline": -1.7570922374725342,
+        "Direct Architect": -1.7668232917785645,
+        "Friendly Mentor": -1.734149694442749,
+        "Brutal Reviewer": -1.6478745937347412
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-036",
+      "trait_id": "directness",
+      "n_prompt_tokens": 21,
+      "scores": {
+        "baseline": -2.107285976409912,
+        "Direct Architect": -2.274496078491211,
+        "Friendly Mentor": -2.0403106212615967,
+        "Brutal Reviewer": -2.145596504211426
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-037",
+      "trait_id": "directness",
+      "n_prompt_tokens": 19,
+      "scores": {
+        "baseline": -2.493220806121826,
+        "Direct Architect": -2.3422679901123047,
+        "Friendly Mentor": -2.610936403274536,
+        "Brutal Reviewer": -2.2250826358795166
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-038",
+      "trait_id": "directness",
+      "n_prompt_tokens": 26,
+      "scores": {
+        "baseline": -3.134467363357544,
+        "Direct Architect": -3.161106824874878,
+        "Friendly Mentor": -3.1630890369415283,
+        "Brutal Reviewer": -3.0020296573638916
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-039",
+      "trait_id": "directness",
+      "n_prompt_tokens": 24,
+      "scores": {
+        "baseline": -2.973598003387451,
+        "Direct Architect": -2.944279193878174,
+        "Friendly Mentor": -3.1240062713623047,
+        "Brutal Reviewer": -2.7858879566192627
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-040",
+      "trait_id": "directness",
+      "n_prompt_tokens": 21,
+      "scores": {
+        "baseline": -2.813286781311035,
+        "Direct Architect": -2.833906650543213,
+        "Friendly Mentor": -2.838876724243164,
+        "Brutal Reviewer": -2.6963789463043213
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-041",
+      "trait_id": "directness",
+      "n_prompt_tokens": 20,
+      "scores": {
+        "baseline": -3.1788527965545654,
+        "Direct Architect": -3.2889771461486816,
+        "Friendly Mentor": -3.2092132568359375,
+        "Brutal Reviewer": -3.037374496459961
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-042",
+      "trait_id": "directness",
+      "n_prompt_tokens": 19,
+      "scores": {
+        "baseline": -2.2079286575317383,
+        "Direct Architect": -2.2103939056396484,
+        "Friendly Mentor": -2.1538779735565186,
+        "Brutal Reviewer": -2.0931715965270996
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-043",
+      "trait_id": "directness",
+      "n_prompt_tokens": 24,
+      "scores": {
+        "baseline": -1.8284857273101807,
+        "Direct Architect": -1.7005186080932617,
+        "Friendly Mentor": -1.8379064798355103,
+        "Brutal Reviewer": -1.570827841758728
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-044",
+      "trait_id": "directness",
+      "n_prompt_tokens": 25,
+      "scores": {
+        "baseline": -1.6575430631637573,
+        "Direct Architect": -1.6500413417816162,
+        "Friendly Mentor": -1.7050516605377197,
+        "Brutal Reviewer": -1.6167691946029663
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-045",
+      "trait_id": "directness",
+      "n_prompt_tokens": 24,
+      "scores": {
+        "baseline": -1.434756875038147,
+        "Direct Architect": -1.3264827728271484,
+        "Friendly Mentor": -1.5880091190338135,
+        "Brutal Reviewer": -1.2927589416503906
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-046",
+      "trait_id": "directness",
+      "n_prompt_tokens": 24,
+      "scores": {
+        "baseline": -2.8105804920196533,
+        "Direct Architect": -2.7128777503967285,
+        "Friendly Mentor": -2.9174492359161377,
+        "Brutal Reviewer": -2.6141409873962402
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-047",
+      "trait_id": "directness",
+      "n_prompt_tokens": 25,
+      "scores": {
+        "baseline": -1.3445689678192139,
+        "Direct Architect": -1.2750170230865479,
+        "Friendly Mentor": -1.390063762664795,
+        "Brutal Reviewer": -1.1923284530639648
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-048",
+      "trait_id": "directness",
+      "n_prompt_tokens": 21,
+      "scores": {
+        "baseline": -1.0818461179733276,
+        "Direct Architect": -1.0181941986083984,
+        "Friendly Mentor": -1.0761409997940063,
+        "Brutal Reviewer": -0.9169462323188782
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-049",
+      "trait_id": "directness",
+      "n_prompt_tokens": 22,
+      "scores": {
+        "baseline": -3.387031078338623,
+        "Direct Architect": -3.3126487731933594,
+        "Friendly Mentor": -3.472707986831665,
+        "Brutal Reviewer": -3.1515862941741943
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-050",
+      "trait_id": "directness",
+      "n_prompt_tokens": 26,
+      "scores": {
+        "baseline": -0.9405580163002014,
+        "Direct Architect": -0.9568287134170532,
+        "Friendly Mentor": -0.9218046069145203,
+        "Brutal Reviewer": -0.8617854714393616
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-051",
+      "trait_id": "directness",
+      "n_prompt_tokens": 31,
+      "scores": {
+        "baseline": -3.641446590423584,
+        "Direct Architect": -3.4931602478027344,
+        "Friendly Mentor": -3.8026700019836426,
+        "Brutal Reviewer": -3.3227779865264893
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-052",
+      "trait_id": "directness",
+      "n_prompt_tokens": 30,
+      "scores": {
+        "baseline": -1.362292766571045,
+        "Direct Architect": -1.304221272468567,
+        "Friendly Mentor": -1.3979642391204834,
+        "Brutal Reviewer": -1.2516602277755737
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-053",
+      "trait_id": "directness",
+      "n_prompt_tokens": 25,
+      "scores": {
+        "baseline": -2.4757962226867676,
+        "Direct Architect": -2.3945236206054688,
+        "Friendly Mentor": -2.4433932304382324,
+        "Brutal Reviewer": -2.2198524475097656
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-054",
+      "trait_id": "directness",
+      "n_prompt_tokens": 16,
+      "scores": {
+        "baseline": -1.9046167135238647,
+        "Direct Architect": -2.0712616443634033,
+        "Friendly Mentor": -1.8288085460662842,
+        "Brutal Reviewer": -1.9300625324249268
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-055",
+      "trait_id": "directness",
+      "n_prompt_tokens": 25,
+      "scores": {
+        "baseline": -1.5892832279205322,
+        "Direct Architect": -1.5067096948623657,
+        "Friendly Mentor": -1.6438030004501343,
+        "Brutal Reviewer": -1.3980281352996826
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-056",
+      "trait_id": "directness",
+      "n_prompt_tokens": 21,
+      "scores": {
+        "baseline": -2.8266501426696777,
+        "Direct Architect": -2.8520560264587402,
+        "Friendly Mentor": -2.915328025817871,
+        "Brutal Reviewer": -2.7165956497192383
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-057",
+      "trait_id": "directness",
+      "n_prompt_tokens": 25,
+      "scores": {
+        "baseline": -2.2827532291412354,
+        "Direct Architect": -1.9725375175476074,
+        "Friendly Mentor": -2.405557155609131,
+        "Brutal Reviewer": -1.8014553785324097
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-058",
+      "trait_id": "directness",
+      "n_prompt_tokens": 27,
+      "scores": {
+        "baseline": -2.782207489013672,
+        "Direct Architect": -2.5233635902404785,
+        "Friendly Mentor": -2.9021694660186768,
+        "Brutal Reviewer": -2.2728030681610107
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-059",
+      "trait_id": "directness",
+      "n_prompt_tokens": 26,
+      "scores": {
+        "baseline": -1.197472095489502,
+        "Direct Architect": -1.15031898021698,
+        "Friendly Mentor": -1.2235794067382812,
+        "Brutal Reviewer": -1.0793968439102173
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-060",
+      "trait_id": "directness",
+      "n_prompt_tokens": 26,
+      "scores": {
+        "baseline": -2.457401752471924,
+        "Direct Architect": -2.445282459259033,
+        "Friendly Mentor": -2.4749603271484375,
+        "Brutal Reviewer": -2.4153835773468018
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-061",
+      "trait_id": "directness",
+      "n_prompt_tokens": 16,
+      "scores": {
+        "baseline": -2.8344717025756836,
+        "Direct Architect": -2.8204619884490967,
+        "Friendly Mentor": -2.792808771133423,
+        "Brutal Reviewer": -2.6716415882110596
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-062",
+      "trait_id": "directness",
+      "n_prompt_tokens": 21,
+      "scores": {
+        "baseline": -1.0472863912582397,
+        "Direct Architect": -0.9401744604110718,
+        "Friendly Mentor": -1.0817484855651855,
+        "Brutal Reviewer": -0.8582683801651001
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-063",
+      "trait_id": "directness",
+      "n_prompt_tokens": 25,
+      "scores": {
+        "baseline": -1.4932429790496826,
+        "Direct Architect": -1.2908707857131958,
+        "Friendly Mentor": -1.6464612483978271,
+        "Brutal Reviewer": -1.1961318254470825
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-064",
+      "trait_id": "directness",
+      "n_prompt_tokens": 27,
+      "scores": {
+        "baseline": -2.036383867263794,
+        "Direct Architect": -1.8068958520889282,
+        "Friendly Mentor": -2.2190005779266357,
+        "Brutal Reviewer": -1.7331057786941528
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-065",
+      "trait_id": "directness",
+      "n_prompt_tokens": 23,
+      "scores": {
+        "baseline": -1.033549189567566,
+        "Direct Architect": -1.104027271270752,
+        "Friendly Mentor": -0.9362297654151917,
+        "Brutal Reviewer": -1.0209006071090698
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-066",
+      "trait_id": "directness",
+      "n_prompt_tokens": 25,
+      "scores": {
+        "baseline": -1.7834525108337402,
+        "Direct Architect": -1.7298080921173096,
+        "Friendly Mentor": -1.768428087234497,
+        "Brutal Reviewer": -1.6963207721710205
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-067",
+      "trait_id": "directness",
+      "n_prompt_tokens": 17,
+      "scores": {
+        "baseline": -3.9230422973632812,
+        "Direct Architect": -3.759408712387085,
+        "Friendly Mentor": -3.862370491027832,
+        "Brutal Reviewer": -3.5463595390319824
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-068",
+      "trait_id": "directness",
+      "n_prompt_tokens": 17,
+      "scores": {
+        "baseline": -1.0492534637451172,
+        "Direct Architect": -0.9417726993560791,
+        "Friendly Mentor": -1.0882480144500732,
+        "Brutal Reviewer": -0.8303511142730713
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-069",
+      "trait_id": "directness",
+      "n_prompt_tokens": 26,
+      "scores": {
+        "baseline": -1.743720293045044,
+        "Direct Architect": -1.6257216930389404,
+        "Friendly Mentor": -1.8165593147277832,
+        "Brutal Reviewer": -1.5293755531311035
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-070",
+      "trait_id": "directness",
+      "n_prompt_tokens": 21,
+      "scores": {
+        "baseline": -2.498612880706787,
+        "Direct Architect": -2.549091339111328,
+        "Friendly Mentor": -2.473660707473755,
+        "Brutal Reviewer": -2.5310301780700684
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-071",
+      "trait_id": "directness",
+      "n_prompt_tokens": 26,
+      "scores": {
+        "baseline": -1.7514064311981201,
+        "Direct Architect": -1.732305645942688,
+        "Friendly Mentor": -1.7975518703460693,
+        "Brutal Reviewer": -1.6055489778518677
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-072",
+      "trait_id": "directness",
+      "n_prompt_tokens": 24,
+      "scores": {
+        "baseline": -5.506992816925049,
+        "Direct Architect": -5.329156875610352,
+        "Friendly Mentor": -5.564866065979004,
+        "Brutal Reviewer": -5.150728225708008
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-073",
+      "trait_id": "directness",
+      "n_prompt_tokens": 24,
+      "scores": {
+        "baseline": -2.843971014022827,
+        "Direct Architect": -2.7503485679626465,
+        "Friendly Mentor": -2.895610809326172,
+        "Brutal Reviewer": -2.59605073928833
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-074",
+      "trait_id": "directness",
+      "n_prompt_tokens": 27,
+      "scores": {
+        "baseline": -1.8503986597061157,
+        "Direct Architect": -1.7190217971801758,
+        "Friendly Mentor": -1.9431105852127075,
+        "Brutal Reviewer": -1.6282442808151245
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-075",
+      "trait_id": "directness",
+      "n_prompt_tokens": 15,
+      "scores": {
+        "baseline": -2.2483208179473877,
+        "Direct Architect": -2.2384872436523438,
+        "Friendly Mentor": -2.2138917446136475,
+        "Brutal Reviewer": -2.135608196258545
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-076",
+      "trait_id": "directness",
+      "n_prompt_tokens": 21,
+      "scores": {
+        "baseline": -0.7472096681594849,
+        "Direct Architect": -0.6646610498428345,
+        "Friendly Mentor": -0.7966267466545105,
+        "Brutal Reviewer": -0.5890442132949829
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-077",
+      "trait_id": "directness",
+      "n_prompt_tokens": 25,
+      "scores": {
+        "baseline": -2.0308544635772705,
+        "Direct Architect": -2.010568380355835,
+        "Friendly Mentor": -2.006514310836792,
+        "Brutal Reviewer": -1.9928364753723145
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-078",
+      "trait_id": "directness",
+      "n_prompt_tokens": 23,
+      "scores": {
+        "baseline": -2.0556414127349854,
+        "Direct Architect": -2.074692487716675,
+        "Friendly Mentor": -2.0293169021606445,
+        "Brutal Reviewer": -1.9608548879623413
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-079",
+      "trait_id": "directness",
+      "n_prompt_tokens": 18,
+      "scores": {
+        "baseline": -3.084573268890381,
+        "Direct Architect": -2.955764055252075,
+        "Friendly Mentor": -3.1336662769317627,
+        "Brutal Reviewer": -2.869713068008423
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-080",
+      "trait_id": "directness",
+      "n_prompt_tokens": 24,
+      "scores": {
+        "baseline": -1.415144681930542,
+        "Direct Architect": -1.4680441617965698,
+        "Friendly Mentor": -1.3729199171066284,
+        "Brutal Reviewer": -1.3292362689971924
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-081",
+      "trait_id": "directness",
+      "n_prompt_tokens": 27,
+      "scores": {
+        "baseline": -1.590822458267212,
+        "Direct Architect": -1.594630479812622,
+        "Friendly Mentor": -1.5507715940475464,
+        "Brutal Reviewer": -1.5146560668945312
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-082",
+      "trait_id": "directness",
+      "n_prompt_tokens": 27,
+      "scores": {
+        "baseline": -1.654294490814209,
+        "Direct Architect": -1.5270562171936035,
+        "Friendly Mentor": -1.7612450122833252,
+        "Brutal Reviewer": -1.441936731338501
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-083",
+      "trait_id": "directness",
+      "n_prompt_tokens": 27,
+      "scores": {
+        "baseline": -2.5957605838775635,
+        "Direct Architect": -2.2841572761535645,
+        "Friendly Mentor": -2.7093849182128906,
+        "Brutal Reviewer": -2.047416925430298
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-084",
+      "trait_id": "directness",
+      "n_prompt_tokens": 22,
+      "scores": {
+        "baseline": -1.9419136047363281,
+        "Direct Architect": -1.7934519052505493,
+        "Friendly Mentor": -2.0632429122924805,
+        "Brutal Reviewer": -1.6247857809066772
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-085",
+      "trait_id": "directness",
+      "n_prompt_tokens": 26,
+      "scores": {
+        "baseline": -2.3067736625671387,
+        "Direct Architect": -2.3304672241210938,
+        "Friendly Mentor": -2.288397789001465,
+        "Brutal Reviewer": -2.1846346855163574
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-086",
+      "trait_id": "directness",
+      "n_prompt_tokens": 24,
+      "scores": {
+        "baseline": -2.9593000411987305,
+        "Direct Architect": -2.768770456314087,
+        "Friendly Mentor": -2.966539144515991,
+        "Brutal Reviewer": -2.698923349380493
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-087",
+      "trait_id": "directness",
+      "n_prompt_tokens": 22,
+      "scores": {
+        "baseline": -1.3675565719604492,
+        "Direct Architect": -1.1247146129608154,
+        "Friendly Mentor": -1.513700008392334,
+        "Brutal Reviewer": -0.9956657886505127
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-088",
+      "trait_id": "directness",
+      "n_prompt_tokens": 30,
+      "scores": {
+        "baseline": -1.7078323364257812,
+        "Direct Architect": -1.7367792129516602,
+        "Friendly Mentor": -1.679247498512268,
+        "Brutal Reviewer": -1.6020082235336304
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-089",
+      "trait_id": "directness",
+      "n_prompt_tokens": 22,
+      "scores": {
+        "baseline": -1.604841709136963,
+        "Direct Architect": -1.715226411819458,
+        "Friendly Mentor": -1.5668573379516602,
+        "Brutal Reviewer": -1.6388030052185059
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-090",
+      "trait_id": "directness",
+      "n_prompt_tokens": 31,
+      "scores": {
+        "baseline": -1.6599681377410889,
+        "Direct Architect": -1.616988182067871,
+        "Friendly Mentor": -1.692294716835022,
+        "Brutal Reviewer": -1.5390129089355469
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-091",
+      "trait_id": "directness",
+      "n_prompt_tokens": 24,
+      "scores": {
+        "baseline": -2.0437302589416504,
+        "Direct Architect": -2.0607240200042725,
+        "Friendly Mentor": -1.9719151258468628,
+        "Brutal Reviewer": -1.9529411792755127
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-092",
+      "trait_id": "directness",
+      "n_prompt_tokens": 27,
+      "scores": {
+        "baseline": -3.9406518936157227,
+        "Direct Architect": -4.017275810241699,
+        "Friendly Mentor": -3.952256917953491,
+        "Brutal Reviewer": -3.898430585861206
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-093",
+      "trait_id": "directness",
+      "n_prompt_tokens": 23,
+      "scores": {
+        "baseline": -1.3168578147888184,
+        "Direct Architect": -1.374968409538269,
+        "Friendly Mentor": -1.317617416381836,
+        "Brutal Reviewer": -1.4074980020523071
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-094",
+      "trait_id": "directness",
+      "n_prompt_tokens": 25,
+      "scores": {
+        "baseline": -0.6885809302330017,
+        "Direct Architect": -0.7453422546386719,
+        "Friendly Mentor": -0.6231412887573242,
+        "Brutal Reviewer": -0.7016863822937012
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-095",
+      "trait_id": "directness",
+      "n_prompt_tokens": 27,
+      "scores": {
+        "baseline": -0.8001230955123901,
+        "Direct Architect": -0.8575754761695862,
+        "Friendly Mentor": -0.7232131361961365,
+        "Brutal Reviewer": -0.7801992297172546
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-001",
+      "trait_id": "formality",
+      "n_prompt_tokens": 18,
+      "scores": {
+        "baseline": -2.859677791595459,
+        "Direct Architect": -2.7683463096618652,
+        "Friendly Mentor": -2.942910671234131,
+        "Brutal Reviewer": -2.7952005863189697
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-002",
+      "trait_id": "formality",
+      "n_prompt_tokens": 19,
+      "scores": {
+        "baseline": -2.5743751525878906,
+        "Direct Architect": -2.312108039855957,
+        "Friendly Mentor": -2.787954807281494,
+        "Brutal Reviewer": -2.264932155609131
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-003",
+      "trait_id": "formality",
+      "n_prompt_tokens": 13,
+      "scores": {
+        "baseline": -1.3726983070373535,
+        "Direct Architect": -1.3732037544250488,
+        "Friendly Mentor": -1.4118340015411377,
+        "Brutal Reviewer": -1.4275330305099487
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-004",
+      "trait_id": "formality",
+      "n_prompt_tokens": 13,
+      "scores": {
+        "baseline": -2.3230347633361816,
+        "Direct Architect": -2.190295696258545,
+        "Friendly Mentor": -2.3649120330810547,
+        "Brutal Reviewer": -2.2085442543029785
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-005",
+      "trait_id": "formality",
+      "n_prompt_tokens": 14,
+      "scores": {
+        "baseline": -1.407378077507019,
+        "Direct Architect": -1.3438377380371094,
+        "Friendly Mentor": -1.4645878076553345,
+        "Brutal Reviewer": -1.3508999347686768
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-006",
+      "trait_id": "formality",
+      "n_prompt_tokens": 11,
+      "scores": {
+        "baseline": -0.9594836235046387,
+        "Direct Architect": -0.8392825722694397,
+        "Friendly Mentor": -0.9967181086540222,
+        "Brutal Reviewer": -0.8818135261535645
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-007",
+      "trait_id": "formality",
+      "n_prompt_tokens": 14,
+      "scores": {
+        "baseline": -3.170970916748047,
+        "Direct Architect": -3.2479004859924316,
+        "Friendly Mentor": -3.221851110458374,
+        "Brutal Reviewer": -3.379425048828125
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-008",
+      "trait_id": "formality",
+      "n_prompt_tokens": 19,
+      "scores": {
+        "baseline": -2.496062755584717,
+        "Direct Architect": -2.249629259109497,
+        "Friendly Mentor": -2.6759345531463623,
+        "Brutal Reviewer": -2.305410385131836
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-009",
+      "trait_id": "formality",
+      "n_prompt_tokens": 23,
+      "scores": {
+        "baseline": -1.7746236324310303,
+        "Direct Architect": -1.7013170719146729,
+        "Friendly Mentor": -1.8458142280578613,
+        "Brutal Reviewer": -1.6573363542556763
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-010",
+      "trait_id": "formality",
+      "n_prompt_tokens": 22,
+      "scores": {
+        "baseline": -2.189772367477417,
+        "Direct Architect": -2.0634899139404297,
+        "Friendly Mentor": -2.348771810531616,
+        "Brutal Reviewer": -2.0560922622680664
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-011",
+      "trait_id": "formality",
+      "n_prompt_tokens": 11,
+      "scores": {
+        "baseline": -2.8509292602539062,
+        "Direct Architect": -2.799149513244629,
+        "Friendly Mentor": -2.9087584018707275,
+        "Brutal Reviewer": -2.764552116394043
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-012",
+      "trait_id": "formality",
+      "n_prompt_tokens": 12,
+      "scores": {
+        "baseline": -2.047638416290283,
+        "Direct Architect": -1.944602131843567,
+        "Friendly Mentor": -2.1759796142578125,
+        "Brutal Reviewer": -1.9478623867034912
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-013",
+      "trait_id": "formality",
+      "n_prompt_tokens": 20,
+      "scores": {
+        "baseline": -2.1830637454986572,
+        "Direct Architect": -1.9635708332061768,
+        "Friendly Mentor": -2.343745470046997,
+        "Brutal Reviewer": -2.0013413429260254
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-014",
+      "trait_id": "formality",
+      "n_prompt_tokens": 15,
+      "scores": {
+        "baseline": -2.8042244911193848,
+        "Direct Architect": -2.7589197158813477,
+        "Friendly Mentor": -2.8378360271453857,
+        "Brutal Reviewer": -2.712395191192627
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-015",
+      "trait_id": "formality",
+      "n_prompt_tokens": 25,
+      "scores": {
+        "baseline": -2.293168306350708,
+        "Direct Architect": -2.0258641242980957,
+        "Friendly Mentor": -2.5199196338653564,
+        "Brutal Reviewer": -2.1909735202789307
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-096",
+      "trait_id": "directness",
+      "n_prompt_tokens": 23,
+      "scores": {
+        "baseline": -2.0178334712982178,
+        "Direct Architect": -1.9712928533554077,
+        "Friendly Mentor": -2.081997871398926,
+        "Brutal Reviewer": -1.902721881866455
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-097",
+      "trait_id": "directness",
+      "n_prompt_tokens": 24,
+      "scores": {
+        "baseline": -2.2463040351867676,
+        "Direct Architect": -2.17183256149292,
+        "Friendly Mentor": -2.320345163345337,
+        "Brutal Reviewer": -2.0303807258605957
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-098",
+      "trait_id": "directness",
+      "n_prompt_tokens": 23,
+      "scores": {
+        "baseline": -2.1701245307922363,
+        "Direct Architect": -2.1383161544799805,
+        "Friendly Mentor": -2.1552700996398926,
+        "Brutal Reviewer": -2.0336458683013916
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-099",
+      "trait_id": "directness",
+      "n_prompt_tokens": 21,
+      "scores": {
+        "baseline": -3.7484242916107178,
+        "Direct Architect": -3.438105583190918,
+        "Friendly Mentor": -4.039920330047607,
+        "Brutal Reviewer": -3.2256534099578857
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-directness-100",
+      "trait_id": "directness",
+      "n_prompt_tokens": 23,
+      "scores": {
+        "baseline": -1.6145644187927246,
+        "Direct Architect": -1.4273755550384521,
+        "Friendly Mentor": -1.705259084701538,
+        "Brutal Reviewer": -1.3227463960647583
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-016",
+      "trait_id": "formality",
+      "n_prompt_tokens": 17,
+      "scores": {
+        "baseline": -2.6773762702941895,
+        "Direct Architect": -2.8832390308380127,
+        "Friendly Mentor": -2.6077880859375,
+        "Brutal Reviewer": -2.8677167892456055
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-017",
+      "trait_id": "formality",
+      "n_prompt_tokens": 18,
+      "scores": {
+        "baseline": -2.967226266860962,
+        "Direct Architect": -2.985809803009033,
+        "Friendly Mentor": -3.017803430557251,
+        "Brutal Reviewer": -3.034097194671631
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-018",
+      "trait_id": "formality",
+      "n_prompt_tokens": 19,
+      "scores": {
+        "baseline": -1.9867361783981323,
+        "Direct Architect": -1.9260566234588623,
+        "Friendly Mentor": -2.0507142543792725,
+        "Brutal Reviewer": -1.984216570854187
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-019",
+      "trait_id": "formality",
+      "n_prompt_tokens": 26,
+      "scores": {
+        "baseline": -3.27164626121521,
+        "Direct Architect": -3.36490797996521,
+        "Friendly Mentor": -3.3380541801452637,
+        "Brutal Reviewer": -3.170117139816284
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-020",
+      "trait_id": "formality",
+      "n_prompt_tokens": 20,
+      "scores": {
+        "baseline": -2.8736116886138916,
+        "Direct Architect": -2.737008810043335,
+        "Friendly Mentor": -3.0835323333740234,
+        "Brutal Reviewer": -2.7105753421783447
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-021",
+      "trait_id": "formality",
+      "n_prompt_tokens": 18,
+      "scores": {
+        "baseline": -2.3190908432006836,
+        "Direct Architect": -2.2592153549194336,
+        "Friendly Mentor": -2.476516008377075,
+        "Brutal Reviewer": -2.2595925331115723
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-022",
+      "trait_id": "formality",
+      "n_prompt_tokens": 23,
+      "scores": {
+        "baseline": -2.795273542404175,
+        "Direct Architect": -2.7202868461608887,
+        "Friendly Mentor": -2.8901278972625732,
+        "Brutal Reviewer": -2.64308762550354
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-023",
+      "trait_id": "formality",
+      "n_prompt_tokens": 15,
+      "scores": {
+        "baseline": -1.804523229598999,
+        "Direct Architect": -1.584882140159607,
+        "Friendly Mentor": -1.9910856485366821,
+        "Brutal Reviewer": -1.560227870941162
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-024",
+      "trait_id": "formality",
+      "n_prompt_tokens": 18,
+      "scores": {
+        "baseline": -1.826845645904541,
+        "Direct Architect": -1.7809871435165405,
+        "Friendly Mentor": -1.9546422958374023,
+        "Brutal Reviewer": -1.840671420097351
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-025",
+      "trait_id": "formality",
+      "n_prompt_tokens": 22,
+      "scores": {
+        "baseline": -3.4318411350250244,
+        "Direct Architect": -3.2748255729675293,
+        "Friendly Mentor": -3.521613359451294,
+        "Brutal Reviewer": -3.175290822982788
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-026",
+      "trait_id": "formality",
+      "n_prompt_tokens": 17,
+      "scores": {
+        "baseline": -1.6887726783752441,
+        "Direct Architect": -1.7002487182617188,
+        "Friendly Mentor": -1.7152249813079834,
+        "Brutal Reviewer": -1.6196155548095703
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-027",
+      "trait_id": "formality",
+      "n_prompt_tokens": 19,
+      "scores": {
+        "baseline": -1.7082000970840454,
+        "Direct Architect": -1.5601894855499268,
+        "Friendly Mentor": -1.7529205083847046,
+        "Brutal Reviewer": -1.578734040260315
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-028",
+      "trait_id": "formality",
+      "n_prompt_tokens": 17,
+      "scores": {
+        "baseline": -2.4394283294677734,
+        "Direct Architect": -2.2652032375335693,
+        "Friendly Mentor": -2.601682662963867,
+        "Brutal Reviewer": -2.3535022735595703
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-029",
+      "trait_id": "formality",
+      "n_prompt_tokens": 19,
+      "scores": {
+        "baseline": -2.2924578189849854,
+        "Direct Architect": -2.05287504196167,
+        "Friendly Mentor": -2.43436861038208,
+        "Brutal Reviewer": -2.0982120037078857
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-030",
+      "trait_id": "formality",
+      "n_prompt_tokens": 18,
+      "scores": {
+        "baseline": -1.5769599676132202,
+        "Direct Architect": -1.600174903869629,
+        "Friendly Mentor": -1.6351232528686523,
+        "Brutal Reviewer": -1.7347080707550049
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-031",
+      "trait_id": "formality",
+      "n_prompt_tokens": 23,
+      "scores": {
+        "baseline": -2.8454513549804688,
+        "Direct Architect": -2.721726417541504,
+        "Friendly Mentor": -2.954801559448242,
+        "Brutal Reviewer": -2.698580265045166
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-032",
+      "trait_id": "formality",
+      "n_prompt_tokens": 22,
+      "scores": {
+        "baseline": -1.848642110824585,
+        "Direct Architect": -1.8612269163131714,
+        "Friendly Mentor": -1.8804614543914795,
+        "Brutal Reviewer": -1.86979079246521
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-033",
+      "trait_id": "formality",
+      "n_prompt_tokens": 21,
+      "scores": {
+        "baseline": -2.019538402557373,
+        "Direct Architect": -1.9550987482070923,
+        "Friendly Mentor": -2.0689330101013184,
+        "Brutal Reviewer": -1.9237868785858154
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-034",
+      "trait_id": "formality",
+      "n_prompt_tokens": 19,
+      "scores": {
+        "baseline": -1.909962773323059,
+        "Direct Architect": -1.8441081047058105,
+        "Friendly Mentor": -2.0293757915496826,
+        "Brutal Reviewer": -1.9126521348953247
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-035",
+      "trait_id": "formality",
+      "n_prompt_tokens": 21,
+      "scores": {
+        "baseline": -3.275097608566284,
+        "Direct Architect": -3.0168604850769043,
+        "Friendly Mentor": -3.449671506881714,
+        "Brutal Reviewer": -3.035386800765991
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-036",
+      "trait_id": "formality",
+      "n_prompt_tokens": 20,
+      "scores": {
+        "baseline": -2.426250457763672,
+        "Direct Architect": -2.369579315185547,
+        "Friendly Mentor": -2.4730803966522217,
+        "Brutal Reviewer": -2.2762584686279297
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-037",
+      "trait_id": "formality",
+      "n_prompt_tokens": 20,
+      "scores": {
+        "baseline": -1.7302865982055664,
+        "Direct Architect": -1.7679516077041626,
+        "Friendly Mentor": -1.76667058467865,
+        "Brutal Reviewer": -1.7195485830307007
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-038",
+      "trait_id": "formality",
+      "n_prompt_tokens": 21,
+      "scores": {
+        "baseline": -2.019426107406616,
+        "Direct Architect": -1.898646593093872,
+        "Friendly Mentor": -2.1266486644744873,
+        "Brutal Reviewer": -1.988750696182251
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-039",
+      "trait_id": "formality",
+      "n_prompt_tokens": 21,
+      "scores": {
+        "baseline": -1.6771655082702637,
+        "Direct Architect": -1.6699388027191162,
+        "Friendly Mentor": -1.7617533206939697,
+        "Brutal Reviewer": -1.7416987419128418
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-040",
+      "trait_id": "formality",
+      "n_prompt_tokens": 19,
+      "scores": {
+        "baseline": -0.9339594841003418,
+        "Direct Architect": -0.8618922233581543,
+        "Friendly Mentor": -0.9976069927215576,
+        "Brutal Reviewer": -0.8961361646652222
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-041",
+      "trait_id": "formality",
+      "n_prompt_tokens": 19,
+      "scores": {
+        "baseline": -1.647221326828003,
+        "Direct Architect": -1.5979573726654053,
+        "Friendly Mentor": -1.6983031034469604,
+        "Brutal Reviewer": -1.7117500305175781
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-042",
+      "trait_id": "formality",
+      "n_prompt_tokens": 20,
+      "scores": {
+        "baseline": -4.267155647277832,
+        "Direct Architect": -4.298421859741211,
+        "Friendly Mentor": -4.270525932312012,
+        "Brutal Reviewer": -4.298347473144531
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-043",
+      "trait_id": "formality",
+      "n_prompt_tokens": 20,
+      "scores": {
+        "baseline": -3.073249340057373,
+        "Direct Architect": -3.0279722213745117,
+        "Friendly Mentor": -3.1618337631225586,
+        "Brutal Reviewer": -3.0212671756744385
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-044",
+      "trait_id": "formality",
+      "n_prompt_tokens": 25,
+      "scores": {
+        "baseline": -2.1459314823150635,
+        "Direct Architect": -2.022918462753296,
+        "Friendly Mentor": -2.2176573276519775,
+        "Brutal Reviewer": -1.8558332920074463
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-045",
+      "trait_id": "formality",
+      "n_prompt_tokens": 15,
+      "scores": {
+        "baseline": -2.1859748363494873,
+        "Direct Architect": -2.275109052658081,
+        "Friendly Mentor": -2.2435436248779297,
+        "Brutal Reviewer": -2.2315258979797363
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-046",
+      "trait_id": "formality",
+      "n_prompt_tokens": 16,
+      "scores": {
+        "baseline": -2.3149514198303223,
+        "Direct Architect": -2.16021990776062,
+        "Friendly Mentor": -2.4276111125946045,
+        "Brutal Reviewer": -2.0640697479248047
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-047",
+      "trait_id": "formality",
+      "n_prompt_tokens": 11,
+      "scores": {
+        "baseline": -2.624443292617798,
+        "Direct Architect": -2.4549756050109863,
+        "Friendly Mentor": -2.6745166778564453,
+        "Brutal Reviewer": -2.481536388397217
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-048",
+      "trait_id": "formality",
+      "n_prompt_tokens": 11,
+      "scores": {
+        "baseline": -2.4747958183288574,
+        "Direct Architect": -2.377685785293579,
+        "Friendly Mentor": -2.480928421020508,
+        "Brutal Reviewer": -2.3041181564331055
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-049",
+      "trait_id": "formality",
+      "n_prompt_tokens": 20,
+      "scores": {
+        "baseline": -2.5610291957855225,
+        "Direct Architect": -2.572575569152832,
+        "Friendly Mentor": -2.6553337574005127,
+        "Brutal Reviewer": -2.566493272781372
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-050",
+      "trait_id": "formality",
+      "n_prompt_tokens": 15,
+      "scores": {
+        "baseline": -1.6740920543670654,
+        "Direct Architect": -1.6439272165298462,
+        "Friendly Mentor": -1.6742419004440308,
+        "Brutal Reviewer": -1.694995403289795
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-051",
+      "trait_id": "formality",
+      "n_prompt_tokens": 17,
+      "scores": {
+        "baseline": -1.8819561004638672,
+        "Direct Architect": -1.7649543285369873,
+        "Friendly Mentor": -1.9368977546691895,
+        "Brutal Reviewer": -1.7426509857177734
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-052",
+      "trait_id": "formality",
+      "n_prompt_tokens": 13,
+      "scores": {
+        "baseline": -2.0614309310913086,
+        "Direct Architect": -2.006495952606201,
+        "Friendly Mentor": -2.1947579383850098,
+        "Brutal Reviewer": -1.938439130783081
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-053",
+      "trait_id": "formality",
+      "n_prompt_tokens": 15,
+      "scores": {
+        "baseline": -2.047625780105591,
+        "Direct Architect": -1.945235013961792,
+        "Friendly Mentor": -2.0456154346466064,
+        "Brutal Reviewer": -1.8102457523345947
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-054",
+      "trait_id": "formality",
+      "n_prompt_tokens": 17,
+      "scores": {
+        "baseline": -3.038536548614502,
+        "Direct Architect": -2.9828271865844727,
+        "Friendly Mentor": -2.987949848175049,
+        "Brutal Reviewer": -2.985306978225708
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-055",
+      "trait_id": "formality",
+      "n_prompt_tokens": 13,
+      "scores": {
+        "baseline": -1.909599781036377,
+        "Direct Architect": -1.7874451875686646,
+        "Friendly Mentor": -1.9870511293411255,
+        "Brutal Reviewer": -1.745773434638977
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-056",
+      "trait_id": "formality",
+      "n_prompt_tokens": 13,
+      "scores": {
+        "baseline": -4.9159770011901855,
+        "Direct Architect": -4.975383281707764,
+        "Friendly Mentor": -4.841348648071289,
+        "Brutal Reviewer": -4.907161712646484
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-057",
+      "trait_id": "formality",
+      "n_prompt_tokens": 15,
+      "scores": {
+        "baseline": -1.4095757007598877,
+        "Direct Architect": -1.2701441049575806,
+        "Friendly Mentor": -1.4869544506072998,
+        "Brutal Reviewer": -1.3028079271316528
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-058",
+      "trait_id": "formality",
+      "n_prompt_tokens": 15,
+      "scores": {
+        "baseline": -2.362490653991699,
+        "Direct Architect": -2.348658800125122,
+        "Friendly Mentor": -2.431814432144165,
+        "Brutal Reviewer": -2.2954752445220947
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-059",
+      "trait_id": "formality",
+      "n_prompt_tokens": 15,
+      "scores": {
+        "baseline": -2.8246123790740967,
+        "Direct Architect": -2.784921884536743,
+        "Friendly Mentor": -2.899953842163086,
+        "Brutal Reviewer": -2.8099851608276367
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-060",
+      "trait_id": "formality",
+      "n_prompt_tokens": 17,
+      "scores": {
+        "baseline": -1.5041115283966064,
+        "Direct Architect": -1.4393762350082397,
+        "Friendly Mentor": -1.5621281862258911,
+        "Brutal Reviewer": -1.4229812622070312
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-061",
+      "trait_id": "formality",
+      "n_prompt_tokens": 16,
+      "scores": {
+        "baseline": -2.059384346008301,
+        "Direct Architect": -2.0861525535583496,
+        "Friendly Mentor": -2.0978033542633057,
+        "Brutal Reviewer": -2.0407521724700928
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-062",
+      "trait_id": "formality",
+      "n_prompt_tokens": 11,
+      "scores": {
+        "baseline": -2.5102853775024414,
+        "Direct Architect": -2.4100341796875,
+        "Friendly Mentor": -2.4816322326660156,
+        "Brutal Reviewer": -2.363490343093872
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-063",
+      "trait_id": "formality",
+      "n_prompt_tokens": 10,
+      "scores": {
+        "baseline": -3.187774181365967,
+        "Direct Architect": -3.0133965015411377,
+        "Friendly Mentor": -3.3698856830596924,
+        "Brutal Reviewer": -2.947080135345459
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-064",
+      "trait_id": "formality",
+      "n_prompt_tokens": 16,
+      "scores": {
+        "baseline": -2.849259853363037,
+        "Direct Architect": -2.7206645011901855,
+        "Friendly Mentor": -2.9556169509887695,
+        "Brutal Reviewer": -2.633474349975586
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-065",
+      "trait_id": "formality",
+      "n_prompt_tokens": 16,
+      "scores": {
+        "baseline": -1.7173197269439697,
+        "Direct Architect": -1.7268939018249512,
+        "Friendly Mentor": -1.8062007427215576,
+        "Brutal Reviewer": -1.639232873916626
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-066",
+      "trait_id": "formality",
+      "n_prompt_tokens": 16,
+      "scores": {
+        "baseline": -2.991580009460449,
+        "Direct Architect": -3.0315515995025635,
+        "Friendly Mentor": -3.063971519470215,
+        "Brutal Reviewer": -2.9655508995056152
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-067",
+      "trait_id": "formality",
+      "n_prompt_tokens": 18,
+      "scores": {
+        "baseline": -2.428020715713501,
+        "Direct Architect": -2.3332462310791016,
+        "Friendly Mentor": -2.507844924926758,
+        "Brutal Reviewer": -2.3449926376342773
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-068",
+      "trait_id": "formality",
+      "n_prompt_tokens": 15,
+      "scores": {
+        "baseline": -3.7699174880981445,
+        "Direct Architect": -3.721914768218994,
+        "Friendly Mentor": -3.865938425064087,
+        "Brutal Reviewer": -3.632826328277588
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-069",
+      "trait_id": "formality",
+      "n_prompt_tokens": 18,
+      "scores": {
+        "baseline": -1.4811726808547974,
+        "Direct Architect": -1.480031967163086,
+        "Friendly Mentor": -1.452237606048584,
+        "Brutal Reviewer": -1.450659990310669
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-070",
+      "trait_id": "formality",
+      "n_prompt_tokens": 18,
+      "scores": {
+        "baseline": -2.414205551147461,
+        "Direct Architect": -2.419982671737671,
+        "Friendly Mentor": -2.4652812480926514,
+        "Brutal Reviewer": -2.3742623329162598
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-071",
+      "trait_id": "formality",
+      "n_prompt_tokens": 10,
+      "scores": {
+        "baseline": -2.5684828758239746,
+        "Direct Architect": -2.3729918003082275,
+        "Friendly Mentor": -2.812926769256592,
+        "Brutal Reviewer": -2.3613600730895996
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-072",
+      "trait_id": "formality",
+      "n_prompt_tokens": 15,
+      "scores": {
+        "baseline": -2.618987560272217,
+        "Direct Architect": -2.4938201904296875,
+        "Friendly Mentor": -2.6962552070617676,
+        "Brutal Reviewer": -2.4845919609069824
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-073",
+      "trait_id": "formality",
+      "n_prompt_tokens": 17,
+      "scores": {
+        "baseline": -2.7917532920837402,
+        "Direct Architect": -2.6758809089660645,
+        "Friendly Mentor": -2.8773374557495117,
+        "Brutal Reviewer": -2.6757020950317383
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-074",
+      "trait_id": "formality",
+      "n_prompt_tokens": 17,
+      "scores": {
+        "baseline": -2.5406482219696045,
+        "Direct Architect": -2.5294666290283203,
+        "Friendly Mentor": -2.5141665935516357,
+        "Brutal Reviewer": -2.4022185802459717
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-075",
+      "trait_id": "formality",
+      "n_prompt_tokens": 19,
+      "scores": {
+        "baseline": -1.3695045709609985,
+        "Direct Architect": -1.2933056354522705,
+        "Friendly Mentor": -1.4275001287460327,
+        "Brutal Reviewer": -1.353370189666748
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-076",
+      "trait_id": "formality",
+      "n_prompt_tokens": 21,
+      "scores": {
+        "baseline": -2.4614171981811523,
+        "Direct Architect": -2.42010235786438,
+        "Friendly Mentor": -2.457365036010742,
+        "Brutal Reviewer": -2.30812668800354
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-077",
+      "trait_id": "formality",
+      "n_prompt_tokens": 18,
+      "scores": {
+        "baseline": -2.196706771850586,
+        "Direct Architect": -2.2086615562438965,
+        "Friendly Mentor": -2.2043073177337646,
+        "Brutal Reviewer": -2.2651031017303467
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-078",
+      "trait_id": "formality",
+      "n_prompt_tokens": 20,
+      "scores": {
+        "baseline": -1.2532356977462769,
+        "Direct Architect": -1.2472624778747559,
+        "Friendly Mentor": -1.26314377784729,
+        "Brutal Reviewer": -1.2496826648712158
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-079",
+      "trait_id": "formality",
+      "n_prompt_tokens": 17,
+      "scores": {
+        "baseline": -3.070237874984741,
+        "Direct Architect": -3.10507869720459,
+        "Friendly Mentor": -3.0421876907348633,
+        "Brutal Reviewer": -2.9827468395233154
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-080",
+      "trait_id": "formality",
+      "n_prompt_tokens": 22,
+      "scores": {
+        "baseline": -3.361785411834717,
+        "Direct Architect": -3.319079637527466,
+        "Friendly Mentor": -3.384382724761963,
+        "Brutal Reviewer": -3.3787431716918945
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-081",
+      "trait_id": "formality",
+      "n_prompt_tokens": 16,
+      "scores": {
+        "baseline": -4.132184982299805,
+        "Direct Architect": -3.928600549697876,
+        "Friendly Mentor": -4.253775119781494,
+        "Brutal Reviewer": -3.798433303833008
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-082",
+      "trait_id": "formality",
+      "n_prompt_tokens": 15,
+      "scores": {
+        "baseline": -1.8116261959075928,
+        "Direct Architect": -1.9316914081573486,
+        "Friendly Mentor": -1.7595114707946777,
+        "Brutal Reviewer": -1.7919762134552002
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-083",
+      "trait_id": "formality",
+      "n_prompt_tokens": 20,
+      "scores": {
+        "baseline": -3.299757242202759,
+        "Direct Architect": -3.3550686836242676,
+        "Friendly Mentor": -3.2978312969207764,
+        "Brutal Reviewer": -3.225604295730591
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-084",
+      "trait_id": "formality",
+      "n_prompt_tokens": 18,
+      "scores": {
+        "baseline": -3.2099788188934326,
+        "Direct Architect": -3.029895067214966,
+        "Friendly Mentor": -3.3506345748901367,
+        "Brutal Reviewer": -2.9885094165802
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-085",
+      "trait_id": "formality",
+      "n_prompt_tokens": 16,
+      "scores": {
+        "baseline": -2.35619854927063,
+        "Direct Architect": -2.3164944648742676,
+        "Friendly Mentor": -2.438382387161255,
+        "Brutal Reviewer": -2.3129799365997314
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-086",
+      "trait_id": "formality",
+      "n_prompt_tokens": 29,
+      "scores": {
+        "baseline": -2.217573404312134,
+        "Direct Architect": -2.1906843185424805,
+        "Friendly Mentor": -2.1947109699249268,
+        "Brutal Reviewer": -2.1049911975860596
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-087",
+      "trait_id": "formality",
+      "n_prompt_tokens": 13,
+      "scores": {
+        "baseline": -1.4343658685684204,
+        "Direct Architect": -1.374551773071289,
+        "Friendly Mentor": -1.4244906902313232,
+        "Brutal Reviewer": -1.4309970140457153
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-088",
+      "trait_id": "formality",
+      "n_prompt_tokens": 17,
+      "scores": {
+        "baseline": -1.1643545627593994,
+        "Direct Architect": -1.076992154121399,
+        "Friendly Mentor": -1.2146992683410645,
+        "Brutal Reviewer": -1.1315776109695435
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-089",
+      "trait_id": "formality",
+      "n_prompt_tokens": 16,
+      "scores": {
+        "baseline": -2.8187129497528076,
+        "Direct Architect": -2.751054286956787,
+        "Friendly Mentor": -2.806164264678955,
+        "Brutal Reviewer": -2.6542670726776123
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-090",
+      "trait_id": "formality",
+      "n_prompt_tokens": 19,
+      "scores": {
+        "baseline": -2.443392276763916,
+        "Direct Architect": -2.2193849086761475,
+        "Friendly Mentor": -2.6527795791625977,
+        "Brutal Reviewer": -2.253816604614258
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-091",
+      "trait_id": "formality",
+      "n_prompt_tokens": 20,
+      "scores": {
+        "baseline": -1.1211766004562378,
+        "Direct Architect": -1.0995042324066162,
+        "Friendly Mentor": -1.0545117855072021,
+        "Brutal Reviewer": -1.1494463682174683
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-001",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 10,
+      "scores": {
+        "baseline": -2.0568466186523438,
+        "Direct Architect": -1.9350764751434326,
+        "Friendly Mentor": -2.0885109901428223,
+        "Brutal Reviewer": -1.8050540685653687
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-002",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 11,
+      "scores": {
+        "baseline": -1.2992579936981201,
+        "Direct Architect": -1.1863542795181274,
+        "Friendly Mentor": -1.3657751083374023,
+        "Brutal Reviewer": -1.1652412414550781
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-003",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 12,
+      "scores": {
+        "baseline": -0.8139051795005798,
+        "Direct Architect": -0.9149130582809448,
+        "Friendly Mentor": -0.720447838306427,
+        "Brutal Reviewer": -0.8717014789581299
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-004",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 19,
+      "scores": {
+        "baseline": -0.09175524115562439,
+        "Direct Architect": -0.08205172419548035,
+        "Friendly Mentor": -0.11447600275278091,
+        "Brutal Reviewer": -0.08354537189006805
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-005",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 17,
+      "scores": {
+        "baseline": -0.37069132924079895,
+        "Direct Architect": -0.30583932995796204,
+        "Friendly Mentor": -0.3977803587913513,
+        "Brutal Reviewer": -0.32549354434013367
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-006",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 11,
+      "scores": {
+        "baseline": -0.6387873888015747,
+        "Direct Architect": -0.5762877464294434,
+        "Friendly Mentor": -0.6710972189903259,
+        "Brutal Reviewer": -0.5851178765296936
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-007",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 12,
+      "scores": {
+        "baseline": -3.088041305541992,
+        "Direct Architect": -3.002835512161255,
+        "Friendly Mentor": -3.116060972213745,
+        "Brutal Reviewer": -2.8600869178771973
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-008",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 11,
+      "scores": {
+        "baseline": -0.9447563886642456,
+        "Direct Architect": -1.0462229251861572,
+        "Friendly Mentor": -0.889413595199585,
+        "Brutal Reviewer": -1.0097970962524414
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-009",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 19,
+      "scores": {
+        "baseline": -0.016909651458263397,
+        "Direct Architect": -0.008899454958736897,
+        "Friendly Mentor": -0.02944946475327015,
+        "Brutal Reviewer": -0.011401698924601078
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-010",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 14,
+      "scores": {
+        "baseline": -0.3004063069820404,
+        "Direct Architect": -0.4123779535293579,
+        "Friendly Mentor": -0.25857123732566833,
+        "Brutal Reviewer": -0.41184747219085693
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-011",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 11,
+      "scores": {
+        "baseline": -1.3987799882888794,
+        "Direct Architect": -1.3381378650665283,
+        "Friendly Mentor": -1.4562890529632568,
+        "Brutal Reviewer": -1.3524808883666992
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-012",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 13,
+      "scores": {
+        "baseline": -1.8579375743865967,
+        "Direct Architect": -1.7998303174972534,
+        "Friendly Mentor": -1.9287841320037842,
+        "Brutal Reviewer": -1.7772184610366821
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-013",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 12,
+      "scores": {
+        "baseline": -0.7639009952545166,
+        "Direct Architect": -0.8141356706619263,
+        "Friendly Mentor": -0.7278506755828857,
+        "Brutal Reviewer": -0.7762166857719421
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-014",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 15,
+      "scores": {
+        "baseline": -0.8530769348144531,
+        "Direct Architect": -0.7859926223754883,
+        "Friendly Mentor": -0.8958581686019897,
+        "Brutal Reviewer": -0.7714471817016602
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-015",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 11,
+      "scores": {
+        "baseline": -1.2506234645843506,
+        "Direct Architect": -1.1371722221374512,
+        "Friendly Mentor": -1.3415287733078003,
+        "Brutal Reviewer": -1.0624220371246338
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-016",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 17,
+      "scores": {
+        "baseline": -0.9932330846786499,
+        "Direct Architect": -0.9340403079986572,
+        "Friendly Mentor": -1.0404181480407715,
+        "Brutal Reviewer": -0.9368972778320312
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-017",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 15,
+      "scores": {
+        "baseline": -1.3075389862060547,
+        "Direct Architect": -1.3545693159103394,
+        "Friendly Mentor": -1.2414112091064453,
+        "Brutal Reviewer": -1.3309392929077148
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-018",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 21,
+      "scores": {
+        "baseline": -1.4474928379058838,
+        "Direct Architect": -1.371639609336853,
+        "Friendly Mentor": -1.487910509109497,
+        "Brutal Reviewer": -1.322052001953125
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-019",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 10,
+      "scores": {
+        "baseline": -0.7774403691291809,
+        "Direct Architect": -0.7996406555175781,
+        "Friendly Mentor": -0.8138131499290466,
+        "Brutal Reviewer": -0.7360538244247437
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-020",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 12,
+      "scores": {
+        "baseline": -0.05170522257685661,
+        "Direct Architect": -0.06249386444687843,
+        "Friendly Mentor": -0.05413429066538811,
+        "Brutal Reviewer": -0.05508365482091904
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-021",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 16,
+      "scores": {
+        "baseline": -0.8483511209487915,
+        "Direct Architect": -1.043228268623352,
+        "Friendly Mentor": -0.7117793560028076,
+        "Brutal Reviewer": -0.9787910580635071
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-022",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 14,
+      "scores": {
+        "baseline": -0.16917967796325684,
+        "Direct Architect": -0.13655485212802887,
+        "Friendly Mentor": -0.18505306541919708,
+        "Brutal Reviewer": -0.12857049703598022
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-023",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 16,
+      "scores": {
+        "baseline": -0.8030797243118286,
+        "Direct Architect": -0.8072866201400757,
+        "Friendly Mentor": -0.8270300030708313,
+        "Brutal Reviewer": -0.8144114017486572
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-024",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 16,
+      "scores": {
+        "baseline": -1.1387256383895874,
+        "Direct Architect": -1.1913079023361206,
+        "Friendly Mentor": -1.1174901723861694,
+        "Brutal Reviewer": -1.2205519676208496
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-025",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 15,
+      "scores": {
+        "baseline": -1.7912238836288452,
+        "Direct Architect": -1.8543838262557983,
+        "Friendly Mentor": -1.847779631614685,
+        "Brutal Reviewer": -1.7951200008392334
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-026",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 12,
+      "scores": {
+        "baseline": -2.332390308380127,
+        "Direct Architect": -2.3281497955322266,
+        "Friendly Mentor": -2.403423547744751,
+        "Brutal Reviewer": -2.2589306831359863
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-027",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 10,
+      "scores": {
+        "baseline": -0.35824504494667053,
+        "Direct Architect": -0.3280091881752014,
+        "Friendly Mentor": -0.36075982451438904,
+        "Brutal Reviewer": -0.3464524745941162
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-028",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 14,
+      "scores": {
+        "baseline": -0.9354784488677979,
+        "Direct Architect": -0.9231311678886414,
+        "Friendly Mentor": -0.9662535190582275,
+        "Brutal Reviewer": -0.9370158910751343
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-029",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 15,
+      "scores": {
+        "baseline": -0.29974594712257385,
+        "Direct Architect": -0.2053358107805252,
+        "Friendly Mentor": -0.38500767946243286,
+        "Brutal Reviewer": -0.2543104588985443
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-030",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 10,
+      "scores": {
+        "baseline": -0.9842842817306519,
+        "Direct Architect": -0.9800106287002563,
+        "Friendly Mentor": -0.9895637631416321,
+        "Brutal Reviewer": -0.9231398105621338
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-031",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 18,
+      "scores": {
+        "baseline": -0.02176694944500923,
+        "Direct Architect": -0.02007855474948883,
+        "Friendly Mentor": -0.025763731449842453,
+        "Brutal Reviewer": -0.021913234144449234
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-032",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 13,
+      "scores": {
+        "baseline": -0.5756062865257263,
+        "Direct Architect": -0.48181724548339844,
+        "Friendly Mentor": -0.6222550868988037,
+        "Brutal Reviewer": -0.4964820146560669
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-033",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 11,
+      "scores": {
+        "baseline": -1.2064292430877686,
+        "Direct Architect": -1.1685025691986084,
+        "Friendly Mentor": -1.1527142524719238,
+        "Brutal Reviewer": -1.1026818752288818
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-034",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 10,
+      "scores": {
+        "baseline": -1.5738557577133179,
+        "Direct Architect": -1.7051259279251099,
+        "Friendly Mentor": -1.5949652194976807,
+        "Brutal Reviewer": -1.6426925659179688
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-035",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 20,
+      "scores": {
+        "baseline": -0.08034562319517136,
+        "Direct Architect": -0.07109224796295166,
+        "Friendly Mentor": -0.08721838891506195,
+        "Brutal Reviewer": -0.06940217316150665
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-036",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 13,
+      "scores": {
+        "baseline": -1.32682204246521,
+        "Direct Architect": -1.2758055925369263,
+        "Friendly Mentor": -1.3684238195419312,
+        "Brutal Reviewer": -1.3414310216903687
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-037",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 15,
+      "scores": {
+        "baseline": -0.6369933485984802,
+        "Direct Architect": -0.5898311734199524,
+        "Friendly Mentor": -0.6349484324455261,
+        "Brutal Reviewer": -0.5871441960334778
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-038",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 13,
+      "scores": {
+        "baseline": -1.0794841051101685,
+        "Direct Architect": -1.0417277812957764,
+        "Friendly Mentor": -1.0942254066467285,
+        "Brutal Reviewer": -1.0886753797531128
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-039",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 12,
+      "scores": {
+        "baseline": -0.23847776651382446,
+        "Direct Architect": -0.29968908429145813,
+        "Friendly Mentor": -0.2159726917743683,
+        "Brutal Reviewer": -0.2858540415763855
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-040",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 16,
+      "scores": {
+        "baseline": -1.8283004760742188,
+        "Direct Architect": -1.8667348623275757,
+        "Friendly Mentor": -1.8522164821624756,
+        "Brutal Reviewer": -1.7897825241088867
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-041",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 11,
+      "scores": {
+        "baseline": -0.13678322732448578,
+        "Direct Architect": -0.11267147213220596,
+        "Friendly Mentor": -0.14532780647277832,
+        "Brutal Reviewer": -0.11047866940498352
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-042",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 20,
+      "scores": {
+        "baseline": -1.1634299755096436,
+        "Direct Architect": -1.1259739398956299,
+        "Friendly Mentor": -1.2127279043197632,
+        "Brutal Reviewer": -1.1463731527328491
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-043",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 22,
+      "scores": {
+        "baseline": -0.9024683833122253,
+        "Direct Architect": -0.8621945381164551,
+        "Friendly Mentor": -0.9250879883766174,
+        "Brutal Reviewer": -0.8443938493728638
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-044",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 12,
+      "scores": {
+        "baseline": -1.7811585664749146,
+        "Direct Architect": -1.6902838945388794,
+        "Friendly Mentor": -1.8307372331619263,
+        "Brutal Reviewer": -1.6856554746627808
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-045",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 17,
+      "scores": {
+        "baseline": -0.4376278221607208,
+        "Direct Architect": -0.41649892926216125,
+        "Friendly Mentor": -0.4493477940559387,
+        "Brutal Reviewer": -0.4175150394439697
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-046",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 15,
+      "scores": {
+        "baseline": -0.25363847613334656,
+        "Direct Architect": -0.20845751464366913,
+        "Friendly Mentor": -0.31127986311912537,
+        "Brutal Reviewer": -0.17805030941963196
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-047",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 17,
+      "scores": {
+        "baseline": -1.3446269035339355,
+        "Direct Architect": -1.1656171083450317,
+        "Friendly Mentor": -1.351021409034729,
+        "Brutal Reviewer": -1.1710960865020752
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-048",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 13,
+      "scores": {
+        "baseline": -0.6065621972084045,
+        "Direct Architect": -0.6619117259979248,
+        "Friendly Mentor": -0.5489106774330139,
+        "Brutal Reviewer": -0.6552347540855408
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-049",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 12,
+      "scores": {
+        "baseline": -0.6626423597335815,
+        "Direct Architect": -0.7063826322555542,
+        "Friendly Mentor": -0.6901689767837524,
+        "Brutal Reviewer": -0.671375572681427
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-050",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 29,
+      "scores": {
+        "baseline": -0.6060532927513123,
+        "Direct Architect": -0.7574784755706787,
+        "Friendly Mentor": -0.5368146896362305,
+        "Brutal Reviewer": -0.7132678031921387
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-051",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 20,
+      "scores": {
+        "baseline": -1.4215202331542969,
+        "Direct Architect": -1.4003492593765259,
+        "Friendly Mentor": -1.4284420013427734,
+        "Brutal Reviewer": -1.3964980840682983
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-052",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 18,
+      "scores": {
+        "baseline": -2.602818489074707,
+        "Direct Architect": -2.611652135848999,
+        "Friendly Mentor": -2.594264268875122,
+        "Brutal Reviewer": -2.5416805744171143
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-053",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 16,
+      "scores": {
+        "baseline": -1.6607022285461426,
+        "Direct Architect": -1.462365746498108,
+        "Friendly Mentor": -1.8472912311553955,
+        "Brutal Reviewer": -1.45646333694458
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-054",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 18,
+      "scores": {
+        "baseline": -1.934178352355957,
+        "Direct Architect": -1.8059874773025513,
+        "Friendly Mentor": -2.012171745300293,
+        "Brutal Reviewer": -1.6513895988464355
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-055",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 19,
+      "scores": {
+        "baseline": -1.1668576002120972,
+        "Direct Architect": -1.1014264822006226,
+        "Friendly Mentor": -1.2548458576202393,
+        "Brutal Reviewer": -1.0270564556121826
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-056",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 19,
+      "scores": {
+        "baseline": -1.9521360397338867,
+        "Direct Architect": -1.8116201162338257,
+        "Friendly Mentor": -2.0706162452697754,
+        "Brutal Reviewer": -1.7017625570297241
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-057",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 16,
+      "scores": {
+        "baseline": -1.5571571588516235,
+        "Direct Architect": -1.5143605470657349,
+        "Friendly Mentor": -1.5627654790878296,
+        "Brutal Reviewer": -1.4619989395141602
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-058",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 15,
+      "scores": {
+        "baseline": -1.2574514150619507,
+        "Direct Architect": -1.432397723197937,
+        "Friendly Mentor": -1.162505865097046,
+        "Brutal Reviewer": -1.3740911483764648
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-059",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 19,
+      "scores": {
+        "baseline": -0.5884670615196228,
+        "Direct Architect": -0.5735936760902405,
+        "Friendly Mentor": -0.6223301887512207,
+        "Brutal Reviewer": -0.5625934600830078
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-060",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 18,
+      "scores": {
+        "baseline": -1.5723886489868164,
+        "Direct Architect": -1.5434499979019165,
+        "Friendly Mentor": -1.6187496185302734,
+        "Brutal Reviewer": -1.4447875022888184
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-061",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 18,
+      "scores": {
+        "baseline": -1.7859591245651245,
+        "Direct Architect": -1.9218767881393433,
+        "Friendly Mentor": -1.7434266805648804,
+        "Brutal Reviewer": -1.8855093717575073
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-062",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 18,
+      "scores": {
+        "baseline": -2.2710113525390625,
+        "Direct Architect": -2.223094940185547,
+        "Friendly Mentor": -2.331688642501831,
+        "Brutal Reviewer": -2.1168503761291504
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-063",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 20,
+      "scores": {
+        "baseline": -1.274674892425537,
+        "Direct Architect": -1.1523281335830688,
+        "Friendly Mentor": -1.3773820400238037,
+        "Brutal Reviewer": -1.0876522064208984
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-064",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 21,
+      "scores": {
+        "baseline": -2.057708263397217,
+        "Direct Architect": -1.903024435043335,
+        "Friendly Mentor": -2.1575934886932373,
+        "Brutal Reviewer": -1.8627023696899414
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-065",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 14,
+      "scores": {
+        "baseline": -1.996814250946045,
+        "Direct Architect": -2.07009220123291,
+        "Friendly Mentor": -2.024505138397217,
+        "Brutal Reviewer": -1.9131371974945068
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-066",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 17,
+      "scores": {
+        "baseline": -1.0855125188827515,
+        "Direct Architect": -1.025077223777771,
+        "Friendly Mentor": -1.1338353157043457,
+        "Brutal Reviewer": -0.8786377906799316
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-067",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 15,
+      "scores": {
+        "baseline": -1.5785983800888062,
+        "Direct Architect": -1.4390649795532227,
+        "Friendly Mentor": -1.6637588739395142,
+        "Brutal Reviewer": -1.3961061239242554
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-068",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 20,
+      "scores": {
+        "baseline": -1.6038581132888794,
+        "Direct Architect": -1.379428505897522,
+        "Friendly Mentor": -1.7347897291183472,
+        "Brutal Reviewer": -1.3479396104812622
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-069",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 16,
+      "scores": {
+        "baseline": -1.6796095371246338,
+        "Direct Architect": -1.5251262187957764,
+        "Friendly Mentor": -1.7927136421203613,
+        "Brutal Reviewer": -1.4969985485076904
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-070",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 22,
+      "scores": {
+        "baseline": -2.6015706062316895,
+        "Direct Architect": -2.537074089050293,
+        "Friendly Mentor": -2.601524829864502,
+        "Brutal Reviewer": -2.45170259475708
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-071",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 22,
+      "scores": {
+        "baseline": -3.745969772338867,
+        "Direct Architect": -4.1182637214660645,
+        "Friendly Mentor": -3.6422343254089355,
+        "Brutal Reviewer": -4.078604221343994
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-072",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 15,
+      "scores": {
+        "baseline": -0.9745317101478577,
+        "Direct Architect": -0.8906291127204895,
+        "Friendly Mentor": -0.9887847304344177,
+        "Brutal Reviewer": -0.8884016871452332
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-073",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 16,
+      "scores": {
+        "baseline": -2.3456501960754395,
+        "Direct Architect": -2.2499663829803467,
+        "Friendly Mentor": -2.4332454204559326,
+        "Brutal Reviewer": -2.113621473312378
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-074",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 16,
+      "scores": {
+        "baseline": -1.6021275520324707,
+        "Direct Architect": -1.642361044883728,
+        "Friendly Mentor": -1.5638526678085327,
+        "Brutal Reviewer": -1.6524640321731567
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-075",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 21,
+      "scores": {
+        "baseline": -1.8077890872955322,
+        "Direct Architect": -2.3639214038848877,
+        "Friendly Mentor": -1.7726060152053833,
+        "Brutal Reviewer": -2.3784241676330566
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-076",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 12,
+      "scores": {
+        "baseline": -2.0690255165100098,
+        "Direct Architect": -2.1838762760162354,
+        "Friendly Mentor": -1.9923956394195557,
+        "Brutal Reviewer": -2.0892138481140137
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-077",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 21,
+      "scores": {
+        "baseline": -2.516831636428833,
+        "Direct Architect": -2.542839527130127,
+        "Friendly Mentor": -2.5070254802703857,
+        "Brutal Reviewer": -2.506078004837036
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-078",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 19,
+      "scores": {
+        "baseline": -1.320312261581421,
+        "Direct Architect": -1.2342172861099243,
+        "Friendly Mentor": -1.3696781396865845,
+        "Brutal Reviewer": -1.1688448190689087
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-079",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 14,
+      "scores": {
+        "baseline": -2.312199592590332,
+        "Direct Architect": -2.5469954013824463,
+        "Friendly Mentor": -2.3456830978393555,
+        "Brutal Reviewer": -2.5488719940185547
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-080",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 18,
+      "scores": {
+        "baseline": -2.1286277770996094,
+        "Direct Architect": -2.0082719326019287,
+        "Friendly Mentor": -2.18312668800354,
+        "Brutal Reviewer": -1.9108219146728516
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-081",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 17,
+      "scores": {
+        "baseline": -1.4493192434310913,
+        "Direct Architect": -1.3352477550506592,
+        "Friendly Mentor": -1.5010422468185425,
+        "Brutal Reviewer": -1.2814089059829712
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-082",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 21,
+      "scores": {
+        "baseline": -3.5151538848876953,
+        "Direct Architect": -3.4394338130950928,
+        "Friendly Mentor": -3.6092538833618164,
+        "Brutal Reviewer": -3.3636951446533203
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-083",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 19,
+      "scores": {
+        "baseline": -1.3554258346557617,
+        "Direct Architect": -1.3551679849624634,
+        "Friendly Mentor": -1.392508625984192,
+        "Brutal Reviewer": -1.2820489406585693
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-084",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 21,
+      "scores": {
+        "baseline": -1.2372372150421143,
+        "Direct Architect": -1.1487842798233032,
+        "Friendly Mentor": -1.288440465927124,
+        "Brutal Reviewer": -1.1312395334243774
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-085",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 19,
+      "scores": {
+        "baseline": -3.827558994293213,
+        "Direct Architect": -3.8390157222747803,
+        "Friendly Mentor": -3.827014446258545,
+        "Brutal Reviewer": -3.7455294132232666
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-086",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 16,
+      "scores": {
+        "baseline": -2.2237467765808105,
+        "Direct Architect": -2.0966641902923584,
+        "Friendly Mentor": -2.2729651927948,
+        "Brutal Reviewer": -2.013723850250244
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-087",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 18,
+      "scores": {
+        "baseline": -1.1343175172805786,
+        "Direct Architect": -1.057665228843689,
+        "Friendly Mentor": -1.164764165878296,
+        "Brutal Reviewer": -1.022929072380066
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-088",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 16,
+      "scores": {
+        "baseline": -2.5046334266662598,
+        "Direct Architect": -2.502220630645752,
+        "Friendly Mentor": -2.570180892944336,
+        "Brutal Reviewer": -2.335461139678955
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-089",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 22,
+      "scores": {
+        "baseline": -1.860241413116455,
+        "Direct Architect": -1.72126042842865,
+        "Friendly Mentor": -1.93595290184021,
+        "Brutal Reviewer": -1.6949490308761597
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-090",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 22,
+      "scores": {
+        "baseline": -1.7893284559249878,
+        "Direct Architect": -1.7143864631652832,
+        "Friendly Mentor": -1.7802424430847168,
+        "Brutal Reviewer": -1.6532795429229736
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-091",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 15,
+      "scores": {
+        "baseline": -1.4105299711227417,
+        "Direct Architect": -1.4682230949401855,
+        "Friendly Mentor": -1.3792517185211182,
+        "Brutal Reviewer": -1.346665859222412
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-092",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 16,
+      "scores": {
+        "baseline": -1.2979094982147217,
+        "Direct Architect": -1.288480281829834,
+        "Friendly Mentor": -1.2934130430221558,
+        "Brutal Reviewer": -1.200170874595642
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-093",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 20,
+      "scores": {
+        "baseline": -1.6565806865692139,
+        "Direct Architect": -1.5175647735595703,
+        "Friendly Mentor": -1.7598249912261963,
+        "Brutal Reviewer": -1.434525728225708
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-094",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 17,
+      "scores": {
+        "baseline": -1.816735029220581,
+        "Direct Architect": -1.820509672164917,
+        "Friendly Mentor": -1.7973175048828125,
+        "Brutal Reviewer": -1.8394078016281128
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-095",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 25,
+      "scores": {
+        "baseline": -1.1995447874069214,
+        "Direct Architect": -1.0714133977890015,
+        "Friendly Mentor": -1.2637639045715332,
+        "Brutal Reviewer": -1.0603909492492676
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-096",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 32,
+      "scores": {
+        "baseline": -1.1768207550048828,
+        "Direct Architect": -1.1087727546691895,
+        "Friendly Mentor": -1.2287851572036743,
+        "Brutal Reviewer": -1.1441677808761597
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-097",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 24,
+      "scores": {
+        "baseline": -4.734869956970215,
+        "Direct Architect": -4.690832614898682,
+        "Friendly Mentor": -4.739066123962402,
+        "Brutal Reviewer": -4.513304233551025
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-098",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 17,
+      "scores": {
+        "baseline": -0.9615592360496521,
+        "Direct Architect": -0.8396124243736267,
+        "Friendly Mentor": -1.0277550220489502,
+        "Brutal Reviewer": -0.8153601884841919
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-099",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 16,
+      "scores": {
+        "baseline": -1.2778397798538208,
+        "Direct Architect": -1.1720476150512695,
+        "Friendly Mentor": -1.392905354499817,
+        "Brutal Reviewer": -1.1741303205490112
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-verbosity-100",
+      "trait_id": "verbosity",
+      "n_prompt_tokens": 23,
+      "scores": {
+        "baseline": -0.9702266454696655,
+        "Direct Architect": -0.8666937947273254,
+        "Friendly Mentor": -1.0118708610534668,
+        "Brutal Reviewer": -0.8642560243606567
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-092",
+      "trait_id": "formality",
+      "n_prompt_tokens": 12,
+      "scores": {
+        "baseline": -2.414062738418579,
+        "Direct Architect": -2.4520041942596436,
+        "Friendly Mentor": -2.44370174407959,
+        "Brutal Reviewer": -2.3460237979888916
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-093",
+      "trait_id": "formality",
+      "n_prompt_tokens": 20,
+      "scores": {
+        "baseline": -1.913460612297058,
+        "Direct Architect": -1.8198349475860596,
+        "Friendly Mentor": -2.0813121795654297,
+        "Brutal Reviewer": -1.832037091255188
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-094",
+      "trait_id": "formality",
+      "n_prompt_tokens": 23,
+      "scores": {
+        "baseline": -2.500406265258789,
+        "Direct Architect": -2.4707911014556885,
+        "Friendly Mentor": -2.6484198570251465,
+        "Brutal Reviewer": -2.45432448387146
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-095",
+      "trait_id": "formality",
+      "n_prompt_tokens": 18,
+      "scores": {
+        "baseline": -2.1984646320343018,
+        "Direct Architect": -2.0244534015655518,
+        "Friendly Mentor": -2.273721218109131,
+        "Brutal Reviewer": -2.081082820892334
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-096",
+      "trait_id": "formality",
+      "n_prompt_tokens": 12,
+      "scores": {
+        "baseline": -2.163703680038452,
+        "Direct Architect": -2.0922024250030518,
+        "Friendly Mentor": -2.2768642902374268,
+        "Brutal Reviewer": -2.2166824340820312
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-097",
+      "trait_id": "formality",
+      "n_prompt_tokens": 19,
+      "scores": {
+        "baseline": -1.775559425354004,
+        "Direct Architect": -1.745965600013733,
+        "Friendly Mentor": -1.8670871257781982,
+        "Brutal Reviewer": -1.834047555923462
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-098",
+      "trait_id": "formality",
+      "n_prompt_tokens": 12,
+      "scores": {
+        "baseline": -2.213463306427002,
+        "Direct Architect": -2.145537853240967,
+        "Friendly Mentor": -2.2489988803863525,
+        "Brutal Reviewer": -2.044437885284424
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-099",
+      "trait_id": "formality",
+      "n_prompt_tokens": 14,
+      "scores": {
+        "baseline": -0.9339844584465027,
+        "Direct Architect": -0.9321767091751099,
+        "Friendly Mentor": -0.9839029312133789,
+        "Brutal Reviewer": -0.9151043891906738
+      },
+      "n_tokens": 8
+    },
+    {
+      "example_id": "eval-formality-100",
+      "trait_id": "formality",
+      "n_prompt_tokens": 12,
+      "scores": {
+        "baseline": -1.9659183025360107,
+        "Direct Architect": -1.8815572261810303,
+        "Friendly Mentor": -2.068665027618408,
+        "Brutal Reviewer": -1.7671200037002563
+      },
+      "n_tokens": 8
+    }
+  ],
+  "control": {
+    "baseline": -2.0591468811035156,
+    "Direct Architect": -2.078397035598755,
+    "Friendly Mentor": -2.092357873916626,
+    "Brutal Reviewer": -2.097913980484009
+  },
+  "config": {
+    "response_tokens": 8,
+    "alphas": {
+      "Direct Architect": {
+        "directness": 2.7,
+        "formality": 1.8,
+        "verbosity": -1.2
+      },
+      "Friendly Mentor": {
+        "directness": -1.2,
+        "formality": -1.8,
+        "verbosity": 1.5
+      },
+      "Brutal Reviewer": {
+        "directness": 3.0,
+        "formality": 0.0,
+        "verbosity": -1.5
+      },
+      "Neutral Baseline": {
+        "directness": 0.0,
+        "formality": 0.0,
+        "verbosity": 0.0
+      }
+    },
+    "layers": {
+      "Direct Architect": [
+        11,
+        13,
+        16,
+        19,
+        21
+      ],
+      "Friendly Mentor": [
+        11,
+        13,
+        16,
+        19,
+        21
+      ],
+      "Brutal Reviewer": [
+        11,
+        13,
+        16,
+        19,
+        21
+      ],
+      "Neutral Baseline": []
+    },
+    "mcp_id": "mcp-phi-3-mini-1795058194",
+    "profiles": {
+      "Direct Architect": {
+        "directness": 0.95,
+        "formality": 0.8,
+        "verbosity": 0.3
+      },
+      "Friendly Mentor": {
+        "directness": 0.3,
+        "formality": 0.2,
+        "verbosity": 0.75,
+        "empathy": 0.9
+      },
+      "Brutal Reviewer": {
+        "directness": 1.0,
+        "formality": 0.5,
+        "verbosity": 0.25
+      },
+      "Neutral Baseline": {
+        "directness": 0.5,
+        "formality": 0.5,
+        "verbosity": 0.5
+      }
+    },
+    "evaluated": [
+      "Direct Architect",
+      "Friendly Mentor",
+      "Brutal Reviewer"
+    ],
+    "partial": false
+  }
+}

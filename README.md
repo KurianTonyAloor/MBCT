@@ -252,6 +252,20 @@ So the verbosity vector is not inert, but it is not a length control either: it 
 
 ---
 
+## Held-Out Pair Evaluation — 300 pairs, every profile
+
+Beyond the judged runs above, the presets were also measured quantitatively on **300 held-out contrastive pairs** (100 each for directness, formality and verbosity). For every pair the trait-positive response is scored under each profile and compared with the unsteered baseline, with a sign test on direction agreement.
+
+| Profile | Mean Δ (nats/token) | Directness | Formality | Verbosity |
+|---|---|---|---|---|
+| Direct Architect | +0.048 | 68/100 ✔ | 78/100 ✔ | 30/100 ✘ |
+| Friendly Mentor | −0.041 | 60/100 | 85/100 ✔ | 26/100 ✘ |
+| Brutal Reviewer | +0.106 | 91/100 ✔ | spillover | 27/100 ✘ |
+
+Directness and formality steer in the dialled direction; **verbosity steers against its label in all three profiles**. The protocol, per-trait tables, reproduction steps and limitations are in **[EVALUATION.md](EVALUATION.md)**, including the contradiction between the strongest directness effect here and the prose judges in Runs 1 and 6.
+
+---
+
 ## Why This Exists
 
 Right now, if you want a model to behave in a particular personality, the usual route is fine-tuning. That is tedious, resource-heavy, and locked to a specific model and snapshot. MBCT is an attempt to make personality customization usable on any edge system, with whatever local model you already have, without retraining.
