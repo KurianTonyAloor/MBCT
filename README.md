@@ -102,6 +102,8 @@ A judge reads both arms blind to the active weights and scores each 0–5:
 | Semantic preservation | 15% | Same question answered, no topic drift, no invented facts |
 | Coherence / completeness | 10% | Grammatical, on-topic, and terminating on a complete thought |
 
+Contrast is a property of the *pair*, not of either arm, so it is reported but excluded from both totals. The four per-arm dimensions are renormalised to 100%.
+
 ### Run 1 — Direct Architect, pre-fix build → **LOSS**
 
 Prompt: *"Should our 3-person startup adopt Kubernetes?"* · weights: directness +2.70, formality +1.80, verbosity −1.20
@@ -113,7 +115,7 @@ Prompt: *"Should our 3-person startup adopt Kubernetes?"* · weights: directness
 
 Verdict: **loss**. The traits were live, but the prompt assembly was spending the answer's budget on context and the result was worse to read than the unsteered control.
 
-### Run 2 — Direct Architect, current build → **WIN (3.41 vs 2.33)**
+### Run 2 — Direct Architect, current build → **WIN (3.36 vs 2.42)**
 
 Same prompt and weights, after memory moved to a system turn, retrieval was stopword/synonym-filtered, the vector norm was clamped, and injection was budgeted to 5 of 32 layers (`L11, L13, L16, L19, L21`):
 
@@ -125,19 +127,127 @@ Same prompt and weights, after memory moved to a system turn, retrieval was stop
 | Baseline contrast | 3.5 | — |
 | Semantic preservation | 3.5 | 4.0 |
 | Coherence / completeness | 3.0 | 2.5 |
-| **Weighted** | **3.41** | **2.33** |
+| **Weighted (90% of rubric)** | **3.36** | **2.42** |
 
 - **Formality** is the strongest evidence: the steered arm sits in a professional register ("may not be the most suitable choice at this stage") where the baseline stays conversational ("can help manage and scale your applications efficiently").
 - **Directness** moved but at half strength: the steered arm commits to a position, yet still opens by defining Kubernetes and hedges the verdict with "may not be".
 - **Verbosity** did not move. At +1.80 formality against −1.20 verbosity, elaboration pressure wins: the steered arm *adds* a subordinate clause instead of trimming.
 
+### Run 3 — Friendly Mentor, current build → **WIN (2.94 vs 2.61)**
+
+Same prompt. Weights: directness −1.20, formality −1.80, verbosity +1.50. The preset also dials `empathy` to 90%, which has no calibrated vector and therefore does nothing.
+
+| Dimension | Steered | Baseline |
+|---|---|---|
+| Directness (−1.20) | 3.0 | 2.5 |
+| Formality (−1.80) | 3.0 | 2.5 |
+| Verbosity (+1.50) | 2.5 | 2.0 |
+| Baseline contrast | 2.0 | — |
+| Semantic preservation | 3.5 | 4.0 |
+| Coherence / completeness | 2.5 | 2.0 |
+| **Weighted (90% of rubric)** | **2.94** | **2.61** |
+
+- **All three measurable dials moved in the right direction, and all three margins are small.** The concrete evidence is register, not vocabulary: two contractions the baseline never uses ("that's typically used", "you're working with"), a softened modal ("might not be the most suitable"), and a deferential concession opener ("Given your preference for modular monoliths") where Direct Architect opened with a flat claim.
+- **Verbosity produced length, not detail.** At +1.50 the arm spends three sentences and restates the user's own preference before offering any advice, and never names an alternative — where Direct Architect, at −1.20, still got as far as "Docker Compose" in comparable space. The dial added subordinate clauses rather than content.
+- **`empathy` at 90% changed nothing.** With no vector to inject it is inert, so "Friendly Mentor" as measured is only "casual": nothing in the response is warm, reassuring, or mentor-like. The preset's largest slider is its most decorative one.
+- **Memory handling improved at these alphas, at a cost.** At −1.80 the `[PREFERENCE]` tag no longer leaks — recitation traded for paraphrase (Run 6 shows this does not hold at +3.00). The paraphrase then repeats: the preference is restated in the opening clause, again in "prefer a monolithic approach", and again in the concession. Same fact, three times, out of a truncated budget.
+- **Truncated again**, this time mid-clause at "…approach, you". Third run in a row, and in all three the cut lands on the payload (the recommendation) rather than the setup.
+- **Imprecision:** "Kubernetes … aligns more with microservices architectures" overstates the coupling. Kubernetes orchestrates any containerised workload, monoliths included.
+
+### Run 4 — Friendly Mentor, code-review prompt → **WIN (3.28 vs 2.83), but neither arm reviews the code**
+
+Prompt: *"Review this code: `for i in range(len(arr)): print(arr[i])`"* · same weights, 80-token budget. This is the first pair where the baseline answers the **same** prompt as the steered arm at an equal budget, so the trait attribution is clean rather than confounded by prompt or cap.
+
+| Dimension | Steered | Baseline |
+|---|---|---|
+| Directness (−1.20) | 3.0 | 3.0 |
+| Formality (−1.80) | **4.0** | 2.5 |
+| Verbosity (+1.50) | **3.0** | 2.0 |
+| Baseline contrast | 3.0 | — |
+| Semantic preservation | 4.0 | 4.0 |
+| Coherence / completeness | 2.0 | **2.5** |
+| **Weighted (90% of rubric)** | **3.28** | **2.83** |
+
+- **Formality (−1.80) is the cleanest signal across all four runs.** Steered opening: *"The code snippet **you've provided** … **It's** a straightforward approach … there are a few considerations and potential improvements **we can discuss**."* Baseline: *"The provided code snippet … Here's a breakdown of the code and some suggestions for improvement."* Two contractions, a second-person possessive and a collaborative "we" against a clipped impersonal control — a real register shift, with the attribution finally unambiguous.
+- **Verbosity (+1.50) added words, not findings.** ~47 words of prose before any content, against ~29 in the baseline. The extra ~18 are pure restatement: *"It's a straightforward approach to accessing and displaying the elements of an array"* repeats the sentence immediately above it. The dial moved in its stated direction and produced negative value.
+- **Directness (−1.20) is unreadable on this prompt.** *"there are a few considerations and potential improvements we can discuss"* is appropriately circumspect — and identical in effect to the baseline's *"some suggestions for improvement"*. Both defer, neither delivers, so both arms score 3.0.
+- **The steered arm is less complete than the control.** It is cut off *inside* the fenced block of the very code it was asked to review; the baseline finishes the block and reaches `### Analysis / **Purpose**:`. Coherence 2.0 vs 2.5 — at +1.50 the elaboration bought truncation.
+- **`empathy` at 90% again contributed nothing.** The collaborative tone comes from lowered formality, not from the preset's largest dial.
+
+The structural lesson: the model's default shape is preamble → echo the code → analyse. The steered arm follows it twice over, adding a `### Original Code:` heading **and** a restating sentence where the baseline has only the code block. At 80 tokens that costs the entire budget. **For open-ended explanation prompts, lowered formality is the measurable win; for task-shaped prompts with a hard payload — code review, anything with a required deliverable — positive verbosity is an active liability, because elaboration competes with the answer for a capped budget.** Friendly Mentor asks for verbosity 75% *and* for a finished review, and at this budget it cannot have both.
+
+### Run 5 — Friendly Mentor, explainer prompt → **TIE (2.78 vs 2.72)**
+
+Prompt: *"Explain what a p-value is to a non-statistician."* · same weights, 80-token budget. This is the first pair in which steering produced **no measurable effect**, and it is the most informative run in the set.
+
+| Dimension | Steered | Baseline |
+|---|---|---|
+| Directness (−1.20) | 3.0 | 3.0 |
+| Formality (−1.80) | 3.0 | 2.5 |
+| Verbosity (+1.50) | 2.0 | 2.0 |
+| Baseline contrast | **1.0** | — |
+| Semantic preservation | 3.0 | 3.0 |
+| Coherence / completeness | 2.5 | **3.0** |
+| **Weighted (90% of rubric)** | **2.78** | **2.72** |
+
+The 0.06 margin is below what this rubric can resolve. Diff the arms and five steered layers, three traits and a 2.70-wide alpha spread amount to this:
+
+| | Steered | Baseline |
+|---|---|---|
+| Contraction | *"if **they're** likely to be"* | *"if **they are** likely to be"* |
+| Synonym | *"a **real** effect"* | *"a **true** effect"* |
+| Terminator | ends at *"get 60 heads"* | ends at *"get 60 heads."* |
+
+Everything between those three points is token-identical. The arms **diverge locally and then resynchronise**: the injected delta was large enough to flip two argmax choices and not large enough to move the continuation, so greedy decoding snapped back onto the same path. At these alphas, on a prompt the model is confident about, the steering signal sits **below the sampling resolution** — not absent, since formality did produce its contraction in the correct direction, but invisible to a prose judge.
+
+- **Content defect, shared by both arms.** *"A p-value is a number that helps us understand if the results … are due to chance or if they're likely to be a real effect"* is the canonical misinterpretation. A p-value is the probability of data at least this extreme **if the null hypothesis were true** — not the probability that the result is due to chance, and not the probability that an effect is real. For the stated audience that inversion is the most consequential error available, and it caps both arms at 3.0.
+- **The analogy is well chosen and then abandoned.** 60 heads in 100 flips is p ≈ 0.057 two-sided, a genuinely useful teaching moment just past the conventional threshold that the truncated output never reaches.
+- **Why a tie is the most valuable entry here.** A judge that awards every steered arm a win is worthless. Runs 1–4 can all be read as flattery; this one cannot. The rubric independently reported a null result, which is the evidence that it is measuring something.
+
+**Instrument limitation.** Prose judging is too coarse for a two-token delta. The sensitive measurement is already available in the harness: count the fraction of decode positions where the steered argmax differs from the baseline's, per prompt, at temperature 0. This pair would score ~2/80 ≈ 2.5% divergence against Direct Architect's large early split — reproducible, judge-free, and expressible as "Friendly Mentor at these alphas perturbs 2–3% of tokens" rather than "the judge could not tell".
+
+### Run 6 — Brutal Reviewer, architecture prompt → **LOSS (2.22 vs 2.94)**
+
+Prompt: *"Should I rewrite our legacy PHP monolith in Go?"* · weights: directness **+3.00**, verbosity **−1.50**, memory injected, 80-token budget. Formality sits at the preset's 50% (alpha 0), so that dial is untestable in this pair.
+
+| Dimension | Steered | Baseline |
+|---|---|---|
+| Directness (+3.00) | **2.0** | 3.0 |
+| Formality (0.00) | 3.0 | 3.0 |
+| Verbosity (−1.50) | 1.5 | **2.5** |
+| Baseline contrast | 2.0 | — |
+| Semantic preservation | **2.5** | 3.5 |
+| Coherence / completeness | 2.0 | **2.5** |
+| **Weighted (90% of rubric)** | **2.22** | **2.94** |
+
+This is the first outright loss on the current build and the first Brutal Reviewer run. Both measurable dials moved **inverted**, and the memory layer did most of the damage.
+
+- **Directness +3.00 produced the least direct answer in the set.** Asked a yes/no question, the arm answers: *"Rewriting your legacy PHP monolith in Go **can offer** performance improvements … **However, consider the following** before making the decision:"* — a deferral, not a verdict, followed by a checklist item that hedges twice (*"a rewrite **can be** beneficial"*). The unsteered baseline is **more decisive**: it names the mechanism (*"Go is known for its performance and concurrency model"*), ties it to a testable condition, and commits to *"Go might be a good choice"*.
+- **Directness has now inverted in both high-alpha runs** (+2.70 in Run 1, +3.00 here). That is a pattern rather than noise. The working hypothesis: the vector encodes *"restate the premise plainly"* rather than *"answer bluntly"*, which would fit the documented length confound in the directness contrastive pairs — blunt responses were shorter, so part of the direction is recapitulation. On this evidence, high directness is the worst-behaving setting in the app, which is the opposite of what the preset promises.
+- **Memory recitation returns at double the earlier severity.** The arm opens with both stored notes verbatim, tags and bullets intact: `• [FACT] Our primary production database is PostgreSQL 16 …` and `• [PREFERENCE] User prefers architectural feedback to prioritize modular monoliths …`. That is ~44 of 81 tokens — **over half the response budget spent quoting the store back at the user.** Run 3's paraphrase fix holds at Friendly Mentor's alphas, not at Brutal Reviewer's.
+- **The irrelevant note was retrieved, and the relevant one was ignored.** PostgreSQL 16 on RDS has no bearing on a PHP→Go migration yet consumed ~22 tokens. Meanwhile the `[PREFERENCE]` note names exactly the frame that answers the question — modular monoliths for small teams — and the arm recites it, then says *"a rewrite can be beneficial"* without using it. Run 3 at least wove the preference into the advice; here the cost is paid and the benefit discarded.
+- **Verbosity −1.50 inverted as well.** ~49 content words against the baseline's ~59, *while also* spending 44 tokens on memory: the terse dial produced the least information per budget token of any run. It is cut off mid-word at `"Ens"`.
+- **Brutal Reviewer as shipped is not brutal.** At 100% directness and 25% verbosity its measurable identity is "a longer, hedged checklist with a memory preamble".
+
+### Cross-run observation: verbosity trades words for payload
+
+Three different behaviours, all failures to deliver detail:
+
+- **Explanation prompts, opposite alphas, same length.** Direct Architect at verbosity **−1.20** produced 57 words; Friendly Mentor at **+1.50** produced 55. A 2.70 alpha swing moved length by two words — under the noise floor, so length there is set by the model and the cap, not the dial.
+- **Task-shaped prompt, same alpha, visible cost.** At **+1.50** on the code-review prompt the arm ran ~47 words of prose against the baseline's ~29, and the extra words pushed the deliverable out of the budget entirely.
+- **Explainer prompt, same alpha, no difference at all.** At **+1.50** on the p-value prompt both arms ran to the identical 81 tokens with token-identical prose apart from two word choices. Length did not move.
+
+So the verbosity vector is not inert, but it is not a length control either: it adds words only where the model already has room to elaborate, adds none where its continuation is committed, and never adds content. On capped budgets it converts wordiness into truncation. Report it as **unvalidated in the useful direction** — it should not be presented as working until a run shows added detail surviving to a complete answer.
+
 ### Known limitations
 
-- **Two judged pairs, both Direct Architect**, both `phi-3-mini-4k-instruct` on CPU. No judge runs yet for Friendly Mentor or Brutal Reviewer, and no cross-model runs.
+- **Six judged pairs: two Direct Architect, three Friendly Mentor, one Brutal Reviewer**, all `phi-3-mini-4k-instruct` on CPU. No cross-model runs.
+- **One prompt per trait configuration.** Runs 3 and 5 share the same weights on different prompts and disagree completely (a small win versus a tie), so a single pair per configuration cannot establish an effect size — the trend across prompts is the signal, not any one run.
+- **The sampling cap varied between runs** (120 tokens for Runs 1–3, 80 for Runs 4–6), so completeness scores are not comparable across runs — only within a pair.
 - **Calibration is the ceiling.** The trait vectors were derived from contrastive sets of 5–6 pairs, which bounds how finely a slider can resolve. `empathy` and `initiative` have no vectors and are inert regardless of slider position.
 - **Length confound.** The directness contrastive pairs differ in length, so part of that vector encodes brevity as well as bluntness. Verbosity was calibrated from a single contrastive set and is the least reliable of the three traits.
-- **Both runs truncated at `max_tokens`**, which is why the verbosity axis is unmeasurable in Run 2: neither arm got to spend its budget.
-- **Run 2 still leaks context metadata**: the memory block's wire tag (`[PREFERENCE] …`) is echoed into roughly the first 26 tokens of the steered arm, against the system instruction not to restate the notes. Visible, bounded, and unfixed.
+- **Every run truncated at `max_tokens`**, and the cut always landed on the payload rather than the setup. Completeness therefore cannot separate the arms, and the word-versus-detail judgement in the cross-run note is a hand reading of the prose, not a metric.
+- **Memory tag leakage is alpha-dependent, not fixed.** Run 2 (+2.70 directness) echoed a single note as roughly the first 26 tokens of the answer. Run 3 (−1.20) and Run 4 (−1.20) paraphrased instead of quoting. Run 6 (+3.00) recites **both** notes in full, tags and bullets intact, across ~54% of the output budget. The same code path therefore shows three different behaviours, so no single statement about memory handling is true for all profiles: at negative alphas the notes are woven in, at +2.70 they are partially echoed, and at +3.00 they are reproduced outright.
 - The judge is a single-pass reasoned evaluation, not a trained reward model — treat the scores as an ordering signal between arms, not an absolute quality metric.
 
 ---
